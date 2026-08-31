@@ -48,7 +48,7 @@ internal enum CoreTests {
         try aliasChecks(repository, project: project, outside: outside)
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
         check(live.projects.count == 6, TestConstants.checkLive)
-        check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 5, TestConstants.checkLiveFlows)
+        check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 6, TestConstants.checkLiveFlows)
         print(TestConstants.passed + String(count))
     }
 
@@ -60,6 +60,31 @@ internal enum CoreTests {
         let flows = ReadmeParser.workflows(ReadmeParser.sections(TestConstants.colonFlows))
         check(flows.first?.steps == [TestConstants.urlStep, TestConstants.resultStep], TestConstants.checkColons)
         check(flows.last?.label == TestConstants.flowLabel, TestConstants.checkLabel)
+        let topics = ReadmeParser.sections(TestConstants.topicReadme)
+        let overview = ReadmeParser.overview(topics, fallback: ControlConstants.noIntroduction)
+        check(overview.first?.text == TestConstants.overviewText && overview.contains { $0.kind == .bullet && $0.text == TestConstants.overviewBullet }, TestConstants.checkOverview)
+        check(!overview.contains { $0.text == TestConstants.architecture || $0.text == ControlConstants.workflow }, TestConstants.checkOverviewOwnership)
+        check(ReadmeParser.overview(ReadmeParser.sections(TestConstants.projectReadme), fallback: ControlConstants.noIntroduction).first?.text == TestConstants.introduction, TestConstants.checkOverviewFallback)
+        check(ReadmeParser.overview(ReadmeParser.sections(TestConstants.overviewOrder), fallback: ControlConstants.noIntroduction).map(\.text) == TestConstants.overviewOrderExpected, TestConstants.checkOverviewOrder)
+        let architecture = ReadmeParser.architecture(topics)
+        check(architecture.contains(TestConstants.architecture) && !architecture.contains(TestConstants.modelFact)
+            && !architecture.contains(TestConstants.obsoleteArchitecture), TestConstants.checkArchitectureOwnership)
+        check(ReadmeParser.models(topics).contains(TestConstants.modelFact), TestConstants.checkModels)
+        let diagram = ReadmeParser.workflows(topics).first
+        check(diagram?.nodes.count == 5 && diagram?.nodes[1].layer == diagram?.nodes[2].layer, TestConstants.checkDiagramBranches)
+        check(diagram?.edges.contains(WorkflowEdge(source: 1, target: 3)) == true
+            && diagram?.edges.contains(WorkflowEdge(source: 2, target: 3)) == true, TestConstants.checkDiagramMerge)
+        let textFlows = ReadmeParser.workflows(ReadmeParser.sections(TestConstants.textFlows))
+        check(textFlows.count == 2 && textFlows.allSatisfy { $0.edges.count == 1 }, TestConstants.checkDiagramLinear)
+        check(WorkflowParser.diagrams(TestConstants.codeLikeDiagram, label: ControlConstants.workflow).isEmpty, TestConstants.checkDiagramCode)
+        check(WorkflowParser.diagrams(TestConstants.malformedDiagram, label: ControlConstants.workflow).isEmpty, TestConstants.checkDiagramMalformed)
+        check(WorkflowParser.diagrams(TestConstants.incompleteDiagram, label: ControlConstants.workflow).isEmpty
+            && WorkflowParser.linear(TestConstants.incompleteRoute, label: ControlConstants.workflow) == nil, TestConstants.checkDiagramIncomplete)
+        check(WorkflowParser.diagrams(TestConstants.asciiDiagram, label: ControlConstants.workflow).count == 2, TestConstants.checkAsciiDiagram)
+        let versioned = ReadmeParser.sections(TestConstants.versionedOverview)
+        check(ReadmeParser.overview(versioned, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.overviewText
+            && ReadmeParser.architecture(versioned).contains(TestConstants.architecture)
+            && ReadmeParser.workflows(versioned).count == 1 && ReadmeParser.history(versioned).isEmpty, TestConstants.checkVersionedTitle)
     }
 
     /// Checks canonical project identities, alias retargeting, and root README boundaries.

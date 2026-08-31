@@ -3,14 +3,55 @@ import Foundation
 /// One Markdown section, without fenced source blocks.
 internal struct ReadmeSection {
     internal let title: String
+    internal let level: Int
     internal var lines: [String]
+    internal var diagrams: [[String]] = []
 }
 
-/// A labelled route derived only from arrows written in a README.
+/// A readable README block, never raw Markdown or source code.
+internal struct ReadmeBlock: Identifiable {
+    internal enum Kind { case paragraph, bullet, heading }
+    internal let id = UUID()
+    internal let kind: Kind
+    internal let text: String
+}
+
+/// Stable tab identities keep content ownership separate from presentation order.
+internal enum ProjectTab: Int, CaseIterable, Identifiable {
+    case overview, architecture, models, workflows, notes, history
+    internal var id: Int { rawValue }
+    internal var label: String {
+        switch self {
+        case .overview: ControlConstants.overview
+        case .architecture: ControlConstants.architecture
+        case .models: ControlConstants.models
+        case .workflows: ControlConstants.workflow
+        case .notes: ControlConstants.notes
+        case .history: ControlConstants.history
+        }
+    }
+}
+
+/// One source-labelled node at an explicit depth in a workflow.
+internal struct WorkflowNode: Identifiable {
+    internal let id: Int
+    internal let label: String
+    internal let layer: Int
+}
+
+/// A directed connection between two source-defined workflow nodes.
+internal struct WorkflowEdge: Equatable {
+    internal let source: Int
+    internal let target: Int
+}
+
+/// A labelled graph derived only from arrows written in a README.
 internal struct WorkflowRoute: Identifiable {
     internal let id = UUID()
     internal let label: String
-    internal let steps: [String]
+    internal let nodes: [WorkflowNode]
+    internal let edges: [WorkflowEdge]
+    internal var steps: [String] { nodes.map(\.label) }
 }
 
 /// A source-labelled release or changelog entry.
@@ -33,6 +74,8 @@ internal struct ProjectRecord: Identifiable {
     internal let history: [HistoryEntry]
     internal let folderAvailable: Bool
     internal let readmeAvailable: Bool
+    internal var overview: [ReadmeBlock] = []
+    internal var models: [String] = []
 }
 
 /// A complete repository snapshot; refresh failures never replace it with partial data.

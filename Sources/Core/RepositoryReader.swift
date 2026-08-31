@@ -78,7 +78,9 @@ internal enum RepositoryReader {
             introduction: introduction.isEmpty ? ControlConstants.noIntroduction : introduction,
             version: release, architecture: ReadmeParser.architecture(sections), workflows: ReadmeParser.workflows(sections),
             history: ReadmeParser.history(sections), folderAvailable: exists && isDirectory.boolValue,
-            readmeAvailable: document != nil)
+            readmeAvailable: document != nil,
+            overview: ReadmeParser.overview(sections, fallback: introduction.isEmpty ? ControlConstants.noIntroduction : introduction),
+            models: ReadmeParser.models(sections))
     }
 
     /// Captures README metadata so unchanged files need not be parsed every polling interval.

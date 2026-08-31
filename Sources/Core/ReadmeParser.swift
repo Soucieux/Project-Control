@@ -31,23 +31,34 @@ internal enum ReadmeParser {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Splits a document at headings and excludes fenced blocks entirely.
+    /// Splits headings, excludes source blocks, and retains text-diagram candidates separately.
     /// - Parameter markdown: UTF-8 README contents.
     /// - Returns: Ordered sections preserving their source headings.
     internal static func sections(_ markdown: String) -> [ReadmeSection] {
-        var result = [ReadmeSection(title: ControlConstants.empty, lines: [])]
+        var result = [ReadmeSection(title: ControlConstants.empty, level: 0, lines: [])]
         var fence: String?
+        var diagram: [String] = []
+        var acceptsDiagram = false
         for line in markdown.components(separatedBy: .newlines) {
-            if let marker = match(line, ControlConstants.fencePattern, group: 1) {
-                if let current = fence {
-                    if marker.first == current.first && marker.count >= current.count,
-                       match(line, ControlConstants.closingFencePattern) != nil { fence = nil }
-                } else { fence = marker }
+            if let current = fence {
+                if let marker = match(line, ControlConstants.closingFencePattern, group: 1),
+                   marker.first == current.first && marker.count >= current.count {
+                    if acceptsDiagram { result[result.count - 1].diagrams.append(diagram) }
+                    fence = nil
+                    diagram = []
+                } else if acceptsDiagram { diagram.append(line) }
                 continue
             }
-            guard fence == nil else { continue }
-            if let heading = match(line, ControlConstants.headingPattern, group: 2) {
-                result.append(ReadmeSection(title: plain(heading), lines: []))
+            if let marker = match(line, ControlConstants.fencePattern, group: 1) {
+                fence = marker
+                let language = line.trimmingCharacters(in: .whitespaces).dropFirst(marker.count)
+                    .trimmingCharacters(in: .whitespaces).lowercased()
+                acceptsDiagram = ControlConstants.diagramLanguages.contains(language)
+                continue
+            }
+            if let heading = match(line, ControlConstants.headingPattern, group: 2),
+               let marker = match(line, ControlConstants.headingPattern, group: 1) {
+                result.append(ReadmeSection(title: plain(heading), level: marker.count, lines: []))
             } else {
                 result[result.count - 1].lines.append(line)
             }
@@ -113,46 +124,136 @@ internal enum ReadmeParser {
         }
     }
 
-    /// Extracts architecture tables and documented model mentions outside historical sections.
+    /// Assigns child headings to their closest documented topic, never extracting release-history details.
+    /// - Parameters: sections: Source hierarchy. topic: Requested content owner.
+    /// - Returns: Source-ordered sections owned by that topic.
+    internal static func topicSections(_ sections: [ReadmeSection], topic: ProjectTab) -> [ReadmeSection] {
+        var ancestors: [(level: Int, topic: ProjectTab?)] = []
+        var selected: [ReadmeSection] = []
+        for section in sections {
+            while let last = ancestors.last, last.level >= section.level { ancestors.removeLast() }
+            let inherited = ancestors.last.flatMap { $0.topic }
+            let owner = inherited == .history ? .history : sectionTopic(section.title) ?? inherited
+            ancestors.append((section.level, owner))
+            if owner == topic { selected.append(section) }
+        }
+        return selected
+    }
+
+    /// Classifies only recognized README headings; unknown headings inherit their parent.
+    /// - Parameter title: Plain source heading.
+    /// - Returns: Its content topic, or nil for an unclassified heading.
+    private static func sectionTopic(_ title: String) -> ProjectTab? {
+        if ControlConstants.historyWords.contains(where: { title.localizedCaseInsensitiveContains($0) })
+            || title.localizedCaseInsensitiveContains(ControlConstants.releaseNotesHeading)
+            || match(title, ControlConstants.versionHeadingPattern) != nil { return .history }
+        if ControlConstants.overviewWords.contains(title.lowercased()) { return .overview }
+        if ControlConstants.flowWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .workflows }
+        if ControlConstants.modelHeadingWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .models }
+        if ControlConstants.architectureWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .architecture }
+        return nil
+    }
+
+    /// Reads an explicit Overview section or the opening description before second-level headings.
+    /// - Parameters: sections: Parsed source. fallback: Register summary used only when prose is unavailable.
+    /// - Returns: Paragraphs, bullets, and subsection labels in their documented order.
+    internal static func overview(_ sections: [ReadmeSection], fallback: String) -> [ReadmeBlock] {
+        let explicit = topicSections(sections, topic: .overview)
+        let selected = explicit.isEmpty ? Array(sections.prefix { $0.level < 2 }) : explicit
+        var blocks: [ReadmeBlock] = []
+        for (index, section) in selected.enumerated() {
+            if !explicit.isEmpty && index > 0 {
+                blocks.append(ReadmeBlock(kind: .heading, text: section.title))
+            }
+            var paragraph: [String] = []
+            var tableLines: [String] = []
+            var kind = ReadmeBlock.Kind.paragraph
+            for line in section.lines {
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.hasPrefix(ControlConstants.pipe) {
+                    appendBlock(&paragraph, kind: kind, to: &blocks)
+                    tableLines.append(line)
+                    continue
+                }
+                appendTable(&tableLines, to: &blocks)
+                if trimmed.isEmpty
+                    || match(trimmed, ControlConstants.separatorPattern) != nil
+                    || match(trimmed, ControlConstants.imageLinePattern) != nil {
+                    appendBlock(&paragraph, kind: kind, to: &blocks)
+                    kind = .paragraph
+                    continue
+                }
+                if let item = match(line, ControlConstants.listItemPattern, group: 1) {
+                    appendBlock(&paragraph, kind: kind, to: &blocks)
+                    kind = .bullet
+                    paragraph.append(item)
+                } else { paragraph.append(line) }
+            }
+            appendBlock(&paragraph, kind: kind, to: &blocks)
+            appendTable(&tableLines, to: &blocks)
+        }
+        return blocks.isEmpty ? [ReadmeBlock(kind: .paragraph, text: fallback)] : blocks
+    }
+
+    /// Flushes a prose buffer without leaking raw markup into the content view.
+    /// - Parameters: lines: Pending source lines, cleared afterward. kind: Paragraph or continued bullet. blocks: Destination blocks.
+    /// - Returns: Nothing; appends nonempty readable prose.
+    private static func appendBlock(_ lines: inout [String], kind: ReadmeBlock.Kind, to blocks: inout [ReadmeBlock]) {
+        let text = plain(lines.joined(separator: ControlConstants.space))
+        if !text.isEmpty { blocks.append(ReadmeBlock(kind: kind, text: text)) }
+        lines.removeAll()
+    }
+
+    /// Keeps overview table facts at their source position instead of moving them below the prose.
+    /// - Parameters: lines: Pending table lines, cleared afterward. blocks: Destination presentation blocks.
+    /// - Returns: Nothing; appends only data rows, without the Markdown header or delimiter.
+    private static func appendTable(_ lines: inout [String], to blocks: inout [ReadmeBlock]) {
+        blocks += table(lines).map { ReadmeBlock(kind: .bullet, text: $0.map(plain).joined(separator: ControlConstants.joined)) }
+        lines.removeAll()
+    }
+
+    /// Extracts non-model architecture facts without including workflow or historical sections.
     /// - Parameter sections: Parsed README sections.
-    /// - Returns: At most twelve concise, source-derived facts.
+    /// - Returns: Source-derived architecture facts, with model information separated out.
     internal static func architecture(_ sections: [ReadmeSection]) -> [String] {
-        let selected = sections.filter { section in
-            ControlConstants.architectureWords.contains { section.title.localizedCaseInsensitiveContains($0) }
+        facts(topicSections(sections, topic: .architecture)).filter { !mentionsModel($0) }
+    }
+
+    /// Separates documented model facts from general architecture and introductory prose.
+    /// - Parameter sections: Parsed README source.
+    /// - Returns: Unique source-derived model descriptions, without guessing undocumented models.
+    internal static func models(_ sections: [ReadmeSection]) -> [String] {
+        let values = facts(topicSections(sections, topic: .models))
+            + facts(topicSections(sections, topic: .architecture)).filter(mentionsModel)
+            + paragraphs(Array(sections.prefix { $0.level < 2 })).filter(mentionsModel)
+        var seen: Set<String> = []
+        return values.filter { seen.insert($0).inserted }
+    }
+
+    /// Collects readable table facts and explanatory prose from selected sections.
+    /// - Parameter sections: Sections already assigned to a content topic.
+    /// - Returns: Display-ready facts without source code or Markdown syntax.
+    private static func facts(_ sections: [ReadmeSection]) -> [String] {
+        sections.flatMap { section in
+            table(section.lines).map { $0.map(plain).joined(separator: ControlConstants.joined) } + paragraphs([section])
         }
-        var facts = selected.flatMap { table($0.lines).map { $0.map(plain).joined(separator: ControlConstants.joined) } }
-        if facts.isEmpty { facts = Array(paragraphs(selected).prefix(3)) }
-        let introduction = sections.prefix(2)
-        let modelMentions = paragraphs(Array(introduction)).filter { value in
-            ControlConstants.modelWords.contains { value.localizedCaseInsensitiveContains($0) }
-        }
-        for mention in modelMentions where !facts.contains(mention) { facts.append(mention) }
-        return Array(facts.prefix(12))
+    }
+
+    /// Recognizes documented language, embedding, and speech-model mentions.
+    /// - Parameter text: A source-derived fact.
+    /// - Returns: Whether it belongs in the Models tab.
+    private static func mentionsModel(_ text: String) -> Bool {
+        ControlConstants.modelWords.contains { text.localizedCaseInsensitiveContains($0) }
     }
 
     /// Converts explicit arrow lines to routes without inferring links from bullet order.
     /// - Parameter sections: Parsed README sections.
     /// - Returns: At most eight independent routes, each retaining every written step.
     internal static func workflows(_ sections: [ReadmeSection]) -> [WorkflowRoute] {
-        let selected = sections.filter { section in
-            ControlConstants.flowWords.contains { section.title.localizedCaseInsensitiveContains($0) }
-        }
+        let selected = topicSections(sections, topic: .workflows)
         return Array(selected.flatMap { section in
-            section.lines.compactMap { line -> WorkflowRoute? in
-                let text = plain(line).replacingOccurrences(of: ControlConstants.asciiArrow, with: ControlConstants.arrow)
-                guard text.contains(ControlConstants.arrow), !text.hasPrefix(ControlConstants.pipe) else { return nil }
-                var label = section.title
-                var route = text
-                if let candidate = match(text, ControlConstants.workflowLabelPattern, group: 1),
-                   !candidate.contains(ControlConstants.arrow),
-                   let content = match(text, ControlConstants.workflowLabelPattern, group: 2) {
-                    label = candidate
-                    route = content
-                }
-                let steps = route.components(separatedBy: ControlConstants.arrow).map(plain).filter { !$0.isEmpty }
-                guard steps.count > 1 else { return nil }
-                return WorkflowRoute(label: label, steps: steps)
-            }
+            section.lines.compactMap { WorkflowParser.linear($0, label: section.title) }
+                + section.diagrams.flatMap { WorkflowParser.diagrams($0, label: section.title) }
         }.prefix(8))
     }
 
@@ -167,7 +268,7 @@ internal enum ReadmeParser {
         if !rows.isEmpty {
             return rows.prefix(30).map { HistoryEntry(title: plain($0[0]), detail: $0.dropFirst().map(plain).joined(separator: ControlConstants.joined)) }
         }
-        return sections.filter { match($0.title, ControlConstants.versionPattern) != nil }.prefix(30).map {
+        return sections.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }.prefix(30).map {
             HistoryEntry(title: $0.title, detail: paragraphs([$0]).prefix(2).joined(separator: ControlConstants.space))
         }
     }

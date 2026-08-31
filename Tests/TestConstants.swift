@@ -96,7 +96,7 @@ internal enum TestConstants {
     internal static let checkSymlink = "README symlinks cannot leave the repository"
     internal static let checkTilde = "shorter fences do not terminate a code block"
     internal static let checkLive = "live repository exposes its current register"
-    internal static let checkLiveFlows = "Local Assistant has five documented request routes"
+    internal static let checkLiveFlows = "Local Assistant retains five request routes plus its branching RAG diagram"
     internal static let liveRoot = ".."
     internal static let liveProject = "Local Assistant"
     internal static let misleadingFence = """
@@ -146,4 +146,94 @@ internal enum TestConstants {
     internal static let checkReaderStarted = "controlled background reader starts within its deadline"
     internal static let storePassed = "Store checks passed: "
     internal static let checkConcurrentRefresh = "an edit made before the reader returns is detected by polling"
+    internal static let overviewText = "The actual project overview."
+    internal static let overviewBullet = "A documented capability."
+    internal static let overviewOrder = """
+    ## Overview
+    Before.
+
+    | Role | Component |
+    |---|---|
+    | Interface | SwiftUI |
+
+    - A wrapped
+      capability.
+
+    After.
+    """
+    internal static let overviewOrderExpected = ["Before.", "Interface · SwiftUI", "A wrapped capability.", "After."]
+    internal static let checkOverviewOrder = "overview preserves table position and continued bullet paragraphs"
+    internal static let topicReadme = """
+    # Example
+    Opening fallback.
+    ## Overview
+    The actual project overview.
+
+    - A documented capability.
+    ### Details
+    More overview context.
+    ### Architecture
+    | Role | Component |
+    |---|---|
+    | Interface | SwiftUI |
+    | Chat | Qwen local model |
+    #### Models
+    Uses a documented embedding model.
+    ### Workflows
+    ```text
+    Question
+       ├─→ Keyword search
+       └─→ Vector search
+                 ↓
+            Combined evidence
+                 ↓
+            Answer
+    ```
+    ## Release notes
+    ### v0.1
+    #### Architecture
+    Obsolete architecture.
+    """
+    internal static let modelFact = "Chat · Qwen local model"
+    internal static let obsoleteArchitecture = "Obsolete architecture."
+    internal static let textFlows = """
+    ## Workflows
+    ```text
+    Read: Source → Summary
+    Write: Note → Local storage
+    ```
+    ```swift
+    secretCode() -> forbiddenSource
+    ```
+    """
+    internal static let malformedDiagram = ["Question", "   ├─→ First", "      └─→ Nested", "↓", "Answer"]
+    internal static let codeLikeDiagram = ["secretCode() -> forbiddenSource"]
+    internal static let incompleteDiagram = ["Question", "↓"]
+    internal static let incompleteRoute = "Source → "
+    internal static let checkOverview = "Overview prefers its actual README section and preserves bullets"
+    internal static let checkOverviewOwnership = "architecture and workflows are excluded from Overview even when nested"
+    internal static let checkOverviewFallback = "opening prose supplies Overview when the heading is absent"
+    internal static let checkArchitectureOwnership = "Architecture excludes model facts and historical architecture"
+    internal static let checkModels = "Models receives documented model facts separately"
+    internal static let checkDiagramBranches = "text diagram retains parallel search nodes at one depth"
+    internal static let checkDiagramMerge = "both branches connect to the documented merge node"
+    internal static let checkDiagramLinear = "text-block arrow routes remain separate connected graphs"
+    internal static let checkDiagramCode = "text diagrams never admit executable-looking statements"
+    internal static let checkDiagramMalformed = "unsupported nested branch indentation is not guessed"
+    internal static let checkDiagramIncomplete = "dangling connectors do not produce partial diagrams"
+    internal static let asciiDiagram = ["Read: Source -> Summary", "Write: Note -> Local storage"]
+    internal static let versionedOverview = """
+    # Example v1.0
+    Opening fallback.
+    ## Overview
+    The actual project overview.
+    ## Architecture
+    | Role | Component |
+    |---|---|
+    | Interface | SwiftUI |
+    ## Workflows
+    Source → Summary
+    """
+    internal static let checkAsciiDiagram = "ASCII arrow diagrams remain supported inside text fences"
+    internal static let checkVersionedTitle = "a versioned project title does not hide current topic sections"
 }
