@@ -21,9 +21,14 @@ internal enum StoreTests {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             try TestConstants.rootReadme.write(to: folder.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
         }
+        let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
+        if CommandLine.arguments.contains(TestConstants.classificationOnly) {
+            try await classificationRecoveryCheck(secondRoot, storage: storage, preferences: preferences)
+            print(TestConstants.storePassed + String(count))
+            return
+        }
         let started = DispatchSemaphore(value: 0)
         let release = DispatchSemaphore(value: 0)
-        let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
         let store = ControlStore(storage: storage, preferences: preferences, readRepository: { url in
             if url == firstRoot {
                 started.signal()
@@ -49,6 +54,7 @@ internal enum StoreTests {
         try await refreshCheck(secondRoot, storage: storage, preferences: preferences)
         await navigationChecks(secondRoot, storage: storage, preferences: preferences)
         try await sourceRecoveryChecks(secondRoot, storage: storage, preferences: preferences)
+        try await classificationRecoveryCheck(secondRoot, storage: storage, preferences: preferences)
         try await initialRecoveryCheck(root, storage: storage, preferences: preferences)
         try await pollingRaceCheck(root, storage: storage, preferences: preferences)
         try applicationChecks(secondRoot, storage: storage, preferences: preferences)
@@ -68,6 +74,38 @@ internal enum StoreTests {
         let failing = ControlStore(storage: WorkspaceStorage(file: blocked.appendingPathComponent(ControlConstants.stateFile)), preferences: preferences)
         check(!failing.save(note, for: TestConstants.project) && failing.notes(for: TestConstants.project).isEmpty, TestConstants.checkStoreFailedSave)
         print(TestConstants.storePassed + String(count))
+    }
+
+    /// Preserves project identity and notes while root-owned classification changes over stale content.
+    /// - Parameters: root: Disposable repository. storage: Isolated note storage. preferences: Isolated repository preferences.
+    /// - Returns: Nothing; fails if project-content recovery masks authoritative root metadata.
+    private static func classificationRecoveryCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
+        let readme = root.appendingPathComponent(ControlConstants.readme)
+        let projectReadme = root.appendingPathComponent(TestConstants.project).appendingPathComponent(ControlConstants.readme)
+        try FileManager.default.createDirectory(at: projectReadme.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try TestConstants.classifiedRoot.write(to: readme, atomically: true, encoding: .utf8)
+        try TestConstants.mappedReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
+        let store = ControlStore(storage: storage, preferences: preferences)
+        await store.reload(root)
+        guard let project = store.snapshot?.projects.first else { fatalError(TestConstants.checkClassification) }
+        store.selection = project.id
+        let existingNotes = store.notes(for: project.id)
+        let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .inProgress)
+        check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
+        try TestConstants.invalidMappings[0].write(to: projectReadme, atomically: true, encoding: .utf8)
+        try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.managementCategory, with: TestConstants.renamedCategory)
+            .replacingOccurrences(of: TestConstants.readmeDriven, with: TestConstants.hostedAI)
+            .write(to: readme, atomically: true, encoding: .utf8)
+        await store.reload(root)
+        check(store.selectedProject?.isStale == true && store.selectedProject?.architecture.isEmpty == false
+            && store.selectedProject?.classification.category == TestConstants.renamedCategory
+            && store.selectedProject?.classification.technologies == [TestConstants.swiftUI, TestConstants.hostedAI], TestConstants.checkClassificationStale)
+        check(store.selection == project.id && store.notes(for: project.id) == existingNotes + [note], TestConstants.checkSyncNotes)
+        try TestConstants.mappedRoot.write(to: readme, atomically: true, encoding: .utf8)
+        await store.reload(root)
+        check(store.selectedProject?.isStale == true && store.selectedProject?.classification == ProjectClassification(),
+            TestConstants.checkClassificationStale)
+        check(store.selection == project.id && store.notes(for: project.id) == existingNotes + [note], TestConstants.checkSyncNotes)
     }
 
     /// Keeps failures isolated while applying valid edits, removals, and source recovery.

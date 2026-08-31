@@ -15,6 +15,11 @@ internal enum ControlConstants {
     internal static let appExtension = "app"
     internal static let folderPreference = "repositoryPath"
     internal static let projectsHeading = "projects"
+    internal static let categoryColumn = "category"
+    internal static let technicalScopeColumn = "technical scope"
+    internal static let technologiesColumn = "technologies"
+    internal static let technologySeparator = ";"
+    internal static let uncategorized = "Uncategorized"
     internal static let mappingPrefix = "<!-- project-control:"
     internal static let mappingPattern = #"^\s*<!-- project-control:section=([a-z]+) -->\s*$"#
     internal static let sectionMappings: [String: ReadmeTopic] = [

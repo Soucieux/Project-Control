@@ -2,6 +2,52 @@ import Foundation
 
 /// Synthetic, credential-free fixtures for the README and persistence boundary.
 internal enum TestConstants {
+    internal static let classifiedRoot = """
+    # Classified repository
+    ## Projects
+    | Project | Scope | tEcHnOlOgIeS | cAtEgOrY | Technical scope | AI usage |
+    |---|---|---|---|---|---|
+    | [Example](Example/) | Primary tool. | **SwiftUI**; ; README-driven; swiftui; | Management | **Native desktop** | No AI |
+    | [Missing](Missing/) | Hosted service. | Next.js; LangGraph; Hosted AI | AI Applications | Full-stack web | Hosted AI |
+    | [Another](Another/) | Local assistant. | Local AI; RAG; C++; model_name-v1 | AI Applications | Native desktop | Local AI |
+    | [Blank](Blank/) | Metadata not yet documented. | ; ; | | | Not documented |
+    | [Short](Short/) | Legacy short row. |
+    | [Example](Example/) | Duplicate row. | Wrong | Wrong | Wrong | Wrong |
+    """
+    internal static let classificationDirectory = "Classification"
+    internal static let managementCategory = "Management"
+    internal static let aiCategory = "AI Applications"
+    internal static let renamedCategory = "Custom category"
+    internal static let desktopScope = "Native desktop"
+    internal static let fullStackScope = "Full-stack web"
+    internal static let swiftUI = "SwiftUI"
+    internal static let readmeDriven = "README-driven"
+    internal static let hostedAI = "Hosted AI"
+    internal static let classifiedTagsCell = "**SwiftUI**; ; README-driven; swiftui;"
+    internal static let tagsHeader = "tEcHnOlOgIeS"
+    internal static let ignoredTagsHeader = "Legacy technologies"
+    internal static let classificationOnly = "--classification"
+    internal static let hostedTechnologyTags = ["Next.js", "LangGraph", "Hosted AI"]
+    internal static let literalTechnologyTags = ["Local AI", "RAG", "C++", "model_name-v1"]
+    internal static let liveTechnologyTags = [
+        "Local Assistant": ["SwiftUI", "Local AI", "RAG"],
+        "Prospect Copilot": ["Next.js", "LangGraph", "Hosted AI"],
+        "OpenClaw": ["AI agents", "Embeddings", "Scheduled workflows"],
+        "Project Control": ["SwiftUI", "README-driven"],
+        "Knowledge Transfer": ["Markdown", "React", "Obsidian Canvas"],
+        "Python Accomplishments": ["Python", "Browser automation", "Speech APIs"]
+    ]
+    internal static let liveCategories = ["AI Applications", "Agent Workspaces", "Project Management", "Knowledge & Learning", "Utility Collections"]
+    internal static let checkClassification = "optional classification columns are read by case-insensitive header and rendered as plain text"
+    internal static let checkClassificationGroups = "categories and members retain first appearance without duplicating projects"
+    internal static let checkClassificationUnknown = "absent, blank, and short metadata creates no technology or absence tags"
+    internal static let checkTechnologyTags = "technology tags preserve literal names and first order while trimming blanks and case-insensitive duplicates"
+    internal static let checkLegacyAI = "the retired AI usage column never creates tags or overrides an explicit empty technology list"
+    internal static let checkTechnologyRemoval = "technology tags clear independently without losing the category or technical scope"
+    internal static let checkLiveTechnologyTags = "registered projects show only their documented technologies and approaches: "
+    internal static let checkClassificationRefresh = "root metadata edits regroup existing path identities without a rebuild"
+    internal static let checkClassificationStale = "root classification refreshes and clears while project details remain stale"
+    internal static let checkLiveCategories = "all six registered projects use the approved five source-driven categories"
     internal static let technologyNames = [
         "Local Assistant": ["Retrieval-Augmented Generation (RAG)", "Embeddings", "Qwen3-4B Q4_K_M", "Qwen3-Embedding-0.6B Q8_0", "llama.cpp", "GGUF", "Whisper Small", "WhisperKit", "Core ML", "Optical character recognition (OCR)", "Apple Vision", "SwiftUI", "AppKit", "Swift", "Foundation", "Indexing", "CoreServices", "PDFKit", "ZIPFoundation", "SQLite", "SQLite FTS5", "sqlite-vec", "Security-scoped bookmarks", "App Sandbox", "Agent-to-Agent (A2A)", "SSH"],
         "Prospect Copilot": ["LangGraph", "LangChain", "DeepSeek deepseek-chat", "BANT", "MEDDIC", "React", "React DOM", "Next.js", "TypeScript", "react-markdown", "remark-gfm", "Node.js", "Zod", "Cheerio", "Bounded concurrency", "Composite scoring", "IndexedDB", "idb-keyval", "localStorage", "Server-sent events (SSE)", "OpenAI-compatible API", "ipaddr.js", "Server-side request forgery (SSRF) protection"],

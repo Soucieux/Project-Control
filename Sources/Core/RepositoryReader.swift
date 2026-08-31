@@ -46,23 +46,51 @@ internal enum RepositoryReader {
             throw ControlFailure(message: ControlConstants.invalidRepository)
         }
         var seen: Set<String> = []
-        let projects = try register.flatMap { ReadmeParser.table($0.lines) }.compactMap { row -> ProjectRecord? in
-            guard row.count >= 2,
-                  let name = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 1),
-                  let link = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 2),
-                  let decoded = link.removingPercentEncoding else { throw ControlFailure(message: ControlConstants.invalidRepository) }
-            let folder = canonical.appendingPathComponent(decoded).standardizedFileURL
-            guard contains(folder, in: canonical), folder.deletingLastPathComponent() == canonical else {
-                throw ControlFailure(message: ControlConstants.unsafeProject)
+        let projects = try register.flatMap { section -> [ProjectRecord] in
+            let headers = ReadmeParser.tableHeaders(section.lines).map { ReadmeParser.plain($0).lowercased() }
+            return try ReadmeParser.table(section.lines).compactMap { row -> ProjectRecord? in
+                guard row.count >= 2,
+                      let name = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 1),
+                      let link = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 2),
+                      let decoded = link.removingPercentEncoding else { throw ControlFailure(message: ControlConstants.invalidRepository) }
+                let folder = canonical.appendingPathComponent(decoded).standardizedFileURL
+                guard contains(folder, in: canonical), folder.deletingLastPathComponent() == canonical else {
+                    throw ControlFailure(message: ControlConstants.unsafeProject)
+                }
+                let identifier = folder.resolvingSymlinksInPath().standardizedFileURL.path
+                guard seen.insert(identifier).inserted else { return nil }
+                identities += projectFingerprint(folder, within: canonical)
+                var record = project(name: name, folder: folder, scope: ReadmeParser.plain(row[1]), root: canonical)
+                record.classification = ProjectClassification(
+                    category: registerValue(ControlConstants.categoryColumn, headers: headers, row: row) ?? ControlConstants.uncategorized,
+                    technicalScope: registerValue(ControlConstants.technicalScopeColumn, headers: headers, row: row),
+                    technologies: technologyTags(registerValue(ControlConstants.technologiesColumn, headers: headers, row: row)))
+                return record
             }
-            let identifier = folder.resolvingSymlinksInPath().standardizedFileURL.path
-            guard seen.insert(identifier).inserted else { return nil }
-            identities += projectFingerprint(folder, within: canonical)
-            return project(name: name, folder: folder, scope: ReadmeParser.plain(row[1]), root: canonical)
         }
         return RepositorySnapshot(root: canonical, projects: projects, history: ReadmeParser.history(sections),
             readAt: Date(), fingerprint: identities,
             overview: ReadmeParser.overview(sections, fallback: ControlConstants.noRepositoryOverview))
+    }
+
+    /// Reads an optional metadata column by header rather than by a fixed cell position.
+    /// - Parameters: key: Normalized column name. headers: Normalized source headings. row: Source cells.
+    /// - Returns: Inert display text, or nil for an absent, short, or blank cell.
+    private static func registerValue(_ key: String, headers: [String], row: [String]) -> String? {
+        guard let index = headers.firstIndex(of: key), row.indices.contains(index) else { return nil }
+        let value = ReadmeParser.plain(row[index]).trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? nil : value
+    }
+
+    /// Separates explicitly documented technologies without deriving tags from other metadata.
+    /// - Parameter value: Optional, plain-text Technologies cell from the root register.
+    /// - Returns: Nonempty, case-insensitively unique tags in their first source order.
+    private static func technologyTags(_ value: String?) -> [String] {
+        var seen: Set<String> = []
+        return (value ?? ControlConstants.empty).components(separatedBy: ControlConstants.technologySeparator).compactMap {
+            let tag = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            return !tag.isEmpty && seen.insert(tag.lowercased()).inserted ? tag : nil
+        }
     }
 
     /// Assembles a project while representing a missing README explicitly.

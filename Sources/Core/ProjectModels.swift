@@ -75,6 +75,20 @@ internal struct HistoryEntry: Identifiable {
     internal var heading: String { title + (date.map { ControlConstants.joined + $0 } ?? ControlConstants.empty) }
 }
 
+/// Explicit register metadata, independent of a project's purpose, code, or runtime health.
+internal struct ProjectClassification: Equatable {
+    internal var category: String = ControlConstants.uncategorized
+    internal var technicalScope: String? = nil
+    internal var technologies: [String] = []
+}
+
+/// One source-ordered sidebar category; membership never changes a project's path identity.
+internal struct ProjectCategory: Identifiable {
+    internal let name: String
+    internal var projects: [ProjectRecord]
+    internal var id: String { name }
+}
+
 /// Read-only, display-ready information for a project registered in the root README.
 internal struct ProjectRecord: Identifiable {
     internal let id: String
@@ -93,6 +107,7 @@ internal struct ProjectRecord: Identifiable {
     internal var applications: [URL] = []
     internal var sourceWarning: String? = nil
     internal var isStale = false
+    internal var classification = ProjectClassification()
 }
 
 /// A complete repository snapshot; refresh failures never replace it with partial data.
@@ -103,6 +118,19 @@ internal struct RepositorySnapshot {
     internal let readAt: Date
     internal let fingerprint: [String]
     internal var overview: [ReadmeBlock] = []
+
+    internal var categories: [ProjectCategory] {
+        var groups: [ProjectCategory] = []
+        for project in projects {
+            let name = project.classification.category
+            if let index = groups.firstIndex(where: { $0.name == name }) {
+                groups[index].projects.append(project)
+            } else {
+                groups.append(ProjectCategory(name: name, projects: [project]))
+            }
+        }
+        return groups
+    }
 }
 
 /// Stable Codable cases; human-readable labels remain centralized.

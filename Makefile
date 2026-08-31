@@ -11,6 +11,7 @@ ICON_POINTS := 16 32 128 256 512
 CORE := $(wildcard Sources/Core/*.swift)
 UI := $(wildcard Sources/App/*.swift)
 TEST_SUPPORT := Tests/TestConstants.swift Tests/TestFixtures.swift
+TEST_ARGS ?=
 ARCH := $(shell uname -m)
 FLAGS := -swift-version 5 -parse-as-library -target $(ARCH)-apple-macos14.0 -module-cache-path $(BUILD)/ModuleCache
 
@@ -46,12 +47,12 @@ test: test-core test-store
 test-core:
 	@mkdir -p "$(BUILD)"
 	$(SWIFT) $(FLAGS) $(CORE) $(TEST_SUPPORT) Tests/CoreTests.swift -o "$(BUILD)/CoreTests"
-	"$(BUILD)/CoreTests"
+	"$(BUILD)/CoreTests" $(TEST_ARGS)
 
 test-store:
 	@mkdir -p "$(BUILD)"
 	$(SWIFT) $(FLAGS) -framework AppKit -framework SwiftUI $(CORE) Sources/App/ControlStore.swift $(TEST_SUPPORT) Tests/StoreTests.swift -o "$(BUILD)/StoreTests"
-	"$(BUILD)/StoreTests"
+	"$(BUILD)/StoreTests" $(TEST_ARGS)
 
 run: app
 	open "$(FINAL_APP)"

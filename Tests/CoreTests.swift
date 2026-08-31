@@ -11,6 +11,12 @@ internal enum CoreTests {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
+        if CommandLine.arguments.contains(TestConstants.classificationOnly) {
+            try classificationChecks(root)
+            liveTechnologyChecks(try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot)))
+            print(TestConstants.passed + String(count))
+            return
+        }
         let repository = root.appendingPathComponent(ControlConstants.appName)
         let project = repository.appendingPathComponent(TestConstants.project)
         try FileManager.default.createDirectory(at: project, withIntermediateDirectories: true)
@@ -56,9 +62,13 @@ internal enum CoreTests {
         tableChecks()
         architectureHistoryChecks()
         try mappingChecks(root)
+        try classificationChecks(root)
         try aliasChecks(repository, project: project, outside: outside)
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
         check(live.projects.count == 6, TestConstants.checkLive)
+        liveTechnologyChecks(live)
+        check(live.categories.map(\.name) == TestConstants.liveCategories
+            && live.categories.map { $0.projects.count } == [2, 1, 1, 1, 1], TestConstants.checkLiveCategories)
         check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 6, TestConstants.checkLiveFlows)
         let liveModels = live.projects.first { $0.name == TestConstants.liveProject }?.models ?? []
         check(liveModels.contains { $0.table != nil }
@@ -87,6 +97,61 @@ internal enum CoreTests {
             }
         }
         print(TestConstants.passed + String(count))
+    }
+
+    /// Checks independent optional classifications, grouping, compatibility, and live register edits.
+    /// - Parameter root: Isolated fixture parent; no source repository files are modified.
+    /// - Returns: Nothing; fails on metadata, grouping, or identity regression.
+    private static func classificationChecks(_ root: URL) throws {
+        let repository = root.appendingPathComponent(TestConstants.classificationDirectory)
+        try FileManager.default.createDirectory(at: repository, withIntermediateDirectories: true)
+        let readme = repository.appendingPathComponent(ControlConstants.readme)
+        try TestConstants.classifiedRoot.write(to: readme, atomically: true, encoding: .utf8)
+        let snapshot = try RepositoryReader.load(repository)
+        let first = snapshot.projects[0]
+        check(first.classification == ProjectClassification(category: TestConstants.managementCategory,
+            technicalScope: TestConstants.desktopScope, technologies: [TestConstants.swiftUI, TestConstants.readmeDriven]), TestConstants.checkClassification)
+        check(snapshot.projects[1].classification == ProjectClassification(category: TestConstants.aiCategory,
+            technicalScope: TestConstants.fullStackScope, technologies: TestConstants.hostedTechnologyTags), TestConstants.checkClassification)
+        check(snapshot.projects[2].classification.technologies == TestConstants.literalTechnologyTags, TestConstants.checkTechnologyTags)
+        check(snapshot.projects.count == 5 && snapshot.categories.map(\.name) == [TestConstants.managementCategory,
+            TestConstants.aiCategory, ControlConstants.uncategorized] && snapshot.categories.map { $0.projects.count } == [1, 2, 2],
+            TestConstants.checkClassificationGroups)
+        check(snapshot.categories[1].projects.map(\.id) == Array(snapshot.projects[1...2]).map(\.id), TestConstants.checkClassificationGroups)
+        check(snapshot.projects.suffix(2).allSatisfy { $0.classification == ProjectClassification() }, TestConstants.checkClassificationUnknown)
+        let changed = TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.managementCategory, with: TestConstants.renamedCategory)
+            .replacingOccurrences(of: TestConstants.readmeDriven, with: TestConstants.hostedAI)
+        try changed.write(to: readme, atomically: true, encoding: .utf8)
+        check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint, TestConstants.checkClassificationRefresh)
+        let refreshed = try RepositoryReader.load(repository)
+        check(refreshed.projects.map(\.id) == snapshot.projects.map(\.id)
+            && refreshed.categories[0].name == TestConstants.renamedCategory
+            && refreshed.projects[0].classification.technologies == [TestConstants.swiftUI, TestConstants.hostedAI], TestConstants.checkClassificationRefresh)
+        try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.classifiedTagsCell, with: ControlConstants.empty)
+            .write(to: readme, atomically: true, encoding: .utf8)
+        let cleared = try RepositoryReader.load(repository)
+        check(cleared.projects[0].classification == ProjectClassification(category: TestConstants.managementCategory,
+            technicalScope: TestConstants.desktopScope), TestConstants.checkTechnologyRemoval)
+        try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.tagsHeader, with: TestConstants.ignoredTagsHeader)
+            .write(to: readme, atomically: true, encoding: .utf8)
+        let retiredColumn = try RepositoryReader.load(repository)
+        check(retiredColumn.projects.allSatisfy { $0.classification.technologies.isEmpty }, TestConstants.checkLegacyAI)
+        try TestConstants.mappedRoot.write(to: readme, atomically: true, encoding: .utf8)
+        let legacy = try RepositoryReader.load(repository)
+        check(legacy.projects[0].classification == ProjectClassification()
+            && legacy.categories[0].name == ControlConstants.uncategorized, TestConstants.checkClassificationUnknown)
+    }
+
+    /// Checks the real register's positive tags without inspecting project code or runtime state.
+    /// - Parameter snapshot: Read-only snapshot of the repository's documented metadata.
+    /// - Returns: Nothing; fails when any registered project's tags diverge from its documented inventory.
+    private static func liveTechnologyChecks(_ snapshot: RepositorySnapshot) {
+        check(snapshot.projects.count == TestConstants.liveTechnologyTags.count, TestConstants.checkLive)
+        check(snapshot.categories.map(\.name) == TestConstants.liveCategories, TestConstants.checkLiveCategories)
+        for project in snapshot.projects {
+            check(project.classification.technologies == TestConstants.liveTechnologyTags[project.name],
+                TestConstants.checkLiveTechnologyTags + project.name)
+        }
     }
 
     /// Exercises explicit routing, exclusions, renamed roots, deletion, and metadata-preserving edits.

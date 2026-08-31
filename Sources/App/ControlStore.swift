@@ -97,6 +97,7 @@ internal final class ControlStore: ObservableObject {
                     guard let warning = current.sourceWarning,
                           var retained = previous.first(where: { $0.id == current.id && ($0.sourceWarning == nil || $0.isStale) }) else { return current }
                     retained.name = current.name
+                    retained.classification = current.classification
                     retained.folderAvailable = current.folderAvailable
                     retained.readmeAvailable = current.readmeAvailable
                     retained.applications = current.applications
