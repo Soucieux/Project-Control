@@ -47,6 +47,7 @@ internal enum StoreTests {
         check(!store.loading && store.error == nil, TestConstants.checkStoreLoading)
         check(preferences.string(forKey: ControlConstants.folderPreference) == secondRoot.resolvingSymlinksInPath().path, TestConstants.checkStorePreference)
         try await refreshCheck(secondRoot, storage: storage, preferences: preferences)
+        await navigationChecks(secondRoot, storage: storage, preferences: preferences)
         try applicationChecks(secondRoot, storage: storage, preferences: preferences)
         let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .next)
         check(try store.save(note, for: TestConstants.project) && storage.load().notes[TestConstants.project] == [note], TestConstants.checkStoreSave)
@@ -64,6 +65,26 @@ internal enum StoreTests {
         let failing = ControlStore(storage: WorkspaceStorage(file: blocked.appendingPathComponent(ControlConstants.stateFile)), preferences: preferences)
         check(!failing.save(note, for: TestConstants.project) && failing.notes(for: TestConstants.project).isEmpty, TestConstants.checkStoreFailedSave)
         print(TestConstants.storePassed + String(count))
+    }
+
+    /// Keeps parent and child selections stable across repository refreshes.
+    /// - Parameters: root: Disposable repository. storage: Isolated state. preferences: Isolated preferences.
+    /// - Returns: Nothing; terminates on a navigation-state regression.
+    private static func navigationChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async {
+        let store = ControlStore(storage: storage, preferences: preferences)
+        await store.reload(root)
+        let parent = root.resolvingSymlinksInPath().standardizedFileURL.path
+        check(store.selection == parent && store.selectedProject == nil, TestConstants.checkRepositorySelection)
+        let child = store.snapshot?.projects.first?.id
+        store.selection = child
+        await store.reload(root)
+        check(child != nil && store.selectedProject?.id == child, TestConstants.checkProjectSelection)
+        store.selection = parent
+        await store.reload(root)
+        check(store.selection == parent && store.selectedProject == nil, TestConstants.checkRepositorySelection)
+        store.selection = TestConstants.external
+        await store.reload(root)
+        check(store.selection == parent, TestConstants.checkSelectionFallback)
     }
 
     /// Reproduces an edit between snapshot parsing and delivery to the main actor.

@@ -4,8 +4,6 @@ import SwiftUI
 /// The perimeter-led command surface: register, selected project, repository history.
 internal struct ControlWindow: View {
     @ObservedObject internal var store: ControlStore
-    @State private var showRepositoryHistory = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     internal var body: some View {
         VStack(spacing: 0) {
@@ -27,9 +25,13 @@ internal struct ControlWindow: View {
                             ProjectScreen(store: store, project: project).padding(28)
                                 .frame(maxWidth: 1050).frame(maxWidth: .infinity)
                         }.id(project.id)
-                    } else { Spacer() }
+                    } else {
+                        ScrollView {
+                            RepositoryScreen(store: store, snapshot: snapshot).padding(28)
+                                .frame(maxWidth: 1050).frame(maxWidth: .infinity)
+                        }.id(snapshot.root.path)
+                    }
                 }
-                repositoryFooter(snapshot)
             } else {
                 VStack(alignment: .leading, spacing: 24) {
                     Image(systemName: ControlConstants.diamondIcon).font(.system(size: 48, weight: .ultraLight))
@@ -43,7 +45,6 @@ internal struct ControlWindow: View {
         }
         .foregroundStyle(ControlTheme.ink).tint(ControlTheme.signal)
         .background(ControlTheme.background)
-        .animation(reduceMotion ? nil : ControlTheme.motion, value: showRepositoryHistory)
     }
 
     private var masthead: some View {
@@ -69,7 +70,7 @@ internal struct ControlWindow: View {
         .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
     }
 
-    /// Builds numbered, full-row project navigation without inventing status scores.
+    /// Places a selectable repository parent above its icon-bearing project children.
     /// - Parameter snapshot: Current repository snapshot.
     /// - Returns: A fixed-width, independently scrollable project register.
     private func register(_ snapshot: RepositorySnapshot) -> some View {
@@ -77,12 +78,29 @@ internal struct ControlWindow: View {
             HStack { InstrumentLabel(title: ControlConstants.register); Spacer(); Text(snapshot.projects.count.formatted()).font(.caption.monospaced()) }
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(Array(snapshot.projects.enumerated()), id: \.element.id) { index, project in
+                    Button { store.selection = snapshot.root.path } label: {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: ControlConstants.folderIcon).font(.system(size: 21, weight: .light))
+                                .frame(width: 24, height: 24).accessibilityHidden(true)
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text(snapshot.root.lastPathComponent).font(.system(size: 14, weight: .medium)).multilineTextAlignment(.leading)
+                                Text(ControlConstants.repositorySummary).font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+                            }
+                            Spacer(minLength: 0)
+                        }.padding(.vertical, 18).padding(.horizontal, 10).frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .background(store.selection == snapshot.root.path ? ControlTheme.signal.opacity(0.12) : .clear)
+                            .overlay(alignment: .leading) {
+                                if store.selection == snapshot.root.path { Rectangle().fill(ControlTheme.signal).frame(width: 2) }
+                            }
+                    }.buttonStyle(.plain).accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
+                    Rectangle().fill(ControlTheme.line).frame(height: 1)
+                    ForEach(snapshot.projects) { project in
                         Button {
                             store.selection = project.id
                         } label: {
                             HStack(alignment: .top, spacing: 10) {
-                                Text(String(format: ControlConstants.ordinalFormat, index + 1)).font(.caption.monospaced()).padding(.top, 2)
+                                ProjectIcon(project: project, size: 24)
                                 VStack(alignment: .leading, spacing: 7) {
                                     Text(project.name).font(.system(size: 14, weight: .medium)).multilineTextAlignment(.leading)
                                     let notes = store.notes(for: project.id)
@@ -90,7 +108,8 @@ internal struct ControlWindow: View {
                                         .font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
                                 }
                                 Spacer(minLength: 0)
-                            }.padding(.vertical, 18).padding(.horizontal, 10).frame(maxWidth: .infinity, alignment: .leading)
+                            }.padding(.vertical, 18).padding(.horizontal, 10).padding(.leading, 20)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .contentShape(Rectangle())
                                 .background(store.selection == project.id ? ControlTheme.signal.opacity(0.12) : .clear)
                                 .overlay(alignment: .leading) {
@@ -105,31 +124,7 @@ internal struct ControlWindow: View {
             Spacer(minLength: 0)
             InstrumentLabel(title: ControlConstants.localOnly).font(.caption)
             Text(ControlConstants.checkCadence).font(.caption).foregroundStyle(ControlTheme.muted).fixedSize(horizontal: false, vertical: true)
-        }.padding(18).frame(width: 236).background(ControlTheme.rail.opacity(0.65))
-    }
-
-    /// Separates repository-wide changes from the selected project's own release history.
-    /// - Parameter snapshot: Current repository snapshot.
-    /// - Returns: A collapsible, height-bounded history panel and source timestamp.
-    private func repositoryFooter(_ snapshot: RepositorySnapshot) -> some View {
-        VStack(spacing: 10) {
-            HStack {
-                Button {
-                    showRepositoryHistory.toggle()
-                } label: {
-                    Label(ControlConstants.repositoryHistory, systemImage: ControlConstants.diamondIcon)
-                }.buttonStyle(.plain)
-                Spacer()
-                Text(ControlConstants.lastRead + ControlConstants.space + snapshot.readAt.formatted(date: .omitted, time: .standard))
-                    .font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
-                Button(ControlConstants.read) { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) }
-                    .font(.caption)
-            }
-            if showRepositoryHistory {
-                ScrollView { HistoryList(entries: snapshot.history) }.frame(height: 210)
-            }
-        }.padding(.horizontal, 24).padding(.vertical, 15).background(ControlTheme.rail)
-            .overlay(alignment: .top) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
+        }.padding(18).frame(width: 260).background(ControlTheme.rail.opacity(0.65))
     }
 }
 
@@ -143,7 +138,7 @@ internal struct HistoryList: View {
                 DisclosureGroup {
                     Text(entry.detail).font(.callout).lineSpacing(4).textSelection(.enabled)
                         .foregroundStyle(ControlTheme.muted).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
-                } label: { Text(entry.title).font(.callout) }
+                } label: { Text(entry.heading).font(.callout) }
                 Rectangle().fill(ControlTheme.line).frame(height: 1)
             }
         }.padding(.vertical, 10)

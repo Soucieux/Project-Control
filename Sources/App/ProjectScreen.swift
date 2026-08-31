@@ -19,9 +19,14 @@ internal struct ProjectScreen: View {
                 Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
             }
             HStack(spacing: 24) {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text(project.name).font(.system(size: 42, weight: .light)).tracking(-1.3).fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .center, spacing: 18) {
+                        ProjectIcon(project: project, size: 60)
+                        Text(project.name).font(.system(size: 38, weight: .light)).tracking(-1)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced()).foregroundStyle(ControlTheme.signal)
+                        .padding(.leading, 78)
                 }
                 Spacer(minLength: 0)
                 NoteGauge(notes: notes)

@@ -81,7 +81,9 @@ internal final class ControlStore: ObservableObject {
                 guard !Task.isCancelled else { return }
                 snapshot = result
                 fingerprint = result.fingerprint
-                if !result.projects.contains(where: { $0.id == selection }) { selection = result.projects.first?.id }
+                if selection != result.root.path && !result.projects.contains(where: { $0.id == selection }) {
+                    selection = result.root.path
+                }
                 preferences.set(result.root.path, forKey: ControlConstants.folderPreference)
                 error = storageReady ? nil : ControlConstants.stateFailure
             } catch {
