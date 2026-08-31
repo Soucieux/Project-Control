@@ -1,0 +1,57 @@
+# Native Apple frameworks only. Publish the signed app beside this Makefile.
+SHELL := /bin/zsh
+SWIFT := /usr/bin/xcrun swiftc
+BUILD := build
+APP := $(BUILD)/Project Control.app
+FINAL_APP := Project Control.app
+ICON_PNG := Resources/ProjectControl.png
+ICON_SET := $(BUILD)/ProjectControl.iconset
+ICON_FILE := $(BUILD)/ProjectControl.icns
+ICON_POINTS := 16 32 128 256 512
+CORE := $(wildcard Sources/Core/*.swift)
+UI := $(wildcard Sources/App/*.swift)
+TEST_CONSTANTS := Tests/TestConstants.swift
+ARCH := $(shell uname -m)
+FLAGS := -swift-version 5 -parse-as-library -target $(ARCH)-apple-macos14.0 -module-cache-path $(BUILD)/ModuleCache
+
+.PHONY: icons app test test-core test-store run
+
+icons:
+	@mkdir -p "$(ICON_SET)"
+	@set -eu; for points in $(ICON_POINTS); do \
+		/usr/bin/sips -z "$$points" "$$points" "$(ICON_PNG)" --out "$(ICON_SET)/icon_$${points}x$${points}.png" >/dev/null; \
+		retina=$$((points * 2)); \
+		/usr/bin/sips -z "$$retina" "$$retina" "$(ICON_PNG)" --out "$(ICON_SET)/icon_$${points}x$${points}@2x.png" >/dev/null; \
+	done
+	/usr/bin/iconutil -c icns "$(ICON_SET)" -o "$(ICON_FILE)"
+
+app: icons
+	@mkdir -p "$(APP)/Contents/MacOS" "$(APP)/Contents/Resources"
+	$(SWIFT) $(FLAGS) -O -framework AppKit -framework SwiftUI $(CORE) $(UI) -o "$(APP)/Contents/MacOS/ProjectControl"
+	cp Resources/Info.plist "$(APP)/Contents/Info.plist"
+	cp "$(ICON_FILE)" "$(APP)/Contents/Resources/ProjectControl.icns"
+	/usr/bin/codesign --force --sign - "$(APP)"
+	/usr/bin/codesign --verify --strict "$(APP)"
+	@set -eu; \
+	if [[ -e "$(FINAL_APP)" ]]; then \
+		previous="$$(mktemp -d "$(BUILD)/previous.XXXXXX")"; \
+		mv "$(FINAL_APP)" "$$previous/$(FINAL_APP)"; \
+		if ! mv "$(APP)" "$(FINAL_APP)"; then \
+			mv "$$previous/$(FINAL_APP)" "$(FINAL_APP)"; exit 1; \
+		fi; \
+	else mv "$(APP)" "$(FINAL_APP)"; fi
+
+test: test-core test-store
+
+test-core:
+	@mkdir -p "$(BUILD)"
+	$(SWIFT) $(FLAGS) $(CORE) $(TEST_CONSTANTS) Tests/CoreTests.swift -o "$(BUILD)/CoreTests"
+	"$(BUILD)/CoreTests"
+
+test-store:
+	@mkdir -p "$(BUILD)"
+	$(SWIFT) $(FLAGS) -framework AppKit -framework SwiftUI $(CORE) Sources/App/ControlStore.swift $(TEST_CONSTANTS) Tests/StoreTests.swift -o "$(BUILD)/StoreTests"
+	"$(BUILD)/StoreTests"
+
+run: app
+	open "$(FINAL_APP)"
