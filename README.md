@@ -8,18 +8,18 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current source update is **v1.0 (build 10)**; it is not yet built or delivered. It replaces
+The current locally delivered release is **v1.0 (build 10)** at the project root. It replaces
 mandatory AI-usage badges with optional, individually wrapping technology/approach tags from
 the root README. Category and technical scope stay separate; absent metadata produces no tag.
 The app does not infer AI use from a category, project name, or the presence of AI lessons.
 
-The latest locally delivered bundle remains **v0.9 (build 9)** at the project root. Its existing
-header, category navigation, notes, app discovery, icons, detail tabs, and diagrams are preserved
-in source. v1.0 passed 19 focused parser/register checks, 5 store checks, native type-checking,
-and 24 tag-layout cases. Source is committed separately: metadata and synchronization in
-`9f3e399`, the header in `eb643cb`, and the sidebar in `2a512b8`; root metadata/policy is in
-`b43b9fd`. v0.9 source changes are captured with this v1.0 update, not as a separate release
-commit. Release documentation and bundle metadata are being recorded before building.
+The header, category navigation, notes, app discovery, icons, detail tabs, and diagrams remain.
+v1.0 passed 19 focused parser/register checks, 5 store checks, native type-checking, 24 tag-layout
+cases, a cache-free optimized build, strict signature/metadata/icon checks, and project-root launch.
+Source is committed separately: metadata/synchronization `9f3e399`, header `eb643cb`, sidebar
+`2a512b8`, root metadata/policy `b43b9fd`, and release records `19ac73f` / `6d6e110`.
+These commits preceded the build; no build-gate exception was used. v0.9 source changes were
+captured with v1.0, not as a separate release commit; its unchanged bundle remains recoverable.
 No v1.0 code review, formal verification, or live interaction check is claimed. Historical
 v0.9 checks remain recorded below, not reused as v1.0 evidence.
 
@@ -46,9 +46,9 @@ open "Project Control.app"
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
 The latest completed application lives directly beside this README as **Project Control.app**,
-version **v0.9/build 9**. The replaced v0.8 bundle is preserved unchanged under
-`build/previous.JxnKxh/Project Control.app`; the older v0.7 recovery also remains.
-The existing app session was left untouched. Quit it before reopening to load v0.9.
+version **v1.0/build 10**. The replaced v0.9 bundle is preserved unchanged under
+`build/previous.6S5wt3/Project Control.app`; the documented v0.8 and v0.7 recoveries also remain.
+The background launch-check instance was closed. Open the root-level app to use v1.0.
 
 ## Sidebar classification
 
@@ -197,7 +197,7 @@ The 33 rejected visual studies and screenshots were removed from the working pro
 
 ## Development and focused checks
 
-### v1.0 source status
+### v1.0 delivery evidence
 
 The parser, sidebar, scoped tag policy, and root register are updated in source. Passed **19
 focused parser/register checks**, **5 store checks**, native type-checking, and **24 native
@@ -206,9 +206,15 @@ views at 900×660 and 1160×840 and a six-project tag panel were inspected. An i
 needed normal macOS icon-service access outside the agent sandbox; it captured only its own
 never-shown views, not desktop pixels. No screen-recording permission was changed or retried.
 These checks do not establish live scrolling, keyboard interaction, or installed-app behavior.
-The v0.9 bundle and its recovery copies are unchanged; no v1.0 bundle exists yet.
-The user authorized separate commits before building. Implementation is recorded in
-`9f3e399`, `eb643cb`, and `2a512b8`; release documentation and metadata precede the new build.
+After the user-authorized source and release-record commits, a cache-free optimized arm64
+build was promoted to the project root. Strict signing, exact source/bundle metadata equality,
+v1.0/build-10 identity, unchanged Nexus icon bytes, and a fresh root-level process launch passed.
+The smoke-test process remained running for at least 47 seconds and was then closed; no existing
+Project Control process was present before the check. This confirms launch, not live interaction.
+The preserved v0.9 bundle at `build/previous.6S5wt3/Project Control.app` retains its valid signature
+and exact pre-build executable, metadata, and icon checksums. The documented v0.8/v0.7 recoveries
+are retained. Generated compiler caches and intermediate icon files were removed; these can be
+regenerated. No desktop capture or privacy-setting change was attempted.
 
 Run only the classification regressions from this project folder:
 
@@ -336,7 +342,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
-| v1.0 / build 10 · source only | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. v0.9 remains the delivered bundle. The user authorized separate source/documentation commits before the new build; no build-gate exception is used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd` |
+| v1.0 / build 10 | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. User-authorized source/release commits preceded a cache-free optimized build. Strict signing, matching source/bundle metadata, unchanged Nexus icon, and project-root launch passed. Preserved v0.9 with unchanged executable/metadata/icon checksums and retained documented older recoveries. Removed generated compiler/icon intermediates and closed the new smoke-test process; no existing Project Control process was present. No build-gate exception was used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd`; pre-build release records `19ac73f`, `6d6e110` |
 | v0.9 / build 9 | 2026-08-31 | Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap. Added collapsible source-ordered categories, counts, and independently wrapping technical-scope/AI-usage badges from optional root-register columns. Missing metadata remains unspecified; root classification changes still apply when a project README is stale. Existing notes and selection are preserved. Passed 312 core checks, 38 store checks, native type-checking, offscreen layouts, clean compilation, strict bundle identity/signature checks, and project-root launch. Preserved v0.8 unchanged; removed temporary/generated intermediates. Live UI interaction, optional review, and formal verification remain unconfirmed or not run. Source was uncommitted at delivery. | Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; no separate v0.9 release commit |
 | Documentation reconciliation · no new app build | 2026-08-31 | Matched all retained release records to Git evidence, clarified releases committed together, and adopted the root-only instruction/history rules. At reconciliation, diagram work was paused and v0.8/build 8 was unchanged. The records are included with the v1.0 release documentation. | Prior release references below; no separate app build |
 | v0.8 / build 8 | 2026-08-31 | Added stable README mappings, content-digest refresh, source warnings/recovery, and one technology/concept per architecture row. Review fixed the polling/switch race, malformed empty-register acceptance, and misleading different-root stale state. Passed 303 core and 34 store checks, a focused mutation check, native type-checking, clean compilation, native offscreen layouts, and signed-bundle metadata/identity checks. Preserved v0.7; retired v0.6 and the superseded candidate to Trash; removed temporary/generated artifacts. The existing app process was not restarted; live UI interaction remains unverified. | `a6266cf`, `6402aba`, `26f4fdf`, `c323a23`, `6232bf9` |
