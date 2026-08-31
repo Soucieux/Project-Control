@@ -55,6 +55,7 @@ internal enum ReadmeParser {
         var fence: String?
         var diagram: [String] = []
         var acceptsDiagram = false
+        var pendingMapping: ReadmeTopic?
         for line in markdown.components(separatedBy: .newlines) {
             if let current = fence {
                 if let marker = match(line, ControlConstants.closingFencePattern, group: 1),
@@ -65,6 +66,19 @@ internal enum ReadmeParser {
                 } else if acceptsDiagram { diagram.append(line) }
                 continue
             }
+            if line.trimmingCharacters(in: .whitespaces).hasPrefix(ControlConstants.mappingPrefix) {
+                if pendingMapping != nil { result[0].mappingInvalid = true }
+                if let identifier = match(line, ControlConstants.mappingPattern, group: 1),
+                   let topic = ControlConstants.sectionMappings[identifier] {
+                    pendingMapping = topic
+                } else { result[0].mappingInvalid = true }
+                continue
+            }
+            let isHeading = match(line, ControlConstants.headingPattern, group: 1) != nil
+            if pendingMapping != nil && !isHeading && !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                result[0].mappingInvalid = true
+                pendingMapping = nil
+            }
             if let marker = match(line, ControlConstants.fencePattern, group: 1) {
                 fence = marker
                 let language = line.trimmingCharacters(in: .whitespaces).dropFirst(marker.count)
@@ -74,11 +88,22 @@ internal enum ReadmeParser {
             }
             if let heading = match(line, ControlConstants.headingPattern, group: 2),
                let marker = match(line, ControlConstants.headingPattern, group: 1) {
-                result.append(ReadmeSection(title: plain(heading), level: marker.count, lines: []))
+                result.append(ReadmeSection(title: plain(heading), level: marker.count, lines: [], mapping: pendingMapping))
+                pendingMapping = nil
             } else {
                 result[result.count - 1].lines.append(line)
             }
         }
+        if pendingMapping != nil { result[0].mappingInvalid = true }
+        return result
+    }
+
+    /// Rejects invalid routing metadata before a README can replace displayed content.
+    /// - Parameter markdown: Bounded README text.
+    /// - Returns: Parsed sections, or a readable mapping error.
+    internal static func validatedSections(_ markdown: String) throws -> [ReadmeSection] {
+        let result = sections(markdown)
+        guard !result.contains(where: { $0.mappingInvalid }) else { throw ControlFailure(message: ControlConstants.mappingFailure) }
         return result
     }
 
@@ -97,6 +122,18 @@ internal enum ReadmeParser {
             result.append(tableCells(trimmed))
         }
         return result
+    }
+
+    /// Reads a real pipe-table header, including tables with no data rows.
+    /// - Parameter lines: Lines directly owned by a README section.
+    /// - Returns: Plain header cells, or an empty array for malformed/headerless content.
+    internal static func tableHeaders(_ lines: [String]) -> [String] {
+        guard let separator = lines.firstIndex(where: {
+            $0.contains(ControlConstants.pipe) && match($0.trimmingCharacters(in: .whitespaces), ControlConstants.separatorPattern) != nil
+        }), separator > 0 else { return [] }
+        let heading = lines[separator - 1].trimmingCharacters(in: .whitespaces)
+        guard heading.hasPrefix(ControlConstants.pipe) else { return [] }
+        return tableCells(heading).map(plain)
     }
 
     /// Splits a leading-pipe row, preserving escaped pipes and an optional final pipe.
@@ -138,15 +175,17 @@ internal enum ReadmeParser {
     /// Assigns child headings to their closest documented topic, never extracting release-history details.
     /// - Parameters: sections: Source hierarchy. topic: Requested content owner.
     /// - Returns: Source-ordered sections owned by that topic.
-    internal static func topicSections(_ sections: [ReadmeSection], topic: ProjectTab) -> [ReadmeSection] {
-        var ancestors: [(level: Int, topic: ProjectTab?)] = []
+    internal static func topicSections(_ sections: [ReadmeSection], topic: ReadmeTopic) -> [ReadmeSection] {
+        let explicit = sections.contains { $0.mapping != nil }
+        var ancestors: [(level: Int, topic: ReadmeTopic?)] = []
         var selected: [ReadmeSection] = []
         for section in sections {
             while let last = ancestors.last, last.level >= section.level { ancestors.removeLast() }
             let inherited = ancestors.last.flatMap { $0.topic }
-            let owner = inherited == .history ? .history : sectionTopic(section.title) ?? inherited
+            let owner = inherited == .ignore || inherited == .history ? inherited
+                : section.mapping ?? (explicit ? nil : sectionTopic(section.title)) ?? inherited
             ancestors.append((section.level, owner))
-            let mixedWorkflow = topic == .workflows && owner == .architecture
+            let mixedWorkflow = !explicit && topic == .workflows && owner == .architecture
                 && ControlConstants.flowWords.contains { section.title.localizedCaseInsensitiveContains($0) }
             if owner == topic || mixedWorkflow { selected.append(section) }
         }
@@ -156,7 +195,9 @@ internal enum ReadmeParser {
     /// Classifies only recognized README headings; unknown headings inherit their parent.
     /// - Parameter title: Plain source heading.
     /// - Returns: Its content topic, or nil for an unclassified heading.
-    private static func sectionTopic(_ title: String) -> ProjectTab? {
+    private static func sectionTopic(_ title: String) -> ReadmeTopic? {
+        if title.lowercased() == ControlConstants.projectsHeading { return .projects }
+        if title.localizedCaseInsensitiveContains(ControlConstants.currentReleaseHeading) { return .release }
         if ControlConstants.historyWords.contains(where: { title.localizedCaseInsensitiveContains($0) })
             || title.localizedCaseInsensitiveContains(ControlConstants.releaseNotesHeading)
             || match(title, ControlConstants.versionHeadingPattern) != nil { return .history }
@@ -172,9 +213,10 @@ internal enum ReadmeParser {
     /// - Returns: Paragraphs, bullets, and subsection labels in their documented order.
     internal static func overview(_ sections: [ReadmeSection], fallback: String) -> [ReadmeBlock] {
         let explicit = topicSections(sections, topic: .overview)
-        let selected = explicit.isEmpty ? Array(sections.prefix { $0.level < 2 }) : explicit
+        let mapped = sections.contains { $0.mapping != nil }
+        let selected = explicit.isEmpty && !mapped ? Array(sections.prefix { $0.level < 2 }) : explicit
         let content = blocks(selected, includeHeadings: !explicit.isEmpty)
-        return content.isEmpty ? [ReadmeBlock(kind: .paragraph, text: fallback)] : content
+        return content.isEmpty ? [ReadmeBlock(kind: .paragraph, text: mapped ? ControlConstants.contentUnavailable : fallback)] : content
     }
 
     /// Tokenizes prose and consecutive table rows once, retaining source order and table headers.
@@ -232,10 +274,8 @@ internal enum ReadmeParser {
     private static func appendTable(_ lines: inout [String], to blocks: inout [ReadmeBlock]) {
         let rows = table(lines).map { $0.map(plain) }
         if !rows.isEmpty {
-            let separator = lines.firstIndex { match($0.trimmingCharacters(in: .whitespaces), ControlConstants.separatorPattern) != nil }
-            let headers = separator.flatMap { $0 > 0 ? tableCells(lines[$0 - 1].trimmingCharacters(in: .whitespaces)).map(plain) : nil } ?? []
             blocks.append(ReadmeBlock(kind: .table, text: ControlConstants.empty,
-                table: ReadmeTable(headers: headers, rows: rows)))
+                table: ReadmeTable(headers: tableHeaders(lines), rows: rows)))
         }
         lines.removeAll()
     }
@@ -253,7 +293,17 @@ internal enum ReadmeParser {
     internal static func models(_ sections: [ReadmeSection]) -> [ReadmeBlock] {
         blocks(topicSections(sections, topic: .models))
             + modelBlocks(blocks(topicSections(sections, topic: .architecture)))
-            + modelBlocks(blocks(Array(sections.prefix { $0.level < 2 })))
+            + (sections.contains { $0.mapping != nil } ? [] : modelBlocks(blocks(Array(sections.prefix { $0.level < 2 }))))
+    }
+
+    /// Reads only the mapped release section, retaining the legacy register fallback for unmarked READMEs.
+    /// - Parameters: sections: Parsed README. fallback: Root Projects summary.
+    /// - Returns: The documented current release, or nil when none is supplied.
+    internal static func release(_ sections: [ReadmeSection], fallback: String) -> String? {
+        let text = paragraphs(topicSections(sections, topic: .release)).joined(separator: ControlConstants.space)
+        if let value = match(text, ControlConstants.releaseValuePattern) { return value }
+        guard !sections.contains(where: { $0.mapping != nil }) else { return nil }
+        return match(fallback, ControlConstants.currentReleasePattern, group: 1)
     }
 
     /// Selects model facts row by row without removing them from the original architecture table.
@@ -292,9 +342,7 @@ internal enum ReadmeParser {
     /// - Parameter sections: Parsed README sections.
     /// - Returns: Source-ordered history, bounded to the latest thirty entries.
     internal static func history(_ sections: [ReadmeSection]) -> [HistoryEntry] {
-        let selected = sections.filter { section in
-            ControlConstants.historyWords.contains { section.title.localizedCaseInsensitiveContains($0) }
-        }
+        let selected = topicSections(sections, topic: .history)
         let rows = selected.flatMap { table($0.lines) }.filter { $0.count >= 2 }
         if !rows.isEmpty {
             return rows.prefix(30).map { source in
@@ -305,7 +353,7 @@ internal enum ReadmeParser {
                 return HistoryEntry(title: row[0], detail: detail, date: dateIndex.map { row[$0] })
             }
         }
-        return sections.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }.prefix(30).map {
+        return selected.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }.prefix(30).map {
             HistoryEntry(title: $0.title, detail: paragraphs([$0]).prefix(2).joined(separator: ControlConstants.space))
         }
     }

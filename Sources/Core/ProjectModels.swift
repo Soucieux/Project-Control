@@ -6,7 +6,12 @@ internal struct ReadmeSection {
     internal let level: Int
     internal var lines: [String]
     internal var diagrams: [[String]] = []
+    internal var mapping: ReadmeTopic? = nil
+    internal var mappingInvalid = false
 }
+
+/// Allowed README destinations; comments select data, never executable instructions.
+internal enum ReadmeTopic { case overview, architecture, models, workflows, history, projects, release, ignore }
 
 /// A readable README block, never raw Markdown or source code.
 internal struct ReadmeBlock: Identifiable {
@@ -73,7 +78,7 @@ internal struct HistoryEntry: Identifiable {
 /// Read-only, display-ready information for a project registered in the root README.
 internal struct ProjectRecord: Identifiable {
     internal let id: String
-    internal let name: String
+    internal var name: String
     internal let folder: URL
     internal let readme: URL
     internal let introduction: String
@@ -81,11 +86,13 @@ internal struct ProjectRecord: Identifiable {
     internal let architecture: [ReadmeBlock]
     internal let workflows: [WorkflowRoute]
     internal let history: [HistoryEntry]
-    internal let folderAvailable: Bool
-    internal let readmeAvailable: Bool
+    internal var folderAvailable: Bool
+    internal var readmeAvailable: Bool
     internal var overview: [ReadmeBlock] = []
     internal var models: [ReadmeBlock] = []
     internal var applications: [URL] = []
+    internal var sourceWarning: String? = nil
+    internal var isStale = false
 }
 
 /// A complete repository snapshot; refresh failures never replace it with partial data.

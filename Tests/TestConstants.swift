@@ -2,6 +2,127 @@ import Foundation
 
 /// Synthetic, credential-free fixtures for the README and persistence boundary.
 internal enum TestConstants {
+    internal static let technologyNames = [
+        "Local Assistant": ["Retrieval-Augmented Generation (RAG)", "Embeddings", "Qwen3-4B Q4_K_M", "Qwen3-Embedding-0.6B Q8_0", "llama.cpp", "GGUF", "Whisper Small", "WhisperKit", "Core ML", "Optical character recognition (OCR)", "Apple Vision", "SwiftUI", "AppKit", "Swift", "Foundation", "Indexing", "CoreServices", "PDFKit", "ZIPFoundation", "SQLite", "SQLite FTS5", "sqlite-vec", "Security-scoped bookmarks", "App Sandbox", "Agent-to-Agent (A2A)", "SSH"],
+        "Prospect Copilot": ["LangGraph", "LangChain", "DeepSeek deepseek-chat", "BANT", "MEDDIC", "React", "React DOM", "Next.js", "TypeScript", "react-markdown", "remark-gfm", "Node.js", "Zod", "Cheerio", "Bounded concurrency", "Composite scoring", "IndexedDB", "idb-keyval", "localStorage", "Server-sent events (SSE)", "OpenAI-compatible API", "ipaddr.js", "Server-side request forgery (SSRF) protection"],
+        "OpenClaw": ["OpenClaw runtime", "Embeddings", "Ollama", "nomic-embed-text:latest", "Python", "Bash", "cron", "Markdown", "ChromaDB", "Tencent CloudBase", "iCloud Calendar", "Agent-to-Agent (A2A)", "Feishu", "Reusable skills"],
+        "Python Accomplishments": ["Amazon Polly", "IBM Watson Speech to Text", "Tkinter", "Python", "Selenium", "Beautiful Soup", "Playwright", "tenacity", "openpyxl", "python-docx", "pathlib", "natsort", "CSV", "boto3", "ibm-watson", "ibm-cloud-sdk-core", "SMTP", "python-dotenv", "pip", "PyInstaller"],
+        "Knowledge Transfer": ["React", "React DOM", "TypeScript", "react-markdown", "remark-gfm", "rehype-raw", "rehype-sanitize", "prism-react-renderer", "Three.js", "React Router", "mdast-util-from-markdown", "mdast-util-to-string", "Text search", "Source-derived graph", "Markdown", "Obsidian Canvas", "JSON", "Vite", "JavaScript", "Node.js", "HTML", "Vitest"],
+        "Project Control": ["SwiftUI", "AppKit", "Swift", "Swift concurrency", "Foundation", "Directed graphs", "Markdown", "JSON", "UserDefaults", "CryptoKit", "Uniform Type Identifiers", "Canonical path validation"]
+    ]
+    internal static let mappedReadme = """
+    # Example
+    Unselected opening text.
+    <!-- project-control:section=overview -->
+    ## Introduction with a different name
+    A quiet project management tool.
+    <!-- project-control:section=architecture -->
+    ## Technical design
+    ### Frontend & Presentation
+    | Technology or concept | Use in this project |
+    |---|---|
+    | React | Interactive interface. |
+    | TypeScript | Typed application code. |
+    <!-- project-control:section=ignore -->
+    ### Private maintenance
+    secretCode
+    <!-- project-control:section=models -->
+    #### Hidden nested model
+    secretCode
+    ## Architecture outside mapping
+    secretCode
+    <!-- project-control:section=models -->
+    ## Model inventory
+    | Model | Use |
+    |---|---|
+    | Example-model | Local answering. |
+    <!-- project-control:section=release -->
+    ## Shipped identity
+    Current release: v0.8 (build 8).
+    <!-- project-control:section=workflows -->
+    ## Processing stages
+    Input → Output
+    <!-- project-control:section=history -->
+    ## Previous changes
+    | Version | Date | Changes |
+    |---|---|---|
+    | v0.1 | 2026-08-30 | Initial implementation |
+    <!-- project-control:section=architecture -->
+    ### Historical implementation
+    secretCode
+    ```markdown
+    <!-- project-control:section=unknown -->
+    ## Inert example
+    ```
+    """
+    internal static let mappedRoot = """
+    # Example repository
+    <!-- project-control:section=overview -->
+    ## Repository introduction
+    Repository overview from its README.
+    <!-- project-control:section=projects -->
+    ## Managed applications
+    | Project | Scope |
+    |---|---|
+    | [Example](Example/) | Sample scope. |
+    <!-- project-control:section=history -->
+    ## Recorded changes
+    | Project | Date | Updates |
+    |---|---|---|
+    | Example | 2026-08-30 | Initial implementation |
+    """
+    internal static let mappedWithoutArchitecture = """
+    # Example
+    <!-- project-control:section=overview -->
+    ## Overview
+    A changed introduction.
+    ## Architecture
+    This unmarked section must not appear.
+    """
+    internal static let invalidMappings = [
+        "<!-- project-control:section=unknown -->\n## Unknown",
+        "<!-- project-control:section=architecture -->",
+        "<!-- project-control:section=architecture -->\nProse before heading.\n## Design",
+        "<!-- project-control:section=architecture -->\n<!-- project-control:section=models -->\n## Design",
+        "<!-- project-control:section=architecture-->\n## Design"
+    ]
+    internal static let mappedTechnologyNames = ["React", "TypeScript"]
+    internal static let mappedVersion = "v0.8 (build 8)"
+    internal static let mappedHeading = "Technical design"
+    internal static let renamedMappedHeading = "Renamed technology inventory"
+    internal static let modelName = "Example-model"
+    internal static let mappedProjectRow = "| [Example](Example/) | Sample scope. |\n"
+    internal static let mappedSecondRow = "| [Missing](Missing/) | Another project. |\n"
+    internal static let digestBefore = "A quiet project management tool."
+    internal static let digestAfter = "A quiet project management test."
+    internal static let checkMapping = "stable mapping survives renamed headings and excludes unmapped/ignored content"
+    internal static let checkMappingFailure = "invalid mappings are rejected rather than silently routed"
+    internal static let checkMappedRelease = "mapped release wins without leaking historical version numbers"
+    internal static let checkMappedRoot = "renamed root sections populate navigation, overview, and history"
+    internal static let checkDigest = "content fingerprints detect equal-length edits with preserved timestamps"
+    internal static let checkEmptyRegister = "a valid empty register removes every project"
+    internal static let checkTechnologyRows = "each technology has exactly one individually named architecture row: "
+    internal static let checkStaleProject = "invalid or missing project README retains visibly stale last-good content"
+    internal static let checkProjectRecovery = "valid recovery clears warnings and applies section deletions"
+    internal static let checkStaleRoot = "root failures retain the last snapshot with persistent stale state"
+    internal static let checkSyncNotes = "refresh preserves project selection and private work notes"
+    internal static let checkIndependentSync = "one broken project does not prevent other README updates"
+    internal static let checkInitialRecovery = "automatic observation recovers from a failed initial root read"
+    internal static let checkSourceMapping = "registered README has valid explicit content mappings: "
+    internal static let registerChildTable = """
+    ### Extended description
+    | Reference | Description |
+    |---|---|
+    | [Outside](../Outside/) | Not a project registration. |
+
+    """
+    internal static let mappedHistoryMarker = "<!-- project-control:section=history -->"
+    internal static let checkRegisterChildren = "descriptive child tables cannot become project registrations"
+    internal static let registerHeader = "| Project | Scope |\n"
+    internal static let raceDirectory = "PollingRace"
+    internal static let checkPollingRace = "a completed old-root poll cannot queue over an active repository switch"
+    internal static let checkWrongRootWarning = "a failed different-root selection does not mark current content stale"
+    internal static let checkRegisterHeader = "a register without a table header is not a valid empty register"
     internal static let project = "Example"
     internal static let rootName = "ProjectControlTests-"
     internal static let failed = "FAILED: "

@@ -15,6 +15,19 @@ internal enum ControlConstants {
     internal static let appExtension = "app"
     internal static let folderPreference = "repositoryPath"
     internal static let projectsHeading = "projects"
+    internal static let mappingPrefix = "<!-- project-control:"
+    internal static let mappingPattern = #"^\s*<!-- project-control:section=([a-z]+) -->\s*$"#
+    internal static let sectionMappings: [String: ReadmeTopic] = [
+        "overview": .overview, "architecture": .architecture, "models": .models,
+        "workflows": .workflows, "history": .history, "projects": .projects,
+        "release": .release, "ignore": .ignore
+    ]
+    internal static let mappingFailure = "Invalid README section mapping. Check the repository README authoring contract; markers must name an allowed section and immediately precede a heading."
+    internal static let staleContent = "Out of date — showing the last successfully read content."
+    internal static let sourceUnavailable = "README unavailable — check the file and its access permissions."
+    internal static let contentUnavailable = "README content unavailable."
+    internal static let sourceWarning = "README needs attention"
+    internal static let releaseValuePattern = #"(?i)\bv\d+\.\d+(?:\.\d+)?(?:\s*\(build\s+\d+\))?"#
     internal static let overviewWords = ["overview", "what this does", "about"]
     internal static let architectureWords = ["architecture", "technology", "tech stack", "components", "project structure", "project layout"]
     internal static let modelHeadingWords = ["models", "language model", "llm", "model configuration"]

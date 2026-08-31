@@ -55,6 +55,7 @@ internal enum CoreTests {
         parserChecks()
         tableChecks()
         architectureHistoryChecks()
+        try mappingChecks(root)
         try aliasChecks(repository, project: project, outside: outside)
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
         check(live.projects.count == 6, TestConstants.checkLive)
@@ -63,6 +64,7 @@ internal enum CoreTests {
         check(liveModels.contains { $0.table != nil }
             && !liveModels.contains { $0.text.contains(TestConstants.rawTableSeparator) || $0.text.hasPrefix(ControlConstants.pipe) }, TestConstants.checkLiveTables)
         for project in live.projects {
+            check(project.sourceWarning == nil, TestConstants.checkSourceMapping + project.name)
             let categories = project.architecture.enumerated().filter {
                 $0.element.kind == .heading && TestConstants.architectureGroupTitles.contains($0.element.text)
             }
@@ -75,6 +77,9 @@ internal enum CoreTests {
                       TestConstants.checkArchitectureGroupTable + project.name + ControlConstants.joined + category.element.text)
             }
             let rows = project.architecture.compactMap(\.table).flatMap(\.rows)
+            for term in TestConstants.technologyNames[project.name] ?? [] {
+                check(rows.filter { $0.first == term }.count == 1, TestConstants.checkTechnologyRows + term)
+            }
             check(!rows.isEmpty, TestConstants.checkAllArchitecture + project.name)
             for component in TestConstants.architectureCoverage[project.name] ?? [] {
                 check(rows.contains { $0.joined(separator: ControlConstants.space).contains(component) },
@@ -82,6 +87,57 @@ internal enum CoreTests {
             }
         }
         print(TestConstants.passed + String(count))
+    }
+
+    /// Exercises explicit routing, exclusions, renamed roots, deletion, and metadata-preserving edits.
+    /// - Parameter root: Disposable fixture directory.
+    /// - Returns: Nothing; fails on a content-contract regression.
+    private static func mappingChecks(_ root: URL) throws {
+        let sections = try ReadmeParser.validatedSections(TestConstants.mappedReadme)
+        let architecture = ReadmeParser.architecture(sections)
+        check(architecture.compactMap(\.table).flatMap(\.rows).compactMap(\.first) == TestConstants.mappedTechnologyNames,
+              TestConstants.checkMapping)
+        let renamed = try ReadmeParser.validatedSections(TestConstants.mappedReadme.replacingOccurrences(
+            of: TestConstants.mappedHeading, with: TestConstants.renamedMappedHeading))
+        check(TestFixtures.text(ReadmeParser.architecture(renamed)) == TestFixtures.text(architecture), TestConstants.checkMapping)
+        check(ReadmeParser.overview(sections, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.introduction,
+              TestConstants.checkMapping)
+        check(ReadmeParser.models(sections).compactMap(\.table).flatMap(\.rows).first?.first == TestConstants.modelName,
+              TestConstants.checkMapping)
+        check(ReadmeParser.workflows(sections).first?.steps == TestConstants.mixedSteps, TestConstants.checkMapping)
+        check(ReadmeParser.history(sections).first?.detail == TestConstants.history, TestConstants.checkMapping)
+        check(ReadmeParser.release(sections, fallback: TestConstants.version) == TestConstants.mappedVersion, TestConstants.checkMappedRelease)
+        for invalid in TestConstants.invalidMappings {
+            checkThrows(TestConstants.checkMappingFailure) { _ = try ReadmeParser.validatedSections(invalid) }
+        }
+        check(ReadmeParser.architecture(try ReadmeParser.validatedSections(TestConstants.mappedWithoutArchitecture)).isEmpty,
+              TestConstants.checkMapping)
+        let repository = root.appendingPathComponent(TestConstants.secondRepository)
+        let project = repository.appendingPathComponent(TestConstants.project)
+        try FileManager.default.createDirectory(at: project, withIntermediateDirectories: true)
+        let rootReadme = repository.appendingPathComponent(ControlConstants.readme)
+        let projectReadme = project.appendingPathComponent(ControlConstants.readme)
+        try TestConstants.mappedRoot.write(to: rootReadme, atomically: true, encoding: .utf8)
+        try TestConstants.mappedReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
+        let snapshot = try RepositoryReader.load(repository)
+        check(snapshot.projects.count == 1 && snapshot.overview.first?.text == TestConstants.repositoryOverview
+            && snapshot.history.first?.detail == TestConstants.history, TestConstants.checkMappedRoot)
+        try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedHistoryMarker,
+            with: TestConstants.registerChildTable + TestConstants.mappedHistoryMarker)
+            .write(to: rootReadme, atomically: true, encoding: .utf8)
+        check(try RepositoryReader.load(repository).projects.count == 1, TestConstants.checkRegisterChildren)
+        let attributes = try FileManager.default.attributesOfItem(atPath: projectReadme.path)
+        try TestConstants.mappedReadme.replacingOccurrences(of: TestConstants.digestBefore, with: TestConstants.digestAfter)
+            .write(to: projectReadme, atomically: false, encoding: .utf8)
+        guard let modified = attributes[.modificationDate] as? Date else { fatalError(TestConstants.checkDigest) }
+        try FileManager.default.setAttributes([.modificationDate: modified], ofItemAtPath: projectReadme.path)
+        check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint, TestConstants.checkDigest)
+        try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedProjectRow, with: ControlConstants.empty)
+            .write(to: rootReadme, atomically: true, encoding: .utf8)
+        check(try RepositoryReader.load(repository).projects.isEmpty, TestConstants.checkEmptyRegister)
+        try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.registerHeader, with: ControlConstants.empty)
+            .write(to: rootReadme, atomically: true, encoding: .utf8)
+        checkThrows(TestConstants.checkRegisterHeader) { _ = try RepositoryReader.load(repository) }
     }
 
     /// Covers valid Markdown edge cases that previously exposed or truncated content.
