@@ -1,25 +1,37 @@
 # Project Control
 
+<!-- project-control:section=overview -->
+## Overview
+
 Project Control is a native macOS management center for this repository. Understand projects, track structured work notes, follow documented changes, and open a folder or chosen application without viewing or editing source code inside the app.
 
+<!-- project-control:section=release -->
 ## Current release
 
-The current release is **v0.7 (build 7)**, delivered as the root-level app. It enlarges project icons and aligns them with the title line, places history dates beside entry titles, and preserves complete architecture tables including models and RAG. Source-backed architecture tables are documented for all six projects. All 128 core checks and 18 store checks passed, followed by clean compilation, bundle checks, and launch. The user authorized building this update without first committing v0.6; source was uncommitted at build time.
+The current release is **v0.8 (build 8)**, delivered as **Project Control.app** beside this
+README. It adds explicit README section routing, background content-digest checks, visible
+stale-source recovery, and 117 individually named architecture technologies/concepts across
+all six projects. The selected design, Nexus icon, navigation, notes, diagrams, and app discovery remain.
 
-The app retains Nexus header branding, full-row navigation without search, automatic project-root app detection, separate README content tabs, and connected workflow diagrams. It uses only Apple's frameworks and needs no account, API key, downloaded model, web server, or paid dependency. Offscreen native rendering checked the new hierarchy, project icons, and tables at regular and minimum window sizes. Live Dock/window, keyboard, file-picker, and reduced-motion interaction checks remain unconfirmed because macOS previously denied screen-capture access. No privacy settings were changed or screen-capture permission retried.
+Review corrected an old-repository polling race during repository switches, required a real
+register-table header, and kept a failed different-root choice from falsely marking the current
+repository stale. Final verification passed **303 core checks and 34 store checks**, native
+type-checking, clean compilation, strict signing and source/bundle metadata checks. A disposable
+copy without the polling guard failed the new repository-switch regression at the expected assertion.
+No actionable findings remain in this reviewed scope.
 
-The 2026-08-31 README grouping update presents each project's architecture as category-specific
-tables using the existing native renderer. All component rows remain intact. This source-content
-refresh does not change the v0.7/build-7 executable.
+Native offscreen rendering produced all six architecture views at 583- and 843-point content
+widths; minimum-width views, a regular-width representative, and the stale warning were inspected.
+This is layout evidence, not live window/keyboard/file-picker verification. An existing app process
+was left untouched; quit and reopen the root-level app to load the new binary. No privacy setting
+or capture permission was changed.
 
-The subsequent review found no actionable implementation defects. The grouping update passed
-162 core checks and 18 store checks, including category-order and native-table regressions.
-All 66 component rows were retained exactly once across 28 groups. Native type-checking,
-118 README file targets, and offscreen category layouts passed; all six projects were rendered
-at both content widths. The existing v0.7 bundle retained its executable/metadata hashes and
-passed strict signature and source-metadata checks. Live interaction remains unverified;
-process inspection was unavailable. Temporary probe files and compiler/test artifacts are
-removed before committing, while the v0.6 recovery bundle is retained.
+The previous v0.7 source was committed before this update, and its unchanged bundle remains
+recoverable under `build/previous.sH4KB5/Project Control.app`. The obsolete v0.6 recovery and
+superseded pre-review v0.8 candidate were moved to macOS Trash under
+`Project Control - retired bundles 2026-08-31-sync`. Temporary test, mutation, rendering, and
+compiler/icon artifacts were removed. The separate Observatory v2.2 snapshot was rebuilt with
+permission to leave its pending Atlas/release work uncommitted.
 
 ## Quick start
 
@@ -43,37 +55,67 @@ open "Project Control.app"
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The latest completed application lives directly beside this README as **Project Control.app**, now v0.7/build 7 with Nexus. The previous v0.6/build-6 bundle is preserved in `build/previous.4H03H1/Project Control.app`; its signature and executable, metadata, and icon checksums are unchanged. The superseded v0.5 bundle was retired to macOS Trash, as were older bundles during earlier updates. Temporary render files, test executables, compiler caches, and intermediate icons were removed. Quit the running app before installing an update so reopening starts the new version.
+The latest completed application lives directly beside this README as **Project Control.app**,
+version **v0.8/build 8**. The previous v0.7 bundle is preserved for recovery. Quit the running
+app before reopening an update.
 
 ## Versioning and build delivery
 
 - Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. The next update after v0.7/build 7 is **v0.8/build 8**. A clean recompilation of the same unchanged update does not create a new release.
+- Every application update advances the release version and increments the integer build number. The next update after v0.8/build 8 is **v0.9/build 9**. A clean recompilation of the same unchanged update does not create a new release.
 - Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
 - Before creating a new versioned/distributable build, obey the root build-history gate: commit previous-build changes only with explicit authorization, or obtain explicit permission to proceed without a commit. Icon/design studies and relocating an unchanged bundle are not new application releases.
 
+<!-- project-control:section=workflows -->
 ## How information stays current
 
+The repository [README content contract](../README.md#readme-content-contract-for-project-control)
+is the single authoring reference for supported section markers, category tables, exclusions,
+legacy headings, and recovery. Keep markers with their owning headings when reorganizing a README.
+
 ```text
-Repository README → repository overview, project register, and repository history
-Project README    → introduction, architecture, explicit workflows, project history
-Local work notes  → completed-note count and progress ring
+README saved → background content check → mapped section parsing → native screen update
+Repository Projects table → registered project READMEs → project navigation and content
+Local work notes → completed-note count and progress ring
 ```
 
-README resolved paths, modification dates, sizes, top-level app-bundle metadata, and executable availability are checked every two seconds while the window is open. Metadata is captured before each read so edits during parsing remain detectable. App validation reads bounded, current `Info.plist` data rather than cached bundle information; executable-permission changes also invalidate the snapshot. Changed documents reload off the interface thread; **Refresh now** forces a read. A repository selection made while loading is queued, with the latest selection taking precedence. A failed repository refresh retains the previous snapshot and shows a warning. **Last read** records a successful snapshot, not a runtime health check. App discovery runs again when Open App is clicked; missing or nonexecutable targets are not launched.
+### Synchronization implementation
+
+RepositoryReader reads only bounded repository/project READMEs and app identity metadata.
+A background check runs approximately every two seconds while the app view is active. It compares
+fresh metadata and CryptoKit SHA-256 content digests, so same-size edits with preserved timestamps
+are detected. It captures identities before parsing so a concurrent edit triggers a later refresh.
+ControlStore publishes a complete snapshot on the main actor and preserves existing selection and notes.
+
+An unreadable or invalid project README keeps that project's last good content visibly stale;
+other projects still update. A valid removal of a mapped section clears the old section. An invalid
+root register/read keeps the last good repository snapshot with a warning. Repairs recover on the
+next check, including a failed initial restoration; Refresh now forces a read. Last read reports
+the snapshot read time, not an assertion that stale project content or runtime health is current.
 
 ### Extraction rules and limits
 
-- The root README needs a `## Projects` section with a pipe table linking to top-level project folders. Paths must stay within the selected repository, including after resolving symbolic links.
-- Table cells preserve escaped pipes and do not require a trailing pipe. Folder aliases share a canonical project identity instead of creating separate note collections.
-- Overview uses the README's explicit Overview, About, or What This Does section; otherwise it uses the opening description before second-level sections. It preserves paragraphs and bullet points. Nested architecture, model, workflow, and historical headings belong to their own topics. The root table summary is the fallback when project prose is unavailable. All six registered projects now have project READMEs.
-- Architecture preserves the complete current component tables, including model, embedding, RAG, orchestration, and storage roles. An explicit architecture heading takes precedence over a mixed label such as Workflow architecture; its explicit diagrams still remain available in Workflows. Models provides a secondary model-focused extract without subtracting rows from Architecture. Dedicated Models sections remain separate. One block parser keeps tables out of prose, retains source headers and section labels, and preserves the order of prose, bullets, and tables. Inline-code identifiers and paths retain literal underscores. These are source extracts, not AI-generated interpretations; no project architecture is hard-coded in the app.
-- Workflow diagrams use explicit `→` or `->` routes under workflow/request headings, including text-only fenced diagrams. Supported block diagrams use `↓` between stages and same-depth `├─→` / `└─→` branches; a following downward stage joins the completed branch group. Separate routes stay separate. Up to eight graphs with at most 32 nodes each are shown. Malformed, unsupported, or code-like diagram blocks are not interpreted. The app does not infer dependencies from ordinary bullets, interpret Mermaid, or invent missing models/workflows.
-- Changelog/version-history tables supply up to thirty source-ordered history entries; headings beginning with a release label such as `v1.0` are the fallback. A version mentioned in a project title or protocol heading does not turn its current child sections into history. Open the README for the complete record. Explicit **current source release** or **current release** statements supply release/build labels; unrelated protocol versions do not.
-- Fenced source-code blocks are excluded; only unlabelled, `text`, or `plaintext` blocks can supply supported diagrams. Fence-like lines with trailing text do not close a block. Workflow labels require a colon followed by whitespace before the first arrow, so URL colons and later step labels stay intact. Markdown/HTML presentation becomes inert text. Scripts, commands, links, and embedded remote images are not executed or fetched. Each README read is limited to 2 MB.
-- **Document health** checks folder/README availability. **Runtime not checked** is intentional: no project builds, tests, processes, or remote health probes run automatically.
+- Section markers are allowlisted, inert metadata. Marked documents are opt-in; unmarked
+  documents retain legacy heading recognition. This app does not interpret arbitrary README instructions.
+- Tables preserve source headers, rows, escaped pipes, literal model/path identifiers, and order.
+  Wider native tables scroll horizontally. Models remains a secondary view without removing
+  model facts from Architecture.
+- Workflow diagrams use explicit `→` or `->` routes and supported unlabelled/`text`/`plaintext`
+  fenced diagrams. Downward stages and same-depth branches retain documented merges.
+  At most eight graphs with 32 nodes each are displayed; ordinary bullets do not invent connections.
+  Unsupported Mermaid or code-like blocks remain README-only.
+- History tables supply the latest thirty source-ordered entries. Standalone dates appear beside
+  the project/version title; the detail body does not repeat them. Mapped release text supplies
+  the header's version/build label, not arbitrary historical or protocol versions.
+- Each README read is limited to 2 MB and constrained to canonical paths within the repository.
+  Fenced source code is excluded; Markdown/HTML is inert. No scripts, commands, remote images,
+  model downloads, or source-code scans run.
+- App discovery validates bounded current Info.plist metadata and executable availability;
+  discovery never launches apps. Missing or nonexecutable targets are not launched.
+- Document warnings describe source availability, not runtime health. No project build/test/process
+  or remote health check is triggered automatically.
 
 ## Local data and launch safety
 
@@ -83,38 +125,42 @@ No README is edited. Automatic app discovery scans only the project folder's imm
 
 The development app is not sandboxed or notarized. Its scanner is restricted to selected-repository READMEs, app-bundle identity metadata, and filesystem metadata; the UI also asks macOS for discovered apps' icons. That is an application-level boundary, not an operating-system sandbox claim. It does not read project source files or executable contents. The app contains no network client.
 
+<!-- project-control:section=architecture -->
 ## Architecture
 
 ### Frontend & Presentation
 
-| Component | Responsibility |
+| Technology or concept | Use in this project |
 |---|---|
-| SwiftUI views | Native register, project surface, disclosures, note editor, restrained motion |
-| `ReadmeContent` / `RepositoryScreen` | Shared native table/prose rendering and the repository parent's overview/history surface |
-| `ProjectIcon` | Preferred project-root app icons and a neutral non-app fallback |
-| `WorkflowParser` / `WorkflowDiagram` | Source-defined graph topology and native, content-sized node/connector rendering |
-| History presentation | Source project/version titles and standalone ISO date cells appear together in disclosure headings; dates are not repeated in their detail body |
+| SwiftUI | Builds the register, project screens, work-note editor, History, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
+| AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions; ProjectIcon keeps app and fallback artwork consistent. |
 
 ### Backend & Application Logic
 
-| Component | Responsibility |
+| Technology or concept | Use in this project |
 |---|---|
-| `ControlStore` | Selection, window lifecycle, background reload, local mutations, native open actions |
-| `RepositoryReader` | Bounded reads, canonical path checks, source snapshots, modification fingerprints |
-| `ReadmeParser` | Inert sections, tables, prose, explicit routes, and histories |
+| Swift | Native application language. ControlStore owns selection and background reloads; RepositoryReader reads bounded source documents; ReadmeParser handles sections, tables, and history. |
+| Swift concurrency | Runs README reads and change detection off the interface thread; updates the observable store on the main actor. |
+| Foundation | Provides bounded file reads, canonical paths, dates, regular expressions, and structured-data encoding. |
+| Directed graphs | WorkflowParser and WorkflowDiagram render documented nodes, arrows, branches, and merges without inventing relationships. |
 
 ### Data & Storage
 
-| Component | Responsibility |
+| Technology or concept | Use in this project |
 |---|---|
-| `WorkspaceStorage` | Atomic JSON persistence; malformed data is never reset automatically |
+| Markdown | Repository/project README files are the content baseline. Stable section markers select the app-visible subset. |
+| JSON | WorkspaceStorage atomically saves local work notes and app choices outside the repository; malformed data is never reset automatically. |
+| UserDefaults | Remembers the last successfully selected repository separately from work-note storage. |
 
 ### Integrations & Security
 
-| Component | Responsibility |
+| Technology or concept | Use in this project |
 |---|---|
-| `ApplicationLocator` | Top-level bundle discovery, validation, and deterministic app preference |
-| AI/runtime boundary | No LLM, embedding service, RAG index, network client, or automatic project execution; the app displays README-defined architecture rather than inferring it |
+| CryptoKit | Computes bounded README content digests for refresh detection, including same-size edits with preserved timestamps. |
+| Uniform Type Identifiers | Constrains the native application picker to application bundles. |
+| Canonical path validation | Keeps README reads inside the selected repository. ApplicationLocator validates top-level app identity; discovery never launches apps. |
+
+No LLM, embedding service, RAG index, network client, or automatic project execution is included. The app displays documented facts rather than inspecting project code.
 
 ## Project structure
 
@@ -183,16 +229,18 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 - Keep Open App beside Read README. Discover project-root apps first; use manual location only as the fallback, and never launch during scanning.
 - Keep README Overview content in Overview, with separate Architecture, Models, Workflows, Work notes, and Project history tabs.
 - Render README tables as native headers and cells, never as a raw or duplicated Markdown paragraph. Preserve model identifiers and paths. Keep regressions for leading blank lines, adjacent prose, escaped pipes, and underscore-containing identifiers.
-- Keep every documented architecture-table row visible, including models, embeddings, RAG, orchestration, retrieval, and storage. Models is a secondary view, not a reason to remove architecture responsibilities. Check coverage for every registered project and never label an absent framework as installed.
-- Group architecture components under relevant child headings: AI & Intelligence, Frontend & Presentation, Backend & Application Logic, Data & Storage, Integrations & Security, and Build & Delivery. Give each group its own native table, retain every component once under its primary responsibility, and omit empty groups. Backend & Application Logic includes on-device/browser logic and does not imply a network server. Keep category headings in the README so later edits update the app automatically.
+- Keep every documented architecture-table row visible, including models, embeddings, RAG, orchestration, retrieval, and storage. Models is a secondary view, not a reason to remove documented technologies or concepts. Check coverage for every registered project and never label an absent framework as installed.
+- Follow the repository README's single content contract: category-grouped tables, one named technology/concept per row, plain-language use descriptions, stable section markers, and explicit exclusions. Do not bundle languages, frameworks, models, or protocols into a responsibility row.
 - Show a history row's standalone date beside its project/version title; the expanded body contains the change description without a duplicate date.
 - Render workflows as connected diagrams, not numbered lists. Preserve explicit branches and independent routes; never invent relationships to fill a diagram.
 - Keep the selected visual language, content-sized diagram nodes, horizontal scrolling for wide graphs/tabs, accessible connection descriptions, and reduced-motion behavior.
 
+<!-- project-control:section=history -->
 ## Change log
 
 | Version | Date | Updates |
 |---|---|---|
+| v0.8 / build 8 | 2026-08-31 | Added stable README mappings, content-digest refresh, source warnings/recovery, and one technology/concept per architecture row. Review fixed the polling/switch race, malformed empty-register acceptance, and misleading different-root stale state. Passed 303 core and 34 store checks, a focused mutation check, native type-checking, clean compilation, native offscreen layouts, and signed-bundle metadata/identity checks. Preserved v0.7; retired v0.6 and the superseded candidate to Trash; removed temporary/generated artifacts. The existing app process was not restarted; live UI interaction remains unverified. |
 | README grouping · no new app build | 2026-08-31 | Grouped all six projects' architecture components into relevant category tables using existing native headings and tables. Preserved every source row and documented the category convention. The v0.7/build-7 application is unchanged; Observatory's embedded README advances separately to v2.1. Passed 162 core checks, 18 store checks, native type-checking, exact row/group checks, README links, native offscreen layouts, and unchanged-bundle identity/signature checks. Review found no actionable defects; live interaction remains unverified. |
 | v0.7 / build 7 | 2026-08-31 | Delivered larger title-aligned project icons, dates beside history headings, and complete architecture tables with full-width row dividers. Added source-backed tables to all six project READMEs and retained mixed architecture/workflow sections. Passed 128 core checks, 18 store checks, native type-checking, offscreen header/history/table layouts, clean compilation, strict bundle checks, and root-level launch. Preserved v0.6 unchanged, retired v0.5 to Trash, and removed temporary/generated artifacts. The user permitted building before committing v0.6; source was uncommitted at build time. Live interaction remains unconfirmed. |
 | v0.6 / build 6 | 2026-08-30 | Added structured native README tables, preserved model/path identifiers, preferred project icons, and a selectable repository-parent screen replacing footer content. Added table/navigation acceptance rules and focused regressions. Passed 71 core checks, 18 store checks, native type-checking, offscreen layout checks, clean compilation, strict signature/metadata/icon checks, and root-level launch. Preserved v0.5 unchanged, retired v0.4 to Trash, and removed temporary/generated artifacts. Live UI interaction remains unconfirmed; source was uncommitted at delivery. |
