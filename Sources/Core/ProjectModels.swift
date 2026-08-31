@@ -76,6 +76,7 @@ internal struct ProjectRecord: Identifiable {
     internal let readmeAvailable: Bool
     internal var overview: [ReadmeBlock] = []
     internal var models: [String] = []
+    internal var applications: [URL] = []
 }
 
 /// A complete repository snapshot; refresh failures never replace it with partial data.

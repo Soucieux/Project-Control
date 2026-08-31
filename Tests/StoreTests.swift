@@ -47,6 +47,7 @@ internal enum StoreTests {
         check(!store.loading && store.error == nil, TestConstants.checkStoreLoading)
         check(preferences.string(forKey: ControlConstants.folderPreference) == secondRoot.resolvingSymlinksInPath().path, TestConstants.checkStorePreference)
         try await refreshCheck(secondRoot, storage: storage, preferences: preferences)
+        try applicationChecks(secondRoot, storage: storage, preferences: preferences)
         let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .next)
         check(try store.save(note, for: TestConstants.project) && storage.load().notes[TestConstants.project] == [note], TestConstants.checkStoreSave)
         var edited = note
@@ -91,6 +92,29 @@ internal enum StoreTests {
         observer.cancel()
         await observer.value
         check(store.snapshot?.projects.first?.introduction == TestConstants.updatedIntroduction, TestConstants.checkConcurrentRefresh)
+    }
+
+    /// Checks manual fallback resolution and automatic precedence without executing applications.
+    /// - Parameters: root: Disposable repository. storage: Isolated workspace file. preferences: Isolated preference suite.
+    /// - Returns: Nothing; fails if launch-target selection changes the safety or fallback contract.
+    private static func applicationChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) throws {
+        var project = try RepositoryReader.load(root).projects[0]
+        let manual = try TestFixtures.application(in: root, name: TestConstants.external)
+        var state = WorkspaceState()
+        state.applications[project.id] = manual.path
+        try storage.save(state)
+        let store = ControlStore(storage: storage, preferences: preferences)
+        check(store.application(for: project) == manual, TestConstants.checkManualApp)
+        let automatic = try TestFixtures.application(in: project.folder, name: project.name)
+        project.applications = [automatic]
+        check(store.application(for: project) == automatic, TestConstants.checkAutomaticApp)
+        store.clearApplication(for: project.id)
+        check(try storage.load().applications[project.id] == nil && FileManager.default.fileExists(atPath: manual.path), TestConstants.checkClearApp)
+        try storage.save(state)
+        try FileManager.default.removeItem(at: automatic)
+        try FileManager.default.removeItem(at: manual)
+        let stale = ControlStore(storage: storage, preferences: preferences)
+        check(stale.application(for: project) == nil, TestConstants.checkStaleApp)
     }
 
     /// Records a deterministic state assertion.

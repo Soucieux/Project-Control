@@ -1,6 +1,6 @@
 import Foundation
 
-/// Loads only bounded READMEs and checks local path metadata; never runs project commands.
+/// Loads bounded READMEs and app identity metadata; never reads source files or runs project commands.
 internal enum RepositoryReader {
     /// Reads a bounded regular file as UTF-8, rejecting symlink destinations outside the root.
     /// - Parameters: url: README path. root: Allowed repository boundary.
@@ -52,7 +52,7 @@ internal enum RepositoryReader {
             }
             let identifier = folder.resolvingSymlinksInPath().standardizedFileURL.path
             guard seen.insert(identifier).inserted else { return nil }
-            identities += [identity(folder), identity(folder.appendingPathComponent(ControlConstants.readme))]
+            identities += projectFingerprint(folder)
             return project(name: name, folder: folder, scope: ReadmeParser.plain(row[1]), root: canonical)
         }
         guard !projects.isEmpty else { throw ControlFailure(message: ControlConstants.invalidRepository) }
@@ -80,14 +80,28 @@ internal enum RepositoryReader {
             history: ReadmeParser.history(sections), folderAvailable: exists && isDirectory.boolValue,
             readmeAvailable: document != nil,
             overview: ReadmeParser.overview(sections, fallback: introduction.isEmpty ? ControlConstants.noIntroduction : introduction),
-            models: ReadmeParser.models(sections))
+            models: ReadmeParser.models(sections),
+            applications: ApplicationLocator.candidates(in: folder).filter(ApplicationLocator.isApplication))
     }
 
     /// Captures README metadata so unchanged files need not be parsed every polling interval.
     /// - Parameter snapshot: Last successful snapshot.
     /// - Returns: Ordered modification/size identities, including missing files.
     internal static func fingerprint(_ snapshot: RepositorySnapshot) -> [String] {
-        ([snapshot.root.appendingPathComponent(ControlConstants.readme)] + snapshot.projects.flatMap { [$0.folder, $0.readme] }).map(identity)
+        [identity(snapshot.root.appendingPathComponent(ControlConstants.readme))]
+            + snapshot.projects.flatMap { projectFingerprint($0.folder) }
+    }
+
+    /// Observes top-level app additions, removals, and metadata changes alongside README changes.
+    /// - Parameter folder: Registered project folder.
+    /// - Returns: Pre-read identities, including incomplete bundles so repairs can be detected.
+    private static func projectFingerprint(_ folder: URL) -> [String] {
+        [identity(folder), identity(folder.appendingPathComponent(ControlConstants.readme))]
+            + ApplicationLocator.candidates(in: folder).flatMap { application in
+                [identity(application), String(ApplicationLocator.isApplication(application)),
+                    identity(application.appendingPathComponent(ControlConstants.appContents)
+                    .appendingPathComponent(ControlConstants.appInfo))]
+            }
     }
 
     /// Reads fresh metadata before parsing so concurrent edits trigger a later refresh.

@@ -35,6 +35,7 @@ internal enum CoreTests {
         check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint, TestConstants.checkCaptured)
         check(try RepositoryReader.load(repository).projects[0].introduction == TestConstants.updatedIntroduction, TestConstants.checkReload)
         try storageChecks(root)
+        try applicationChecks(repository, project: project, root: root)
         try TestConstants.escapedRoot.write(to: rootReadme, atomically: true, encoding: .utf8)
         checkThrows(TestConstants.checkEscape) { _ = try RepositoryReader.load(repository) }
         try TestConstants.symlinkRoot.write(to: rootReadme, atomically: true, encoding: .utf8)
@@ -85,6 +86,70 @@ internal enum CoreTests {
         check(ReadmeParser.overview(versioned, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.overviewText
             && ReadmeParser.architecture(versioned).contains(TestConstants.architecture)
             && ReadmeParser.workflows(versioned).count == 1 && ReadmeParser.history(versioned).isEmpty, TestConstants.checkVersionedTitle)
+    }
+
+    /// Exercises automatic app discovery without launching any fixture or reading user preferences.
+    /// - Parameters: repository: Disposable repository. project: Registered project folder. root: Fixture boundary.
+    /// - Returns: Nothing; throws on fixture failure and terminates on incorrect discovery behavior.
+    private static func applicationChecks(_ repository: URL, project: URL, root: URL) throws {
+        let before = try RepositoryReader.load(repository)
+        let application = try TestFixtures.application(in: project, name: TestConstants.project)
+        let companion = try TestFixtures.application(in: project, name: TestConstants.companion)
+        _ = try TestFixtures.application(in: project.appendingPathComponent(TestConstants.nestedBuild), name: TestConstants.project)
+        let incomplete = project.appendingPathComponent(TestConstants.incompleteApp + TestConstants.appSuffix)
+        try FileManager.default.createDirectory(at: incomplete, withIntermediateDirectories: true)
+        let detected = try RepositoryReader.load(repository).projects[0].applications
+        check(detected.count == 2 && detected.contains(application) && detected.contains(companion), TestConstants.checkAppDetection)
+        check(ApplicationLocator.preferred(detected, project: TestConstants.project, folder: project) == application, TestConstants.checkAppPreference)
+        check(ApplicationLocator.preferred([companion], project: TestConstants.project, folder: project) == companion, TestConstants.checkAppSingle)
+        check(ApplicationLocator.preferred(detected, project: TestConstants.external, folder: root) == nil, TestConstants.checkAppAmbiguous)
+        check(RepositoryReader.fingerprint(before) != before.fingerprint, TestConstants.checkAppFingerprint)
+        let beforeRepair = try RepositoryReader.load(repository)
+        _ = try TestFixtures.application(in: project, name: TestConstants.incompleteApp)
+        check(RepositoryReader.fingerprint(beforeRepair) != beforeRepair.fingerprint, TestConstants.checkAppFingerprint)
+        let outside = try TestFixtures.application(in: root, name: TestConstants.external)
+        let link = project.appendingPathComponent(TestConstants.linkedApp)
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: outside)
+        check(!ApplicationLocator.candidates(in: project).contains(outside), TestConstants.checkAppEscape)
+        let info = incomplete.appendingPathComponent(ControlConstants.appContents).appendingPathComponent(ControlConstants.appInfo)
+        try FileManager.default.removeItem(at: info)
+        try FileManager.default.createSymbolicLink(at: info, withDestinationURL: outside.appendingPathComponent(ControlConstants.appContents).appendingPathComponent(ControlConstants.appInfo))
+        check(!ApplicationLocator.isApplication(incomplete), TestConstants.checkAppEscape)
+        try FileManager.default.removeItem(at: application)
+        check(!ApplicationLocator.isApplication(application), TestConstants.checkAppMissing)
+        try applicationRefreshChecks(repository, application: companion)
+    }
+
+    /// Covers app changes that do not modify the project folder or restart this process.
+    /// - Parameters: repository: Disposable register. application: Valid disposable companion bundle.
+    /// - Returns: Nothing; throws on fixture failure and terminates if fresh metadata is ignored.
+    private static func applicationRefreshChecks(_ repository: URL, application: URL) throws {
+        let contents = application.appendingPathComponent(ControlConstants.appContents)
+        let executableFolder = contents.appendingPathComponent(ControlConstants.appExecutableFolder)
+        let executable = executableFolder.appendingPathComponent(TestConstants.executableName)
+        let before = try RepositoryReader.load(repository)
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: executable.path)
+        check(!ApplicationLocator.isApplication(application)
+            && RepositoryReader.fingerprint(before) != before.fingerprint, TestConstants.checkAppExecutableRefresh)
+        let disabled = try RepositoryReader.load(repository)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
+        check(RepositoryReader.fingerprint(disabled) != disabled.fingerprint
+            && ApplicationLocator.isApplication(application), TestConstants.checkAppExecutableRefresh)
+        let info = contents.appendingPathComponent(ControlConstants.appInfo)
+        let metadata = [ControlConstants.bundleTypeKey: ControlConstants.bundleApplicationType,
+            ControlConstants.bundleExecutableKey: TestConstants.replacementExecutable]
+        try PropertyListSerialization.data(fromPropertyList: metadata, format: .binary, options: 0).write(to: info)
+        check(!ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataReload)
+        let replacement = executableFolder.appendingPathComponent(TestConstants.replacementExecutable)
+        try FileManager.default.createDirectory(at: replacement, withIntermediateDirectories: true)
+        check(!ApplicationLocator.isApplication(application), TestConstants.checkAppExecutableFile)
+        try FileManager.default.removeItem(at: replacement)
+        try FileManager.default.moveItem(at: executable, to: replacement)
+        check(ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataReload)
+        try TestConstants.corrupt.write(to: info, atomically: true, encoding: .utf8)
+        check(!ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataReload)
+        try Data(repeating: 0, count: ControlConstants.maxReadmeBytes + 1).write(to: info)
+        check(!ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataBound)
     }
 
     /// Checks canonical project identities, alias retargeting, and root README boundaries.

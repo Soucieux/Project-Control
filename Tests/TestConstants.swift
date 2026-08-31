@@ -221,6 +221,26 @@ internal enum TestConstants {
     internal static let checkDiagramCode = "text diagrams never admit executable-looking statements"
     internal static let checkDiagramMalformed = "unsupported nested branch indentation is not guessed"
     internal static let checkDiagramIncomplete = "dangling connectors do not produce partial diagrams"
+    internal static let executableName = "TestEntry"
+    internal static let identifierKey = "CFBundleIdentifier"
+    internal static let testBundlePrefix = "local.projectcontrol.fixture."
+    internal static let fixtureExecutable = "#!/bin/sh\nexit 0\n"
+    internal static let companion = "Companion"
+    internal static let nestedBuild = "build"
+    internal static let incompleteApp = "Incomplete"
+    internal static let linkedApp = "Linked.app"
+    internal static let appSuffix = ".app"
+    internal static let checkAppDetection = "only complete top-level contained app bundles are detected"
+    internal static let checkAppPreference = "the project-name app wins over its companion"
+    internal static let checkAppSingle = "a sole app is an unambiguous automatic target"
+    internal static let checkAppAmbiguous = "multiple unmatched apps never cause an arbitrary launch choice"
+    internal static let checkAppFingerprint = "app additions and metadata repairs change the snapshot fingerprint"
+    internal static let checkAppEscape = "app symlinks and Info.plist links cannot escape the project boundary"
+    internal static let checkAppMissing = "removed or nonexecutable apps fail click-time validation"
+    internal static let checkManualApp = "a valid manually located app is restored when no automatic app exists"
+    internal static let checkAutomaticApp = "a newly discovered project app takes priority over a manual fallback"
+    internal static let checkStaleApp = "stale remembered apps are not returned as launch targets"
+    internal static let checkClearApp = "forgetting a manually located app preserves the app itself"
     internal static let asciiDiagram = ["Read: Source -> Summary", "Write: Note -> Local storage"]
     internal static let versionedOverview = """
     # Example v1.0
@@ -234,6 +254,11 @@ internal enum TestConstants {
     ## Workflows
     Source → Summary
     """
+    internal static let replacementExecutable = "ReplacementEntry"
     internal static let checkAsciiDiagram = "ASCII arrow diagrams remain supported inside text fences"
     internal static let checkVersionedTitle = "a versioned project title does not hide current topic sections"
+    internal static let checkAppMetadataReload = "bundle validation reads changed executable metadata without a process restart"
+    internal static let checkAppExecutableRefresh = "executable availability and permission changes trigger refresh"
+    internal static let checkAppExecutableFile = "an executable directory cannot impersonate an application entry point"
+    internal static let checkAppMetadataBound = "oversized bundle metadata is rejected before parsing"
 }

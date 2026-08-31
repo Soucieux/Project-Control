@@ -134,22 +134,19 @@ internal final class ControlStore: ObservableObject {
               NSWorkspace.shared.open(url) else { error = ControlConstants.openFailure; return }
     }
 
-    /// Saves an explicitly selected macOS application without launching it.
-    /// - Parameter project: Project whose launch preference should change.
-    /// - Returns: Nothing; cancellation leaves the existing target intact.
+    /// Locates and opens an app only after an explicit Open App action.
+    /// - Parameter project: Project whose missing launch target the user is locating.
+    /// - Returns: Nothing; cancellation leaves the existing target intact and launches nothing.
     internal func chooseApplication(for project: ProjectRecord) {
         let panel = NSOpenPanel()
         panel.title = ControlConstants.chooseApp
         panel.message = ControlConstants.launchExplanation
+        panel.prompt = ControlConstants.launch
+        panel.directoryURL = project.folder
         panel.allowedContentTypes = [.applicationBundle]
         panel.allowsMultipleSelection = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        guard url.pathExtension == ControlConstants.appExtension, Bundle(url: url) != nil else {
-            error = ControlConstants.invalidApplication; return
-        }
-        var next = state
-        next.applications[project.id] = url.path
-        _ = persist(next)
+        launch(project, selectedApp: url)
     }
 
     /// Removes a configured launch choice without touching the application itself.
@@ -161,14 +158,35 @@ internal final class ControlStore: ObservableObject {
         _ = persist(next)
     }
 
-    /// Launches only the application previously chosen by the user, with no arguments or shell.
-    /// - Parameter project: Project owning the saved launch target.
-    /// - Returns: Nothing; macOS launch errors are shown in the interface.
-    internal func launch(_ project: ProjectRecord) {
-        guard let path = state.applications[project.id] else { return }
-        let url = URL(fileURLWithPath: path)
-        guard url.pathExtension == ControlConstants.appExtension, Bundle(url: url) != nil else {
+    /// Resolves an automatic target before a valid remembered manual choice.
+    /// - Parameters: project: Owning project. candidates: Optional fresh discovery results for click-time validation.
+    /// - Returns: An unambiguous application, or nil when selection or manual location is needed.
+    internal func application(for project: ProjectRecord, candidates: [URL]? = nil) -> URL? {
+        let available = (candidates ?? project.applications).filter(ApplicationLocator.isApplication)
+        if let automatic = ApplicationLocator.preferred(available, project: project.name, folder: project.folder) { return automatic }
+        if let path = state.applications[project.id] {
+            let saved = URL(fileURLWithPath: path)
+            if ApplicationLocator.isApplication(saved) { return saved }
+        }
+        return nil
+    }
+
+    /// Rechecks discovery on click and opens only an automatic or explicitly chosen application.
+    /// - Parameters: project: Owning project. selectedApp: Explicit choice from detected candidates or a native picker.
+    /// - Returns: Nothing; missing apps offer location, and launch/save errors remain visible.
+    internal func launch(_ project: ProjectRecord, selectedApp: URL? = nil) {
+        let candidates = ApplicationLocator.candidates(in: project.folder).filter(ApplicationLocator.isApplication)
+        guard let url = selectedApp ?? application(for: project, candidates: candidates) else {
+            chooseApplication(for: project)
+            return
+        }
+        guard ApplicationLocator.isApplication(url) else {
             error = ControlConstants.invalidApplication; return
+        }
+        if selectedApp != nil && storageReady {
+            var next = state
+            next.applications[project.id] = url.path
+            _ = persist(next)
         }
         NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) { [weak self] _, failure in
             guard failure != nil else { return }
