@@ -27,6 +27,10 @@ internal struct RepositoryScreen: View {
             Button { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) } label: {
                 Label(ControlConstants.read, systemImage: ControlConstants.readIcon)
             }.buttonStyle(.bordered).controlSize(.large)
+            if let warning = store.syncFailure {
+                Text(ControlConstants.staleContent + ControlConstants.space + warning)
+                    .font(.callout).foregroundStyle(ControlTheme.amber)
+            }
             HStack(spacing: 20) {
                 ForEach([false, true], id: \.self) { history in
                     Button { showHistory = history } label: {

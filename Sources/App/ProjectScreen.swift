@@ -13,7 +13,8 @@ internal struct ProjectScreen: View {
     internal var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             HStack {
-                InstrumentLabel(title: ControlConstants.synchronized.uppercased())
+                InstrumentLabel(title: (store.syncFailure == nil && project.sourceWarning == nil
+                    ? ControlConstants.synchronized : ControlConstants.sourceWarning).uppercased())
                 Spacer()
                 if store.loading { ProgressView().controlSize(.small) }
                 Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
@@ -34,6 +35,12 @@ internal struct ProjectScreen: View {
                 .background(InstrumentFrame().fill(ControlTheme.surface))
                 .overlay(InstrumentFrame().stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
             actions
+            if project.isStale || store.syncFailure != nil {
+                Text(ControlConstants.staleContent).font(.callout).foregroundStyle(ControlTheme.amber)
+            }
+            if let warning = project.sourceWarning {
+                Text(warning).font(.caption).foregroundStyle(ControlTheme.amber)
+            }
             ScrollView(.horizontal) {
                 HStack(spacing: 20) {
                     ForEach(ProjectTab.allCases) { item in
