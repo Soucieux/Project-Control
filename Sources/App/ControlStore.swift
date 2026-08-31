@@ -11,16 +11,19 @@ internal final class ControlStore: ObservableObject {
     @Published internal private(set) var loading = false
     @Published internal var selection: String?
     @Published internal var error: String?
+    @Published internal private(set) var syncFailure: String?
     private var fingerprint: [String] = []
     private var pendingRoot: URL?
     private let storage: WorkspaceStorage
     private let preferences: UserDefaults
+    private let fingerprintRepository: @Sendable (RepositorySnapshot) -> [String]
     private let readRepository: @Sendable (URL) throws -> RepositorySnapshot
 
     /// Loads the independent local workspace without modifying the repository.
-    /// - Parameters: storage: Optional isolated storage. preferences: Repository preferences. readRepository: Background snapshot reader.
+    /// - Parameters: storage: Optional isolated storage. preferences: Repository preferences. fingerprintRepository: Background content checker. readRepository: Background snapshot reader.
     /// - Returns: A store with either restored data or a visible read-only failure.
     internal init(storage: WorkspaceStorage? = nil, preferences: UserDefaults = .standard,
+                  fingerprintRepository: @escaping @Sendable (RepositorySnapshot) -> [String] = { RepositoryReader.fingerprint($0) },
                   readRepository: @escaping @Sendable (URL) throws -> RepositorySnapshot = { try RepositoryReader.load($0) }) {
         if let storage { self.storage = storage }
         else {
@@ -29,6 +32,7 @@ internal final class ControlStore: ObservableObject {
                 .appendingPathComponent(ControlConstants.stateFile))
         }
         self.preferences = preferences
+        self.fingerprintRepository = fingerprintRepository
         self.readRepository = readRepository
         do { state = try self.storage.load() }
         catch { storageReady = false; self.error = ControlConstants.stateFailure }
@@ -47,8 +51,17 @@ internal final class ControlStore: ObservableObject {
         while !Task.isCancelled {
             do { try await Task.sleep(for: .seconds(ControlConstants.refreshSeconds)) }
             catch { return }
-            guard let snapshot, !loading else { continue }
-            if RepositoryReader.fingerprint(snapshot) != fingerprint { await reload(snapshot.root) }
+            guard !loading else { continue }
+            if let snapshot {
+                let current = await Task.detached(priority: .utility) { [fingerprintRepository] in fingerprintRepository(snapshot) }.value
+                guard !Task.isCancelled else { return }
+                guard !loading else { continue }
+                if self.snapshot?.root == snapshot.root && (current != fingerprint || syncFailure != nil) {
+                    await reload(snapshot.root)
+                }
+            } else if let path = preferences.string(forKey: ControlConstants.folderPreference) {
+                await reload(URL(fileURLWithPath: path))
+            }
         }
     }
 
@@ -79,7 +92,21 @@ internal final class ControlStore: ObservableObject {
                     try readRepository(target)
                 }.value
                 guard !Task.isCancelled else { return }
-                snapshot = result
+                let previous = snapshot?.root == result.root ? snapshot?.projects ?? [] : []
+                let projects = result.projects.map { current -> ProjectRecord in
+                    guard let warning = current.sourceWarning,
+                          var retained = previous.first(where: { $0.id == current.id && ($0.sourceWarning == nil || $0.isStale) }) else { return current }
+                    retained.name = current.name
+                    retained.folderAvailable = current.folderAvailable
+                    retained.readmeAvailable = current.readmeAvailable
+                    retained.applications = current.applications
+                    retained.sourceWarning = warning
+                    retained.isStale = true
+                    return retained
+                }
+                snapshot = RepositorySnapshot(root: result.root, projects: projects, history: result.history,
+                    readAt: result.readAt, fingerprint: result.fingerprint, overview: result.overview)
+                syncFailure = nil
                 fingerprint = result.fingerprint
                 if selection != result.root.path && !result.projects.contains(where: { $0.id == selection }) {
                     selection = result.root.path
@@ -87,7 +114,11 @@ internal final class ControlStore: ObservableObject {
                 preferences.set(result.root.path, forKey: ControlConstants.folderPreference)
                 error = storageReady ? nil : ControlConstants.stateFailure
             } catch {
-                self.error = (error as? ControlFailure)?.message ?? ControlConstants.readFailure
+                let failure = (error as? ControlFailure)?.message ?? ControlConstants.readFailure
+                if snapshot == nil || snapshot?.root == target.resolvingSymlinksInPath().standardizedFileURL {
+                    syncFailure = failure
+                }
+                self.error = failure
             }
             nextRoot = pendingRoot
         }
