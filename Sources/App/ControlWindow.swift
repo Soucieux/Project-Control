@@ -50,22 +50,28 @@ internal struct ControlWindow: View {
     private var masthead: some View {
         HStack(spacing: 12) {
             Image(nsImage: NSApplication.shared.applicationIconImage).resizable().interpolation(.high)
-                .scaledToFit().frame(width: 32, height: 32)
+                .scaledToFit().frame(width: 36, height: 36)
                 .accessibilityHidden(true)
-            Text(ControlConstants.appName.uppercased()).font(.system(size: 13, weight: .medium)).tracking(3)
-            Spacer()
+            Text(ControlConstants.appName).font(.system(size: 18, weight: .semibold))
+                .lineLimit(1).fixedSize().layoutPriority(1)
+            Spacer(minLength: 24)
             if let root = store.snapshot?.root {
                 Text(root.lastPathComponent).font(.callout).foregroundStyle(ControlTheme.muted)
+                    .lineLimit(1).truncationMode(.middle).help(root.lastPathComponent)
             }
             Menu {
                 Button(ControlConstants.changeRepository) { store.chooseRepository() }
                 Button(ControlConstants.refresh) {
                     if let root = store.snapshot?.root { Task { await store.reload(root) } }
                 }.disabled(store.snapshot == nil || store.loading)
-            } label: { Image(systemName: ControlConstants.menuIcon) }
-                .menuStyle(.borderlessButton).frame(width: 24).help(ControlConstants.changeRepository)
+            } label: {
+                Image(systemName: ControlConstants.menuIcon).font(.system(size: 17, weight: .medium))
+                    .frame(width: 36, height: 36).contentShape(Rectangle())
+            }
+                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                .help(ControlConstants.repositoryActions).accessibilityLabel(ControlConstants.repositoryActions)
         }
-        .padding(.leading, 82).padding(.trailing, 24).frame(height: 68)
+        .padding(.horizontal, 24).frame(height: 60)
         .background(ControlTheme.rail)
         .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
     }
