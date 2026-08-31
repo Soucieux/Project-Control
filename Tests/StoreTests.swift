@@ -1,0 +1,103 @@
+import Foundation
+
+/// Isolated state-transition checks; never loads the user's workspace or launches applications.
+@main
+@MainActor
+internal enum StoreTests {
+    private static var count = 0
+
+    /// Exercises queued reloads and atomic note mutations with disposable local state.
+    /// - Returns: Nothing; exits unsuccessfully on a failed check or fixture error.
+    internal static func main() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let suite = TestConstants.rootName + UUID().uuidString
+        guard let preferences = UserDefaults(suiteName: suite) else { fatalError(TestConstants.failed) }
+        defer { preferences.removePersistentDomain(forName: suite) }
+        let firstRoot = root.appendingPathComponent(TestConstants.project)
+        let secondRoot = root.appendingPathComponent(TestConstants.secondRepository)
+        for folder in [firstRoot, secondRoot] {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try TestConstants.rootReadme.write(to: folder.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
+        }
+        let started = DispatchSemaphore(value: 0)
+        let release = DispatchSemaphore(value: 0)
+        let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
+        let store = ControlStore(storage: storage, preferences: preferences) { url in
+            if url == firstRoot {
+                started.signal()
+                guard release.wait(timeout: .now() + 5) == .success else {
+                    throw ControlFailure(message: TestConstants.checkReaderStarted)
+                }
+            }
+            return try RepositoryReader.load(url)
+        }
+        let first = Task { await store.reload(firstRoot) }
+        let didStart = await withCheckedContinuation { continuation in
+            DispatchQueue.global().async {
+                continuation.resume(returning: started.wait(timeout: .now() + 5) == .success)
+            }
+        }
+        check(didStart, TestConstants.checkReaderStarted)
+        await store.reload(secondRoot)
+        release.signal()
+        await first.value
+        check(store.snapshot?.root == secondRoot.resolvingSymlinksInPath(), TestConstants.checkStoreQueue)
+        check(!store.loading && store.error == nil, TestConstants.checkStoreLoading)
+        check(preferences.string(forKey: ControlConstants.folderPreference) == secondRoot.resolvingSymlinksInPath().path, TestConstants.checkStorePreference)
+        try await refreshCheck(secondRoot, storage: storage, preferences: preferences)
+        let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .next)
+        check(try store.save(note, for: TestConstants.project) && storage.load().notes[TestConstants.project] == [note], TestConstants.checkStoreSave)
+        var edited = note
+        edited.status = .done
+        check(store.save(edited, for: TestConstants.project) && store.notes(for: TestConstants.project) == [edited], TestConstants.checkStoreEdit)
+        store.delete(edited, for: TestConstants.project)
+        check(try storage.load().notes[TestConstants.project] == [], TestConstants.checkStoreDelete)
+        try TestConstants.corrupt.write(to: storage.file, atomically: true, encoding: .utf8)
+        let locked = ControlStore(storage: storage, preferences: preferences)
+        check(try !locked.storageReady && !locked.save(note, for: TestConstants.project)
+            && String(contentsOf: storage.file, encoding: .utf8) == TestConstants.corrupt, TestConstants.checkStoreCorrupt)
+        let blocked = root.appendingPathComponent(TestConstants.blockedFile)
+        try TestConstants.corrupt.write(to: blocked, atomically: true, encoding: .utf8)
+        let failing = ControlStore(storage: WorkspaceStorage(file: blocked.appendingPathComponent(ControlConstants.stateFile)), preferences: preferences)
+        check(!failing.save(note, for: TestConstants.project) && failing.notes(for: TestConstants.project).isEmpty, TestConstants.checkStoreFailedSave)
+        print(TestConstants.storePassed + String(count))
+    }
+
+    /// Reproduces an edit between snapshot parsing and delivery to the main actor.
+    /// - Parameters: root: Disposable repository. storage: Isolated workspace file. preferences: Isolated preference suite.
+    /// - Returns: Nothing; fails if polling misses the concurrent edit.
+    private static func refreshCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
+        let folder = root.appendingPathComponent(TestConstants.project)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let readme = folder.appendingPathComponent(ControlConstants.readme)
+        try TestConstants.projectReadme.write(to: readme, atomically: true, encoding: .utf8)
+        let mutation = DispatchSemaphore(value: 0)
+        mutation.signal()
+        let store = ControlStore(storage: storage, preferences: preferences) { url in
+            let snapshot = try RepositoryReader.load(url)
+            if mutation.wait(timeout: .now()) == .success {
+                try TestConstants.updatedReadme.write(to: readme, atomically: true, encoding: .utf8)
+            }
+            return snapshot
+        }
+        await store.reload(root)
+        let observer = Task { await store.observe() }
+        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+        while store.snapshot?.projects.first?.introduction != TestConstants.updatedIntroduction && ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        observer.cancel()
+        await observer.value
+        check(store.snapshot?.projects.first?.introduction == TestConstants.updatedIntroduction, TestConstants.checkConcurrentRefresh)
+    }
+
+    /// Records a deterministic state assertion.
+    /// - Parameters: condition: Expected truth value. label: Failure explanation.
+    /// - Returns: Nothing; terminates unsuccessfully if the condition is false.
+    private static func check(_ condition: Bool, _ label: String) {
+        guard condition else { fatalError(TestConstants.failed + label) }
+        count += 1
+    }
+}

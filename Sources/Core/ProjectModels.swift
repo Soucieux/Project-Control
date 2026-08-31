@@ -1,0 +1,78 @@
+import Foundation
+
+/// One Markdown section, without fenced source blocks.
+internal struct ReadmeSection {
+    internal let title: String
+    internal var lines: [String]
+}
+
+/// A labelled route derived only from arrows written in a README.
+internal struct WorkflowRoute: Identifiable {
+    internal let id = UUID()
+    internal let label: String
+    internal let steps: [String]
+}
+
+/// A source-labelled release or changelog entry.
+internal struct HistoryEntry: Identifiable {
+    internal let id = UUID()
+    internal let title: String
+    internal let detail: String
+}
+
+/// Read-only, display-ready information for a project registered in the root README.
+internal struct ProjectRecord: Identifiable {
+    internal let id: String
+    internal let name: String
+    internal let folder: URL
+    internal let readme: URL
+    internal let introduction: String
+    internal let version: String?
+    internal let architecture: [String]
+    internal let workflows: [WorkflowRoute]
+    internal let history: [HistoryEntry]
+    internal let folderAvailable: Bool
+    internal let readmeAvailable: Bool
+}
+
+/// A complete repository snapshot; refresh failures never replace it with partial data.
+internal struct RepositorySnapshot {
+    internal let root: URL
+    internal let projects: [ProjectRecord]
+    internal let history: [HistoryEntry]
+    internal let readAt: Date
+    internal let fingerprint: [String]
+}
+
+/// Stable Codable cases; human-readable labels remain centralized.
+internal enum WorkStatus: Int, Codable, CaseIterable, Identifiable {
+    case next, inProgress, done
+    internal var id: Int { rawValue }
+    internal var label: String {
+        switch self {
+        case .next: ControlConstants.next
+        case .inProgress: ControlConstants.inProgress
+        case .done: ControlConstants.done
+        }
+    }
+}
+
+/// A user-maintained work item, independent of generated README summaries.
+internal struct WorkNote: Codable, Identifiable, Equatable {
+    internal var id = UUID()
+    internal var title: String
+    internal var detail: String
+    internal var status: WorkStatus
+}
+
+/// Local settings and notes keyed by canonical project path, not display name.
+internal struct WorkspaceState: Codable {
+    internal var notes: [String: [WorkNote]] = [:]
+    internal var applications: [String: String] = [:]
+}
+
+/// User-facing failures that do not expose source contents.
+internal struct ControlFailure: LocalizedError {
+    internal let message: String
+    internal var errorDescription: String? { message }
+}
