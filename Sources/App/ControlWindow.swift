@@ -4,6 +4,7 @@ import SwiftUI
 /// The perimeter-led command surface: register, selected project, repository history.
 internal struct ControlWindow: View {
     @ObservedObject internal var store: ControlStore
+    @State private var collapsedCategories: Set<String> = []
 
     internal var body: some View {
         VStack(spacing: 0) {
@@ -45,6 +46,10 @@ internal struct ControlWindow: View {
         }
         .foregroundStyle(ControlTheme.ink).tint(ControlTheme.signal)
         .background(ControlTheme.background)
+        .onChange(of: store.snapshot?.root) { _, _ in collapsedCategories.removeAll() }
+        .onChange(of: store.selectedProject?.classification.category) { _, category in
+            if let category { collapsedCategories.remove(category) }
+        }
     }
 
     private var masthead: some View {
@@ -76,7 +81,7 @@ internal struct ControlWindow: View {
         .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
     }
 
-    /// Places a selectable repository parent above its icon-bearing project children.
+    /// Places a selectable repository parent above source-ordered, collapsible project categories.
     /// - Parameter snapshot: Current repository snapshot.
     /// - Returns: A fixed-width, independently scrollable project register.
     private func register(_ snapshot: RepositorySnapshot) -> some View {
@@ -101,29 +106,11 @@ internal struct ControlWindow: View {
                             }
                     }.buttonStyle(.plain).accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
                     Rectangle().fill(ControlTheme.line).frame(height: 1)
-                    ForEach(snapshot.projects) { project in
-                        Button {
-                            store.selection = project.id
-                        } label: {
-                            HStack(alignment: .top, spacing: 10) {
-                                ProjectIcon(project: project, size: 24)
-                                VStack(alignment: .leading, spacing: 7) {
-                                    Text(project.name).font(.system(size: 14, weight: .medium)).multilineTextAlignment(.leading)
-                                    let notes = store.notes(for: project.id)
-                                    Text(notes.isEmpty ? ControlConstants.noProgress : String(format: ControlConstants.noteCountFormat, notes.filter { $0.status == .done }.count, notes.count) + ControlConstants.space + ControlConstants.completedNotes)
-                                        .font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
-                                }
-                                Spacer(minLength: 0)
-                            }.padding(.vertical, 18).padding(.horizontal, 10).padding(.leading, 20)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                                .background(store.selection == project.id ? ControlTheme.signal.opacity(0.12) : .clear)
-                                .overlay(alignment: .leading) {
-                                    if store.selection == project.id { Rectangle().fill(ControlTheme.signal).frame(width: 2) }
-                                }
-                        }.buttonStyle(.plain)
-                            .accessibilityAddTraits(store.selection == project.id ? .isSelected : [])
-                        Rectangle().fill(ControlTheme.line).frame(height: 1)
+                    ForEach(snapshot.categories) { category in
+                        categoryHeader(category)
+                        if !collapsedCategories.contains(category.name) {
+                            ForEach(category.projects) { project in projectRow(project) }
+                        }
                     }
                 }
             }
@@ -131,6 +118,80 @@ internal struct ControlWindow: View {
             InstrumentLabel(title: ControlConstants.localOnly).font(.caption)
             Text(ControlConstants.checkCadence).font(.caption).foregroundStyle(ControlTheme.muted).fixedSize(horizontal: false, vertical: true)
         }.padding(18).frame(width: 260).background(ControlTheme.rail.opacity(0.65))
+    }
+
+    /// Toggles one category without changing the selected project or its work notes.
+    /// - Parameter category: README label and its current project membership.
+    /// - Returns: A full-width keyboard-focusable disclosure button with a project count.
+    private func categoryHeader(_ category: ProjectCategory) -> some View {
+        let collapsed = collapsedCategories.contains(category.name)
+        return Button {
+            if collapsed { collapsedCategories.remove(category.name) }
+            else { collapsedCategories.insert(category.name) }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: collapsed ? ControlConstants.collapsedIcon : ControlConstants.expandedIcon)
+                    .font(.system(size: 9, weight: .semibold)).frame(width: 10).accessibilityHidden(true)
+                Text(category.name).font(.system(size: 12, weight: .semibold))
+                    .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 4)
+                Text(category.projects.count.formatted()).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
+            }.padding(.horizontal, 10).padding(.vertical, 14).frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain).accessibilityValue(collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
+    }
+
+    /// Shows documented scope and technology tags without inferring capabilities or absence labels.
+    /// - Parameter project: Registered project with root-owned classification metadata.
+    /// - Returns: A full-row selection button preserving the project's icon and note progress.
+    private func projectRow(_ project: ProjectRecord) -> some View {
+        Button { store.selection = project.id } label: {
+            HStack(alignment: .top, spacing: 10) {
+                ProjectIcon(project: project, size: 24)
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(project.name).font(.system(size: 14, weight: .medium))
+                        .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
+                    if let scope = project.classification.technicalScope {
+                        Text(scope).font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+                            .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
+                            .help(ControlConstants.technicalScope + ControlConstants.colon + ControlConstants.space + scope)
+                    }
+                    if !project.classification.technologies.isEmpty {
+                        TechnologyTagLayout {
+                            ForEach(project.classification.technologies, id: \.self) { technology in
+                                ClassificationBadge(title: ControlConstants.technology, value: technology)
+                            }
+                        }
+                    }
+                    let notes = store.notes(for: project.id)
+                    Text(notes.isEmpty ? ControlConstants.noProgress : String(format: ControlConstants.noteCountFormat,
+                        notes.filter { $0.status == .done }.count, notes.count) + ControlConstants.space + ControlConstants.completedNotes)
+                        .font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+                }
+                Spacer(minLength: 0)
+            }.padding(.vertical, 12).padding(.horizontal, 10).padding(.leading, 14)
+                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                .background(store.selection == project.id ? ControlTheme.signal.opacity(0.12) : .clear)
+                .overlay(alignment: .leading) {
+                    if store.selection == project.id { Rectangle().fill(ControlTheme.signal).frame(width: 2) }
+                }
+        }.buttonStyle(.plain).accessibilityAddTraits(store.selection == project.id ? .isSelected : [])
+    }
+}
+
+/// A wrapping informational badge; its appearance does not imply a clickable action or health state.
+internal struct ClassificationBadge: View {
+    internal let title: String
+    internal let value: String
+
+    internal var body: some View {
+        Text(value).font(.system(size: 10, weight: .medium)).foregroundStyle(ControlTheme.muted)
+            .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 6).padding(.vertical, 3)
+            .background(ControlTheme.signal.opacity(0.04), in: RoundedRectangle(cornerRadius: 4))
+            .overlay { RoundedRectangle(cornerRadius: 4).stroke(ControlTheme.line, lineWidth: 0.5) }
+            .help(title + ControlConstants.colon + ControlConstants.space + value)
+            .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityValue(value)
     }
 }
 

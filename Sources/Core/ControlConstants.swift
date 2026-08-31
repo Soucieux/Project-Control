@@ -20,7 +20,13 @@ internal enum ControlConstants {
     internal static let technologiesColumn = "technologies"
     internal static let technologySeparator = ";"
     internal static let uncategorized = "Uncategorized"
+    internal static let technicalScope = "Technical scope"
+    internal static let technology = "Technology or approach"
     internal static let repositoryActions = "Repository actions"
+    internal static let expanded = "Expanded"
+    internal static let collapsed = "Collapsed"
+    internal static let expandedIcon = "chevron.down"
+    internal static let collapsedIcon = "chevron.right"
     internal static let mappingPrefix = "<!-- project-control:"
     internal static let mappingPattern = #"^\s*<!-- project-control:section=([a-z]+) -->\s*$"#
     internal static let sectionMappings: [String: ReadmeTopic] = [
