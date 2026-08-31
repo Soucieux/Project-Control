@@ -10,10 +10,17 @@ internal struct ReadmeSection {
 
 /// A readable README block, never raw Markdown or source code.
 internal struct ReadmeBlock: Identifiable {
-    internal enum Kind { case paragraph, bullet, heading }
+    internal enum Kind { case paragraph, bullet, heading, table }
     internal let id = UUID()
     internal let kind: Kind
     internal let text: String
+    internal var table: ReadmeTable? = nil
+}
+
+/// Source column headings and data rows, kept separate from Markdown delimiters.
+internal struct ReadmeTable {
+    internal let headers: [String]
+    internal let rows: [[String]]
 }
 
 /// Stable tab identities keep content ownership separate from presentation order.
@@ -59,6 +66,8 @@ internal struct HistoryEntry: Identifiable {
     internal let id = UUID()
     internal let title: String
     internal let detail: String
+    internal var date: String? = nil
+    internal var heading: String { title + (date.map { ControlConstants.joined + $0 } ?? ControlConstants.empty) }
 }
 
 /// Read-only, display-ready information for a project registered in the root README.
@@ -69,13 +78,13 @@ internal struct ProjectRecord: Identifiable {
     internal let readme: URL
     internal let introduction: String
     internal let version: String?
-    internal let architecture: [String]
+    internal let architecture: [ReadmeBlock]
     internal let workflows: [WorkflowRoute]
     internal let history: [HistoryEntry]
     internal let folderAvailable: Bool
     internal let readmeAvailable: Bool
     internal var overview: [ReadmeBlock] = []
-    internal var models: [String] = []
+    internal var models: [ReadmeBlock] = []
     internal var applications: [URL] = []
 }
 
@@ -86,6 +95,7 @@ internal struct RepositorySnapshot {
     internal let history: [HistoryEntry]
     internal let readAt: Date
     internal let fingerprint: [String]
+    internal var overview: [ReadmeBlock] = []
 }
 
 /// Stable Codable cases; human-readable labels remain centralized.

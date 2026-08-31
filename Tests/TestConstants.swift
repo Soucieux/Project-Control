@@ -12,6 +12,8 @@ internal enum TestConstants {
     internal static let external = "Outside"
     internal static let rootReadme = """
     # Sample repository
+    ## Overview
+    Repository overview from its README.
     ## Projects
     | Project | Scope | Updated |
     |---|---|---|
@@ -213,7 +215,7 @@ internal enum TestConstants {
     internal static let checkOverview = "Overview prefers its actual README section and preserves bullets"
     internal static let checkOverviewOwnership = "architecture and workflows are excluded from Overview even when nested"
     internal static let checkOverviewFallback = "opening prose supplies Overview when the heading is absent"
-    internal static let checkArchitectureOwnership = "Architecture excludes model facts and historical architecture"
+    internal static let checkArchitectureOwnership = "Architecture keeps model responsibilities and excludes historical architecture"
     internal static let checkModels = "Models receives documented model facts separately"
     internal static let checkDiagramBranches = "text diagram retains parallel search nodes at one depth"
     internal static let checkDiagramMerge = "both branches connect to the documented merge node"
@@ -261,4 +263,113 @@ internal enum TestConstants {
     internal static let checkAppExecutableRefresh = "executable availability and permission changes trigger refresh"
     internal static let checkAppExecutableFile = "an executable directory cannot impersonate an application entry point"
     internal static let checkAppMetadataBound = "oversized bundle metadata is rejected before parsing"
+    internal static let repositoryOverview = "Repository overview from its README."
+    internal static let updatedRepositoryOverview = "An updated repository overview."
+    internal static let checkRepositoryOverview = "repository content comes from the root README overview"
+    internal static let checkRepositoryOverviewRefresh = "root README edits update the repository screen content"
+    internal static let modelTables = """
+    ## Local architecture
+
+    | Responsibility | Embedded component |
+    |---|---|
+    | Interface | SwiftUI |
+    | Chat | Qwen3-4B Q4_K_M GGUF |
+    | Speech | Whisper Small |
+
+    | Model | Path |
+    |---|---|
+    | Qwen3-4B | `gguf/Qwen3-4B-Q4_K_M.gguf` |
+    """
+    internal static let modelHeaders = ["Responsibility", "Embedded component"]
+    internal static let pathHeaders = ["Model", "Path"]
+    internal static let modelPath = "gguf/Qwen3-4B-Q4_K_M.gguf"
+    internal static let inlineIdentifiers = "__Models__: `Q4_K_M` and `whisper/openai_whisper-small/` and `_private_`"
+    internal static let expectedIdentifiers = "Models: Q4_K_M and whisper/openai_whisper-small/ and _private_"
+    internal static let rawTableSeparator = "|---|"
+    internal static let adjacentTable = """
+    ## Models
+    Before.
+    | Model | Path |
+    |---|---|
+    | Qwen | local_model.gguf |
+    After.
+    """
+    internal static let adjacentProse = ["Before.", "After."]
+    internal static let escapedTable = """
+    ## Overview
+
+    | Field | Value
+    |---|---
+    | Name | Left \\| right
+    """
+    internal static let checkStructuredTables = "tables retain headers and separate native column data"
+    internal static let checkModelTableRows = "model tables contain model rows without unrelated architecture or duplicated headers"
+    internal static let checkTableProseLeak = "a leading blank line cannot turn a Markdown table into prose"
+    internal static let checkModelIdentifiers = "model names and code-span paths retain literal underscores"
+    internal static let checkAdjacentTable = "prose directly beside a table stays separate and is not lost"
+    internal static let checkOverviewTable = "Overview retains the source order of paragraphs, native tables, and bullets"
+    internal static let checkLiveTables = "Local Assistant models contain native tables and no raw Markdown table paragraph"
+    internal static let checkIconFolderMatch = "project icon selection falls back to the matching folder-name app"
+    internal static let checkIconFallback = "a project without an app has no invented brand icon"
+    internal static let checkRepositorySelection = "the repository parent is selectable and survives refresh"
+    internal static let checkProjectSelection = "a selected project survives refresh under its repository parent"
+    internal static let checkSelectionFallback = "a removed selection returns to the repository parent"
+    internal static let historyDate = "2026-08-30"
+    internal static let datedRootHeading = "Example · 2026-08-30"
+    internal static let datedVersionHeading = "v0.1 · 2026-08-30"
+    internal static let rootHistoryDetail = "Added notes. Added history."
+    internal static let datedHistory = """
+    ## Change log
+    | Version | Date | Updates |
+    |---|---|---|
+    | v0.1 | 2026-08-30 | Initial implementation |
+    | v0.0 | | Initial implementation |
+    """
+    internal static let mixedArchitecture = """
+    ## Workflow architecture and retries
+    | Model | Path |
+    |---|---|
+    | Orchestration | LangGraph |
+    | Chat | Qwen3 |
+    | Retrieval | RAG and vectors |
+    - Input → Output
+    ## Workflows
+    - Another → Route
+    ## Release history
+    ### Architecture
+    | Old | Component |
+    |---|---|
+    | Obsolete | Missing |
+    """
+    internal static let mixedSteps = ["Input", "Output"]
+    internal static let checkCompleteArchitecture = "Architecture retains every source table row and header, including models and RAG"
+    internal static let checkMixedArchitecture = "mixed architecture/workflow headings preserve architecture content and explicit diagrams"
+    internal static let checkModelSecondary = "Models is a secondary extract without removing architecture rows"
+    internal static let checkHistoryHeading = "history date appears next to the project or version title"
+    internal static let checkHistoryDateBody = "history description no longer repeats its standalone date"
+    internal static let checkUndatedHistory = "undated and two-column history retains its original content"
+    internal static let checkAllArchitecture = "architecture table is present for "
+    internal static let checkArchitectureCoverage = "architecture table includes "
+    internal static let checkArchitectureGroups = "architecture categories remain ordered for "
+    internal static let checkArchitectureGroupTable = "architecture category owns a nonempty native table: "
+    internal static let architectureGroupTitles = [
+        "AI & Intelligence", "Frontend & Presentation", "Backend & Application Logic",
+        "Data & Storage", "Integrations & Security", "Build & Delivery"
+    ]
+    internal static let architectureGroupOrder = [
+        "Local Assistant": [0, 1, 2, 3, 4],
+        "Prospect Copilot": [0, 1, 2, 3, 4],
+        "OpenClaw": [0, 2, 3, 4],
+        "Python Accomplishments": [0, 1, 2, 3, 4, 5],
+        "Knowledge Transfer": [1, 2, 3, 5],
+        "Project Control": [1, 2, 3, 4]
+    ]
+    internal static let architectureCoverage = [
+        "Local Assistant": ["Native Swift", "Qwen3-4B", "Qwen3-Embedding", "llama.cpp", "RAG", "IndexingService", "SQLite", "FTS5", "sqlite-vec", "WhisperKit", "Connector"],
+        "Prospect Copilot": ["Next.js", "LangGraph", "LangChain", "DeepSeek", "scoring", "IndexedDB"],
+        "OpenClaw": ["OpenClaw runtime", "Ollama", "ChromaDB", "CloudBase", "iCloud", "A2A"],
+        "Knowledge Transfer": ["Markdown", "Canvas", "React", "TypeScript", "Vite", "Three.js", "Search"],
+        "Python Accomplishments": ["Python", "Polly", "Watson", "Tkinter", "Playwright", "Selenium", "PyInstaller"],
+        "Project Control": ["SwiftUI", "ControlStore", "RepositoryReader", "ReadmeParser", "WorkspaceStorage", "History"]
+    ]
 }

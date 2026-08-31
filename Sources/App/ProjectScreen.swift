@@ -44,9 +44,9 @@ internal struct ProjectScreen: View {
                 .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1).allowsHitTesting(false) }
             Group {
                 switch tab {
-                case .overview: overview
-                case .architecture: facts(project.architecture, empty: ControlConstants.noArchitecture)
-                case .models: facts(project.models, empty: ControlConstants.noModels)
+                case .overview: ReadmeContent(blocks: project.overview, empty: ControlConstants.noIntroduction)
+                case .architecture: ReadmeContent(blocks: project.architecture, empty: ControlConstants.noArchitecture)
+                case .models: ReadmeContent(blocks: project.models, empty: ControlConstants.noModels)
                 case .workflows: workflows
                 case .notes: workNotes
                 case .history: HistoryList(entries: project.history)
@@ -97,38 +97,6 @@ internal struct ProjectScreen: View {
                 ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
                 .font(.caption).foregroundStyle(ControlTheme.muted)
         }
-    }
-
-    private var overview: some View {
-        LazyVStack(alignment: .leading, spacing: 16) {
-            ForEach(project.overview) { block in
-                switch block.kind {
-                case .heading:
-                    Text(block.text).font(.headline).padding(.top, 8)
-                case .paragraph:
-                    Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
-                case .bullet:
-                    HStack(alignment: .top, spacing: 12) {
-                        Circle().fill(ControlTheme.signal).frame(width: 4, height: 4).padding(.top, 8).accessibilityHidden(true)
-                        Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
-                    }
-                }
-            }
-        }.textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    /// Displays one topic's documented facts with no content from other tabs.
-    /// - Parameters: values: Source-derived facts. empty: Honest missing-content message.
-    /// - Returns: A readable, selectable topic surface.
-    private func facts(_ values: [String], empty: String) -> some View {
-        LazyVStack(alignment: .leading, spacing: 18) {
-            if values.isEmpty { Text(empty).font(.callout).foregroundStyle(ControlTheme.muted) }
-            ForEach(Array(values.enumerated()), id: \.offset) { _, value in
-                Text(value).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Rectangle().fill(ControlTheme.line).frame(height: 1)
-            }
-        }.textSelection(.enabled)
     }
 
     private var workflows: some View {

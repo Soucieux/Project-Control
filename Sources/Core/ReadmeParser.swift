@@ -23,12 +23,28 @@ internal enum ReadmeParser {
     /// - Parameter value: A Markdown fragment.
     /// - Returns: Noninteractive readable text.
     internal static func plain(_ value: String) -> String {
-        var result = replace(value, ControlConstants.linkPattern, ControlConstants.linkLabelReplacement)
-        result = replace(result, ControlConstants.htmlBreakPattern, ControlConstants.space)
-        result = replace(result, ControlConstants.htmlPattern, ControlConstants.empty)
-        result = replace(result, ControlConstants.markupPattern, ControlConstants.empty)
+        let linked = replace(value, ControlConstants.linkPattern, ControlConstants.linkLabelReplacement)
+        let expression = try? NSRegularExpression(pattern: ControlConstants.inlineCodePattern)
+        var result = ControlConstants.empty
+        var cursor = linked.startIndex
+        for match in expression?.matches(in: linked, range: NSRange(linked.startIndex..., in: linked)) ?? [] {
+            guard let range = Range(match.range, in: linked), let literal = Range(match.range(at: 2), in: linked) else { continue }
+            result += plainProse(String(linked[cursor..<range.lowerBound])) + String(linked[literal])
+            cursor = range.upperBound
+        }
+        result += plainProse(String(linked[cursor...]))
         return replace(result, ControlConstants.whitespacePattern, ControlConstants.space)
             .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Removes prose styling while leaving inline-code identifiers and paths to the caller.
+    /// - Parameter value: A fragment outside Markdown code spans.
+    /// - Returns: Unstyled, inert text with boundary whitespace preserved for concatenation.
+    private static func plainProse(_ value: String) -> String {
+        var result = replace(value, ControlConstants.htmlBreakPattern, ControlConstants.space)
+        result = replace(result, ControlConstants.htmlPattern, ControlConstants.empty)
+        result = replace(result, ControlConstants.underscoreEmphasisPattern, ControlConstants.linkLabelReplacement)
+        return replace(result, ControlConstants.markupPattern, ControlConstants.empty)
     }
 
     /// Splits headings, excludes source blocks, and retains text-diagram candidates separately.
@@ -116,12 +132,7 @@ internal enum ReadmeParser {
     /// - Parameter sections: Selected source sections.
     /// - Returns: Readable prose blocks in source order.
     internal static func paragraphs(_ sections: [ReadmeSection]) -> [String] {
-        sections.flatMap { section in
-            section.lines.joined(separator: ControlConstants.newline)
-                .components(separatedBy: ControlConstants.newline + ControlConstants.newline)
-                .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix(ControlConstants.pipe) }
-                .map(plain).filter { !$0.isEmpty && match($0, ControlConstants.separatorPattern) == nil }
-        }
+        blocks(sections).filter { $0.kind == .paragraph || $0.kind == .bullet }.map(\.text)
     }
 
     /// Assigns child headings to their closest documented topic, never extracting release-history details.
@@ -135,7 +146,9 @@ internal enum ReadmeParser {
             let inherited = ancestors.last.flatMap { $0.topic }
             let owner = inherited == .history ? .history : sectionTopic(section.title) ?? inherited
             ancestors.append((section.level, owner))
-            if owner == topic { selected.append(section) }
+            let mixedWorkflow = topic == .workflows && owner == .architecture
+                && ControlConstants.flowWords.contains { section.title.localizedCaseInsensitiveContains($0) }
+            if owner == topic || mixedWorkflow { selected.append(section) }
         }
         return selected
     }
@@ -148,9 +161,9 @@ internal enum ReadmeParser {
             || title.localizedCaseInsensitiveContains(ControlConstants.releaseNotesHeading)
             || match(title, ControlConstants.versionHeadingPattern) != nil { return .history }
         if ControlConstants.overviewWords.contains(title.lowercased()) { return .overview }
+        if ControlConstants.architectureWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .architecture }
         if ControlConstants.flowWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .workflows }
         if ControlConstants.modelHeadingWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .models }
-        if ControlConstants.architectureWords.contains(where: { title.localizedCaseInsensitiveContains($0) }) { return .architecture }
         return nil
     }
 
@@ -160,9 +173,17 @@ internal enum ReadmeParser {
     internal static func overview(_ sections: [ReadmeSection], fallback: String) -> [ReadmeBlock] {
         let explicit = topicSections(sections, topic: .overview)
         let selected = explicit.isEmpty ? Array(sections.prefix { $0.level < 2 }) : explicit
+        let content = blocks(selected, includeHeadings: !explicit.isEmpty)
+        return content.isEmpty ? [ReadmeBlock(kind: .paragraph, text: fallback)] : content
+    }
+
+    /// Tokenizes prose and consecutive table rows once, retaining source order and table headers.
+    /// - Parameters: sections: Selected source sections. includeHeadings: Whether to label subsequent sections.
+    /// - Returns: Native presentation blocks, with no table row duplicated as prose.
+    private static func blocks(_ sections: [ReadmeSection], includeHeadings: Bool = false) -> [ReadmeBlock] {
         var blocks: [ReadmeBlock] = []
-        for (index, section) in selected.enumerated() {
-            if !explicit.isEmpty && index > 0 {
+        for (index, section) in sections.enumerated() {
+            if includeHeadings && index > 0 {
                 blocks.append(ReadmeBlock(kind: .heading, text: section.title))
             }
             var paragraph: [String] = []
@@ -172,6 +193,7 @@ internal enum ReadmeParser {
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
                 if trimmed.hasPrefix(ControlConstants.pipe) {
                     appendBlock(&paragraph, kind: kind, to: &blocks)
+                    kind = .paragraph
                     tableLines.append(line)
                     continue
                 }
@@ -192,7 +214,7 @@ internal enum ReadmeParser {
             appendBlock(&paragraph, kind: kind, to: &blocks)
             appendTable(&tableLines, to: &blocks)
         }
-        return blocks.isEmpty ? [ReadmeBlock(kind: .paragraph, text: fallback)] : blocks
+        return blocks
     }
 
     /// Flushes a prose buffer without leaking raw markup into the content view.
@@ -204,38 +226,47 @@ internal enum ReadmeParser {
         lines.removeAll()
     }
 
-    /// Keeps overview table facts at their source position instead of moving them below the prose.
+    /// Keeps table headers and cells at their source position, excluding delimiter rows.
     /// - Parameters: lines: Pending table lines, cleared afterward. blocks: Destination presentation blocks.
-    /// - Returns: Nothing; appends only data rows, without the Markdown header or delimiter.
+    /// - Returns: Nothing; appends one structured table when it contains data rows.
     private static func appendTable(_ lines: inout [String], to blocks: inout [ReadmeBlock]) {
-        blocks += table(lines).map { ReadmeBlock(kind: .bullet, text: $0.map(plain).joined(separator: ControlConstants.joined)) }
+        let rows = table(lines).map { $0.map(plain) }
+        if !rows.isEmpty {
+            let separator = lines.firstIndex { match($0.trimmingCharacters(in: .whitespaces), ControlConstants.separatorPattern) != nil }
+            let headers = separator.flatMap { $0 > 0 ? tableCells(lines[$0 - 1].trimmingCharacters(in: .whitespaces)).map(plain) : nil } ?? []
+            blocks.append(ReadmeBlock(kind: .table, text: ControlConstants.empty,
+                table: ReadmeTable(headers: headers, rows: rows)))
+        }
         lines.removeAll()
     }
 
-    /// Extracts non-model architecture facts without including workflow or historical sections.
+    /// Preserves complete architecture tables, including model and retrieval responsibilities.
     /// - Parameter sections: Parsed README sections.
-    /// - Returns: Source-derived architecture facts, with model information separated out.
-    internal static func architecture(_ sections: [ReadmeSection]) -> [String] {
-        facts(topicSections(sections, topic: .architecture)).filter { !mentionsModel($0) }
+    /// - Returns: Source-derived architecture blocks; dedicated Models and history sections remain separate.
+    internal static func architecture(_ sections: [ReadmeSection]) -> [ReadmeBlock] {
+        blocks(topicSections(sections, topic: .architecture), includeHeadings: true)
     }
 
     /// Separates documented model facts from general architecture and introductory prose.
     /// - Parameter sections: Parsed README source.
-    /// - Returns: Unique source-derived model descriptions, without guessing undocumented models.
-    internal static func models(_ sections: [ReadmeSection]) -> [String] {
-        let values = facts(topicSections(sections, topic: .models))
-            + facts(topicSections(sections, topic: .architecture)).filter(mentionsModel)
-            + paragraphs(Array(sections.prefix { $0.level < 2 })).filter(mentionsModel)
-        var seen: Set<String> = []
-        return values.filter { seen.insert($0).inserted }
+    /// - Returns: Source-derived prose and tables, without guessing undocumented models.
+    internal static func models(_ sections: [ReadmeSection]) -> [ReadmeBlock] {
+        blocks(topicSections(sections, topic: .models))
+            + modelBlocks(blocks(topicSections(sections, topic: .architecture)))
+            + modelBlocks(blocks(Array(sections.prefix { $0.level < 2 })))
     }
 
-    /// Collects readable table facts and explanatory prose from selected sections.
-    /// - Parameter sections: Sections already assigned to a content topic.
-    /// - Returns: Display-ready facts without source code or Markdown syntax.
-    private static func facts(_ sections: [ReadmeSection]) -> [String] {
-        sections.flatMap { section in
-            table(section.lines).map { $0.map(plain).joined(separator: ControlConstants.joined) } + paragraphs([section])
+    /// Selects model facts row by row without removing them from the original architecture table.
+    /// - Parameter content: Parsed source blocks.
+    /// - Returns: Matching blocks and nonempty tables with only their matching rows.
+    private static func modelBlocks(_ content: [ReadmeBlock]) -> [ReadmeBlock] {
+        content.compactMap { block in
+            guard let table = block.table else { return mentionsModel(block.text) ? block : nil }
+            let rows = table.rows.filter { $0.contains(where: mentionsModel) }
+            guard !rows.isEmpty else { return nil }
+            var result = block
+            result.table = ReadmeTable(headers: table.headers, rows: rows)
+            return result
         }
     }
 
@@ -266,7 +297,13 @@ internal enum ReadmeParser {
         }
         let rows = selected.flatMap { table($0.lines) }.filter { $0.count >= 2 }
         if !rows.isEmpty {
-            return rows.prefix(30).map { HistoryEntry(title: plain($0[0]), detail: $0.dropFirst().map(plain).joined(separator: ControlConstants.joined)) }
+            return rows.prefix(30).map { source in
+                let row = source.map(plain)
+                let dateIndex = row.indices.dropFirst().first { match(row[$0], ControlConstants.historyDatePattern) != nil }
+                let detail = row.indices.dropFirst().filter { $0 != dateIndex && !row[$0].isEmpty }.map { row[$0] }
+                    .joined(separator: ControlConstants.joined)
+                return HistoryEntry(title: row[0], detail: detail, date: dateIndex.map { row[$0] })
+            }
         }
         return sections.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }.prefix(30).map {
             HistoryEntry(title: $0.title, detail: paragraphs([$0]).prefix(2).joined(separator: ControlConstants.space))

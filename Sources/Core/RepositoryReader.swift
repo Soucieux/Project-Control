@@ -57,7 +57,8 @@ internal enum RepositoryReader {
         }
         guard !projects.isEmpty else { throw ControlFailure(message: ControlConstants.invalidRepository) }
         return RepositorySnapshot(root: canonical, projects: projects, history: ReadmeParser.history(sections),
-            readAt: Date(), fingerprint: identities)
+            readAt: Date(), fingerprint: identities,
+            overview: ReadmeParser.overview(sections, fallback: ControlConstants.noRepositoryOverview))
     }
 
     /// Assembles a project while representing a missing README explicitly.

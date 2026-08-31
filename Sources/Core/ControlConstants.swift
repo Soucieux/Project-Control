@@ -20,6 +20,7 @@ internal enum ControlConstants {
     internal static let modelHeadingWords = ["models", "language model", "llm", "model configuration"]
     internal static let flowWords = ["flow", "how it works", "request", "how local", "how information"]
     internal static let historyWords = ["change log", "changelog", "version history", "version index", "release history"]
+    internal static let historyDatePattern = #"^\d{4}-\d{2}-\d{2}$"#
     internal static let modelWords = ["qwen", "whisper", "deepseek", "claude", "llama", "gpt-", "gemini", "embedding model", "language model"]
     internal static let fencePattern = #"^\s*(`{3,}|~{3,})"#
     internal static let closingFencePattern = #"^\s*(`{3,}|~{3,})\s*$"#
@@ -35,7 +36,9 @@ internal enum ControlConstants {
     internal static let linkPattern = #"!?\[([^\]]*)\]\(([^)]+)\)"#
     internal static let htmlBreakPattern = #"</(?:li|p)>|<br\s*/?>"#
     internal static let htmlPattern = #"<[^>]*>"#
-    internal static let markupPattern = #"[*`_]|^\s*(?:[-+>]\s+|\d+\.\s+)"#
+    internal static let inlineCodePattern = #"(`+)(.+?)\1"#
+    internal static let underscoreEmphasisPattern = #"(?<!\w)_{1,2}(.+?)_{1,2}(?!\w)"#
+    internal static let markupPattern = #"[*`]|^\s*(?:[-+>]\s+|\d+\.\s+)"#
     internal static let separatorPattern = #"^[:\-\s|]+$"#
     internal static let whitespacePattern = #"\s+"#
     internal static let versionHeadingPattern = #"(?i)^v\d+\.\d+(?:\.\d+)?\b"#
@@ -62,6 +65,7 @@ internal enum ControlConstants {
     internal static let changeRepository = "Change repository…"
     internal static let refresh = "Refresh now"
     internal static let register = "PROJECT REGISTER"
+    internal static let noRepositoryOverview = "No repository overview documented. Open the README for more context."
     internal static let overview = "Overview"
     internal static let notes = "Work notes"
     internal static let history = "Project history"

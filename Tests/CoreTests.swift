@@ -23,11 +23,12 @@ internal enum CoreTests {
         check(snapshot.projects.count == 2, TestConstants.checkRegister)
         check(record.introduction == TestConstants.introduction, TestConstants.checkIntro)
         check(record.version == TestConstants.version, TestConstants.checkVersion)
-        check(record.architecture.contains(TestConstants.architecture), TestConstants.checkArchitecture)
+        check(TestFixtures.text(record.architecture).contains(TestConstants.architecture), TestConstants.checkArchitecture)
         check(record.workflows.count == 2 && record.workflows[0].steps.count == 3, TestConstants.checkRoutes)
         check(!ReadmeParser.sections(TestConstants.projectReadme).flatMap(\.lines).joined().contains(TestConstants.forbidden), TestConstants.checkCode)
         check(record.history.first?.detail == TestConstants.history, TestConstants.checkHistory)
         check(snapshot.history.count == 1 && snapshot.history[0].title == TestConstants.project, TestConstants.checkRootHistory)
+        check(snapshot.overview.first?.text == TestConstants.repositoryOverview, TestConstants.checkRepositoryOverview)
         check(!snapshot.projects[1].readmeAvailable && !snapshot.projects[1].folderAvailable, TestConstants.checkMissing)
         let fingerprint = RepositoryReader.fingerprint(snapshot)
         try TestConstants.updatedReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
@@ -36,6 +37,12 @@ internal enum CoreTests {
         check(try RepositoryReader.load(repository).projects[0].introduction == TestConstants.updatedIntroduction, TestConstants.checkReload)
         try storageChecks(root)
         try applicationChecks(repository, project: project, root: root)
+        let beforeRootEdit = RepositoryReader.fingerprint(snapshot)
+        try TestConstants.rootReadme.replacingOccurrences(of: TestConstants.repositoryOverview, with: TestConstants.updatedRepositoryOverview)
+            .write(to: rootReadme, atomically: true, encoding: .utf8)
+        let refreshedRoot = try RepositoryReader.load(repository)
+        check(RepositoryReader.fingerprint(snapshot) != beforeRootEdit
+            && refreshedRoot.overview.first?.text == TestConstants.updatedRepositoryOverview, TestConstants.checkRepositoryOverviewRefresh)
         try TestConstants.escapedRoot.write(to: rootReadme, atomically: true, encoding: .utf8)
         checkThrows(TestConstants.checkEscape) { _ = try RepositoryReader.load(repository) }
         try TestConstants.symlinkRoot.write(to: rootReadme, atomically: true, encoding: .utf8)
@@ -46,10 +53,34 @@ internal enum CoreTests {
         check(try !RepositoryReader.load(repository).projects[0].readmeAvailable, TestConstants.checkSymlink)
         check(ReadmeParser.sections(TestConstants.tildeCode).count == 3, TestConstants.checkTilde)
         parserChecks()
+        tableChecks()
+        architectureHistoryChecks()
         try aliasChecks(repository, project: project, outside: outside)
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
         check(live.projects.count == 6, TestConstants.checkLive)
         check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 6, TestConstants.checkLiveFlows)
+        let liveModels = live.projects.first { $0.name == TestConstants.liveProject }?.models ?? []
+        check(liveModels.contains { $0.table != nil }
+            && !liveModels.contains { $0.text.contains(TestConstants.rawTableSeparator) || $0.text.hasPrefix(ControlConstants.pipe) }, TestConstants.checkLiveTables)
+        for project in live.projects {
+            let categories = project.architecture.enumerated().filter {
+                $0.element.kind == .heading && TestConstants.architectureGroupTitles.contains($0.element.text)
+            }
+            let expected = (TestConstants.architectureGroupOrder[project.name] ?? []).map { TestConstants.architectureGroupTitles[$0] }
+            check(categories.map { $0.element.text } == expected, TestConstants.checkArchitectureGroups + project.name)
+            for category in categories {
+                let next = category.offset + 1
+                let table = next < project.architecture.count ? project.architecture[next].table : nil
+                check(table?.headers.count == 2 && table?.rows.isEmpty == false,
+                      TestConstants.checkArchitectureGroupTable + project.name + ControlConstants.joined + category.element.text)
+            }
+            let rows = project.architecture.compactMap(\.table).flatMap(\.rows)
+            check(!rows.isEmpty, TestConstants.checkAllArchitecture + project.name)
+            for component in TestConstants.architectureCoverage[project.name] ?? [] {
+                check(rows.contains { $0.joined(separator: ControlConstants.space).contains(component) },
+                      TestConstants.checkArchitectureCoverage + project.name + ControlConstants.joined + component)
+            }
+        }
         print(TestConstants.passed + String(count))
     }
 
@@ -66,11 +97,11 @@ internal enum CoreTests {
         check(overview.first?.text == TestConstants.overviewText && overview.contains { $0.kind == .bullet && $0.text == TestConstants.overviewBullet }, TestConstants.checkOverview)
         check(!overview.contains { $0.text == TestConstants.architecture || $0.text == ControlConstants.workflow }, TestConstants.checkOverviewOwnership)
         check(ReadmeParser.overview(ReadmeParser.sections(TestConstants.projectReadme), fallback: ControlConstants.noIntroduction).first?.text == TestConstants.introduction, TestConstants.checkOverviewFallback)
-        check(ReadmeParser.overview(ReadmeParser.sections(TestConstants.overviewOrder), fallback: ControlConstants.noIntroduction).map(\.text) == TestConstants.overviewOrderExpected, TestConstants.checkOverviewOrder)
-        let architecture = ReadmeParser.architecture(topics)
-        check(architecture.contains(TestConstants.architecture) && !architecture.contains(TestConstants.modelFact)
+        check(TestFixtures.text(ReadmeParser.overview(ReadmeParser.sections(TestConstants.overviewOrder), fallback: ControlConstants.noIntroduction)) == TestConstants.overviewOrderExpected, TestConstants.checkOverviewOrder)
+        let architecture = TestFixtures.text(ReadmeParser.architecture(topics))
+        check(architecture.contains(TestConstants.architecture) && architecture.contains(TestConstants.modelFact)
             && !architecture.contains(TestConstants.obsoleteArchitecture), TestConstants.checkArchitectureOwnership)
-        check(ReadmeParser.models(topics).contains(TestConstants.modelFact), TestConstants.checkModels)
+        check(TestFixtures.text(ReadmeParser.models(topics)).contains(TestConstants.modelFact), TestConstants.checkModels)
         let diagram = ReadmeParser.workflows(topics).first
         check(diagram?.nodes.count == 5 && diagram?.nodes[1].layer == diagram?.nodes[2].layer, TestConstants.checkDiagramBranches)
         check(diagram?.edges.contains(WorkflowEdge(source: 1, target: 3)) == true
@@ -84,8 +115,49 @@ internal enum CoreTests {
         check(WorkflowParser.diagrams(TestConstants.asciiDiagram, label: ControlConstants.workflow).count == 2, TestConstants.checkAsciiDiagram)
         let versioned = ReadmeParser.sections(TestConstants.versionedOverview)
         check(ReadmeParser.overview(versioned, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.overviewText
-            && ReadmeParser.architecture(versioned).contains(TestConstants.architecture)
+            && TestFixtures.text(ReadmeParser.architecture(versioned)).contains(TestConstants.architecture)
             && ReadmeParser.workflows(versioned).count == 1 && ReadmeParser.history(versioned).isEmpty, TestConstants.checkVersionedTitle)
+    }
+
+    /// Reproduces the reported leading-blank-line table leak and preserves source identifiers.
+    /// - Returns: Nothing; terminates if tables become prose or model/path text changes.
+    private static func tableChecks() {
+        let sections = ReadmeParser.sections(TestConstants.modelTables)
+        let models = ReadmeParser.models(sections)
+        let tables = models.compactMap(\.table)
+        check(tables.count == 2 && tables[0].headers == TestConstants.modelHeaders, TestConstants.checkStructuredTables)
+        check(tables[0].rows.count == 2 && tables[1].headers == TestConstants.pathHeaders, TestConstants.checkModelTableRows)
+        check(models.filter { $0.kind == .paragraph }.isEmpty, TestConstants.checkTableProseLeak)
+        check(TestFixtures.text(ReadmeParser.architecture(sections)).contains(TestConstants.architecture), TestConstants.checkArchitectureOwnership)
+        check(tables[1].rows.first?.last == TestConstants.modelPath, TestConstants.checkModelIdentifiers)
+        check(ReadmeParser.plain(TestConstants.inlineIdentifiers) == TestConstants.expectedIdentifiers, TestConstants.checkModelIdentifiers)
+        check(ReadmeParser.paragraphs(ReadmeParser.sections(TestConstants.adjacentTable)) == TestConstants.adjacentProse, TestConstants.checkAdjacentTable)
+        let overview = ReadmeParser.overview(ReadmeParser.sections(TestConstants.overviewOrder), fallback: ControlConstants.noIntroduction)
+        check(overview.map(\.kind) == [.paragraph, .table, .bullet, .paragraph], TestConstants.checkOverviewTable)
+        let escaped = ReadmeParser.overview(ReadmeParser.sections(TestConstants.escapedTable), fallback: ControlConstants.noIntroduction)
+        check(escaped.first?.table?.rows.first?.last == TestConstants.pipeValue, TestConstants.checkPipes)
+    }
+
+    /// Preserves complete architecture responsibilities and source dates in history headings.
+    /// - Returns: Nothing; terminates if source tables lose components or dates remain in the detail body.
+    private static func architectureHistoryChecks() {
+        let sections = ReadmeParser.sections(TestConstants.mixedArchitecture)
+        let tables = ReadmeParser.architecture(sections).compactMap(\.table)
+        check(tables.first?.rows.count == 3 && tables.first?.headers == TestConstants.pathHeaders,
+              TestConstants.checkCompleteArchitecture)
+        let routes = ReadmeParser.workflows(sections)
+        check(routes.count == 2 && routes.first?.steps == TestConstants.mixedSteps, TestConstants.checkMixedArchitecture)
+        check(ReadmeParser.models(sections).compactMap(\.table).first?.rows.count == 1, TestConstants.checkModelSecondary)
+        let rootHistory = ReadmeParser.history(ReadmeParser.sections(TestConstants.rootReadme))[0]
+        check(rootHistory.date == TestConstants.historyDate && rootHistory.heading == TestConstants.datedRootHeading,
+              TestConstants.checkHistoryHeading)
+        check(rootHistory.detail == TestConstants.rootHistoryDetail, TestConstants.checkHistoryDateBody)
+        let releases = ReadmeParser.history(ReadmeParser.sections(TestConstants.datedHistory))
+        check(releases[0].heading == TestConstants.datedVersionHeading && releases[0].detail == TestConstants.history,
+              TestConstants.checkHistoryHeading)
+        check(releases[1].date == nil && releases[1].detail == TestConstants.history, TestConstants.checkUndatedHistory)
+        let undated = ReadmeParser.history(ReadmeParser.sections(TestConstants.projectReadme))[0]
+        check(undated.date == nil && undated.detail == TestConstants.history, TestConstants.checkUndatedHistory)
     }
 
     /// Exercises automatic app discovery without launching any fixture or reading user preferences.
@@ -103,6 +175,8 @@ internal enum CoreTests {
         check(ApplicationLocator.preferred(detected, project: TestConstants.project, folder: project) == application, TestConstants.checkAppPreference)
         check(ApplicationLocator.preferred([companion], project: TestConstants.project, folder: project) == companion, TestConstants.checkAppSingle)
         check(ApplicationLocator.preferred(detected, project: TestConstants.external, folder: root) == nil, TestConstants.checkAppAmbiguous)
+        check(ApplicationLocator.preferred(detected, project: TestConstants.external, folder: project) == application, TestConstants.checkIconFolderMatch)
+        check(ApplicationLocator.preferred([], project: TestConstants.project, folder: project) == nil, TestConstants.checkIconFallback)
         check(RepositoryReader.fingerprint(before) != before.fingerprint, TestConstants.checkAppFingerprint)
         let beforeRepair = try RepositoryReader.load(repository)
         _ = try TestFixtures.application(in: project, name: TestConstants.incompleteApp)
