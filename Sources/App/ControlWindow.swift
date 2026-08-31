@@ -1,9 +1,9 @@
+import AppKit
 import SwiftUI
 
 /// The perimeter-led command surface: register, selected project, repository history.
 internal struct ControlWindow: View {
     @ObservedObject internal var store: ControlStore
-    @State private var search = ControlConstants.empty
     @State private var showRepositoryHistory = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -48,7 +48,8 @@ internal struct ControlWindow: View {
 
     private var masthead: some View {
         HStack(spacing: 12) {
-            Image(systemName: ControlConstants.diamondIcon).font(.system(size: 25, weight: .ultraLight))
+            Image(nsImage: NSApplication.shared.applicationIconImage).resizable().interpolation(.high)
+                .scaledToFit().frame(width: 32, height: 32)
                 .accessibilityHidden(true)
             Text(ControlConstants.appName.uppercased()).font(.system(size: 13, weight: .medium)).tracking(3)
             Spacer()
@@ -68,41 +69,36 @@ internal struct ControlWindow: View {
         .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
     }
 
-    /// Builds searchable, numbered project navigation without inventing status scores.
+    /// Builds numbered, full-row project navigation without inventing status scores.
     /// - Parameter snapshot: Current repository snapshot.
     /// - Returns: A fixed-width, independently scrollable project register.
     private func register(_ snapshot: RepositorySnapshot) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack { InstrumentLabel(title: ControlConstants.register); Spacer(); Text(snapshot.projects.count.formatted()).font(.caption.monospaced()) }
-            TextField(ControlConstants.searchProjects, text: $search).textFieldStyle(.roundedBorder)
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(Array(snapshot.projects.enumerated()), id: \.element.id) { index, project in
-                        if search.isEmpty || project.name.localizedCaseInsensitiveContains(search) {
-                            Button {
-                                store.selection = project.id
-                            } label: {
-                                HStack(alignment: .top, spacing: 10) {
-                                    Text(String(format: ControlConstants.ordinalFormat, index + 1)).font(.caption.monospaced()).padding(.top, 2)
-                                    VStack(alignment: .leading, spacing: 7) {
-                                        Text(project.name).font(.system(size: 14, weight: .medium)).multilineTextAlignment(.leading)
-                                        let notes = store.notes(for: project.id)
-                                        Text(notes.isEmpty ? ControlConstants.noProgress : String(format: ControlConstants.noteCountFormat, notes.filter { $0.status == .done }.count, notes.count) + ControlConstants.space + ControlConstants.completedNotes)
-                                            .font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
-                                    }
-                                    Spacer(minLength: 0)
-                                }.padding(.vertical, 18).padding(.horizontal, 10).frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(store.selection == project.id ? ControlTheme.signal.opacity(0.12) : .clear)
-                                    .overlay(alignment: .leading) {
-                                        if store.selection == project.id { Rectangle().fill(ControlTheme.signal).frame(width: 2) }
-                                    }
-                            }.buttonStyle(.plain)
-                                .accessibilityAddTraits(store.selection == project.id ? .isSelected : [])
-                            Rectangle().fill(ControlTheme.line).frame(height: 1)
-                        }
-                    }
-                    if !search.isEmpty && !snapshot.projects.contains(where: { $0.name.localizedCaseInsensitiveContains(search) }) {
-                        Text(ControlConstants.noMatches).font(.callout).padding(.vertical, 16)
+                        Button {
+                            store.selection = project.id
+                        } label: {
+                            HStack(alignment: .top, spacing: 10) {
+                                Text(String(format: ControlConstants.ordinalFormat, index + 1)).font(.caption.monospaced()).padding(.top, 2)
+                                VStack(alignment: .leading, spacing: 7) {
+                                    Text(project.name).font(.system(size: 14, weight: .medium)).multilineTextAlignment(.leading)
+                                    let notes = store.notes(for: project.id)
+                                    Text(notes.isEmpty ? ControlConstants.noProgress : String(format: ControlConstants.noteCountFormat, notes.filter { $0.status == .done }.count, notes.count) + ControlConstants.space + ControlConstants.completedNotes)
+                                        .font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+                                }
+                                Spacer(minLength: 0)
+                            }.padding(.vertical, 18).padding(.horizontal, 10).frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                                .background(store.selection == project.id ? ControlTheme.signal.opacity(0.12) : .clear)
+                                .overlay(alignment: .leading) {
+                                    if store.selection == project.id { Rectangle().fill(ControlTheme.signal).frame(width: 2) }
+                                }
+                        }.buttonStyle(.plain)
+                            .accessibilityAddTraits(store.selection == project.id ? .isSelected : [])
+                        Rectangle().fill(ControlTheme.line).frame(height: 1)
                     }
                 }
             }

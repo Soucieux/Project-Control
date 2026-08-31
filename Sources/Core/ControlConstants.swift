@@ -138,7 +138,4 @@ internal enum ControlConstants {
     internal static let maxDiagramNodes = 32
     internal static let maxReadmeBytes = 2_000_000
     internal static let refreshSeconds: TimeInterval = 2
-    internal static let searchProjects = "Find project"
-    internal static let noMatches = "No matching projects"
-    internal static let downIcon = "arrow.down"
 }

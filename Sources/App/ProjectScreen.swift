@@ -4,7 +4,7 @@ import SwiftUI
 internal struct ProjectScreen: View {
     @ObservedObject internal var store: ControlStore
     internal let project: ProjectRecord
-    @State private var tab = 0
+    @State private var tab = ProjectTab.overview
     @State private var editedNote: WorkNote?
     @State private var deletion: WorkNote?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -28,24 +28,28 @@ internal struct ProjectScreen: View {
             }.padding(25).frame(maxWidth: .infinity, alignment: .leading)
                 .background(InstrumentFrame().fill(ControlTheme.surface))
                 .overlay(InstrumentFrame().stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
-            Text(project.introduction).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted).textSelection(.enabled)
             actions
-            HStack(spacing: 24) {
-                ForEach(Array([ControlConstants.overview, ControlConstants.notes, ControlConstants.history].enumerated()), id: \.offset) { index, label in
-                    Button { tab = index } label: {
-                        Text(label).font(.system(size: 13, weight: tab == index ? .semibold : .regular))
-                            .foregroundStyle(tab == index ? ControlTheme.ink : ControlTheme.muted)
-                            .padding(.vertical, 12)
-                            .overlay(alignment: .bottom) { if tab == index { Rectangle().fill(ControlTheme.signal).frame(height: 2) } }
-                    }.buttonStyle(.plain).accessibilityAddTraits(tab == index ? .isSelected : [])
+            ScrollView(.horizontal) {
+                HStack(spacing: 20) {
+                    ForEach(ProjectTab.allCases) { item in
+                        Button { tab = item } label: {
+                            Text(item.label).font(.system(size: 13, weight: tab == item ? .semibold : .regular))
+                                .foregroundStyle(tab == item ? ControlTheme.ink : ControlTheme.muted)
+                                .padding(.vertical, 12).contentShape(Rectangle())
+                                .overlay(alignment: .bottom) { if tab == item { Rectangle().fill(ControlTheme.signal).frame(height: 2) } }
+                        }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
+                    }
                 }
-                Spacer()
-            }.overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
+            }.fixedSize(horizontal: false, vertical: true)
+                .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1).allowsHitTesting(false) }
             Group {
                 switch tab {
-                case 1: workNotes
-                case 2: HistoryList(entries: project.history)
-                default: overview
+                case .overview: overview
+                case .architecture: facts(project.architecture, empty: ControlConstants.noArchitecture)
+                case .models: facts(project.models, empty: ControlConstants.noModels)
+                case .workflows: workflows
+                case .notes: workNotes
+                case .history: HistoryList(entries: project.history)
                 }
             }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
             health
@@ -64,65 +68,82 @@ internal struct ProjectScreen: View {
 
     private var actions: some View {
         VStack(alignment: .leading, spacing: 10) {
+            let target = store.application(for: project)
             HStack(spacing: 10) {
                 Button { store.open(project.folder) } label: { Label(ControlConstants.folder, systemImage: ControlConstants.folderIcon) }
                     .buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background).disabled(!project.folderAvailable)
                 Button { store.open(project.readme) } label: { Label(ControlConstants.read, systemImage: ControlConstants.readIcon) }
                     .disabled(!project.readmeAvailable)
-                if store.state.applications[project.id] != nil {
+                if target == nil && project.applications.count > 1 {
+                    Menu {
+                        ForEach(project.applications, id: \.self) { application in
+                            Button(application.deletingPathExtension().lastPathComponent) {
+                                store.launch(project, selectedApp: application)
+                            }
+                        }
+                    } label: { Label(ControlConstants.launch, systemImage: ControlConstants.playIcon) }
+                } else {
                     Button { store.launch(project) } label: { Label(ControlConstants.launch, systemImage: ControlConstants.playIcon) }
                 }
-                Menu {
-                    Button(ControlConstants.chooseApp) { store.chooseApplication(for: project) }
-                    if store.state.applications[project.id] != nil {
+                if store.state.applications[project.id] != nil {
+                    Menu {
                         Button(ControlConstants.clearApp) { store.clearApplication(for: project.id) }
-                    }
-                } label: { Image(systemName: ControlConstants.menuIcon) }.frame(width: 42).help(ControlConstants.chooseApp).disabled(!store.storageReady)
+                    } label: { Image(systemName: ControlConstants.menuIcon) }.frame(width: 32)
+                        .help(ControlConstants.clearApp).disabled(!store.storageReady)
+                }
             }.controlSize(.large).buttonStyle(.bordered)
-            if let path = store.state.applications[project.id] {
-                Text(ControlConstants.appChoice + ControlConstants.colon + ControlConstants.space + URL(fileURLWithPath: path).lastPathComponent)
-                    .font(.caption).foregroundStyle(ControlTheme.muted)
-            }
+            Text(target.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
+                + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
+                ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
+                .font(.caption).foregroundStyle(ControlTheme.muted)
         }
     }
 
     private var overview: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack { InstrumentLabel(title: ControlConstants.workflow.uppercased()); Spacer() }
+        LazyVStack(alignment: .leading, spacing: 16) {
+            ForEach(project.overview) { block in
+                switch block.kind {
+                case .heading:
+                    Text(block.text).font(.headline).padding(.top, 8)
+                case .paragraph:
+                    Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
+                case .bullet:
+                    HStack(alignment: .top, spacing: 12) {
+                        Circle().fill(ControlTheme.signal).frame(width: 4, height: 4).padding(.top, 8).accessibilityHidden(true)
+                        Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
+                    }
+                }
+            }
+        }.textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Displays one topic's documented facts with no content from other tabs.
+    /// - Parameters: values: Source-derived facts. empty: Honest missing-content message.
+    /// - Returns: A readable, selectable topic surface.
+    private func facts(_ values: [String], empty: String) -> some View {
+        LazyVStack(alignment: .leading, spacing: 18) {
+            if values.isEmpty { Text(empty).font(.callout).foregroundStyle(ControlTheme.muted) }
+            ForEach(Array(values.enumerated()), id: \.offset) { _, value in
+                Text(value).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Rectangle().fill(ControlTheme.line).frame(height: 1)
+            }
+        }.textSelection(.enabled)
+    }
+
+    private var workflows: some View {
+        VStack(alignment: .leading, spacing: 24) {
             if project.workflows.isEmpty {
                 Text(ControlConstants.noWorkflow).font(.callout).foregroundStyle(ControlTheme.muted)
             } else {
                 ForEach(project.workflows) { route in
-                    DisclosureGroup {
-                        VStack(alignment: .leading, spacing: 8) {
-                            ForEach(Array(route.steps.enumerated()), id: \.offset) { index, step in
-                                HStack(alignment: .top, spacing: 14) {
-                                    Text(String(format: ControlConstants.ordinalFormat, index + 1)).font(.caption.monospaced()).foregroundStyle(ControlTheme.signal)
-                                    Text(step).font(.callout).textSelection(.enabled)
-                                }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(ControlTheme.signal.opacity(0.035))
-                                    .overlay(alignment: .leading) { Rectangle().fill(ControlTheme.line).frame(width: 1) }
-                                if index < route.steps.count - 1 {
-                                    Image(systemName: ControlConstants.downIcon).font(.caption).foregroundStyle(ControlTheme.signal).padding(.leading, 18).accessibilityHidden(true)
-                                }
-                            }
-                        }.padding(.vertical, 12)
-                    } label: { Text(route.label).font(.callout) }
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text(route.label).font(.headline).textSelection(.enabled)
+                        WorkflowDiagram(route: route)
+                    }
                 }
                 Text(ControlConstants.workflowLegend).font(.caption).foregroundStyle(ControlTheme.muted)
             }
-            Rectangle().fill(ControlTheme.line).frame(height: 1)
-            DisclosureGroup {
-                VStack(alignment: .leading, spacing: 12) {
-                    if project.architecture.isEmpty { Text(ControlConstants.noArchitecture).font(.callout) }
-                    ForEach(Array(project.architecture.enumerated()), id: \.offset) { _, fact in
-                        HStack(alignment: .top, spacing: 12) {
-                            Rectangle().fill(ControlTheme.signal).frame(width: 3, height: 12).padding(.top, 3).accessibilityHidden(true)
-                            Text(fact).font(.callout).lineSpacing(4).textSelection(.enabled)
-                        }
-                    }
-                }.foregroundStyle(ControlTheme.muted).padding(.top, 14)
-            } label: { Text(ControlConstants.architecture).font(.system(size: 14, weight: .medium)) }
         }
     }
 
