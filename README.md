@@ -8,30 +8,20 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current release is **v0.8 (build 8)**, delivered as **Project Control.app** beside this
-README. It adds explicit README section routing, background content-digest checks, visible
-stale-source recovery, and 117 individually named architecture technologies/concepts across
-all six projects. The selected design, Nexus icon, navigation, notes, diagrams, and app discovery remain.
+The current source update is **v1.0 (build 10)**; it is not yet built or delivered. It replaces
+mandatory AI-usage badges with optional, individually wrapping technology/approach tags from
+the root README. Category and technical scope stay separate; absent metadata produces no tag.
+The app does not infer AI use from a category, project name, or the presence of AI lessons.
 
-Review corrected an old-repository polling race during repository switches, required a real
-register-table header, and kept a failed different-root choice from falsely marking the current
-repository stale. Final verification passed **303 core checks and 34 store checks**, native
-type-checking, clean compilation, strict signing and source/bundle metadata checks. A disposable
-copy without the polling guard failed the new repository-switch regression at the expected assertion.
-No actionable findings remain in this reviewed scope.
-
-Native offscreen rendering produced all six architecture views at 583- and 843-point content
-widths; minimum-width views, a regular-width representative, and the stale warning were inspected.
-This is layout evidence, not live window/keyboard/file-picker verification. An existing app process
-was left untouched; quit and reopen the root-level app to load the new binary. No privacy setting
-or capture permission was changed.
-
-The previous v0.7 source was committed before this update, and its unchanged bundle remains
-recoverable under `build/previous.sH4KB5/Project Control.app`. The obsolete v0.6 recovery and
-superseded pre-review v0.8 candidate were moved to macOS Trash under
-`Project Control - retired bundles 2026-08-31-sync`. Temporary test, mutation, rendering, and
-compiler/icon artifacts were removed. The separate Observatory v2.2 snapshot was rebuilt with
-permission to leave its pending Atlas/release work uncommitted.
+The latest locally delivered bundle remains **v0.9 (build 9)** at the project root. Its existing
+header, category navigation, notes, app discovery, icons, detail tabs, and diagrams are preserved
+in source. v1.0 passed 19 focused parser/register checks, 5 store checks, native type-checking,
+and 24 tag-layout cases. Source is committed separately: metadata and synchronization in
+`9f3e399`, the header in `eb643cb`, and the sidebar in `2a512b8`; root metadata/policy is in
+`b43b9fd`. v0.9 source changes are captured with this v1.0 update, not as a separate release
+commit. Release documentation and bundle metadata are being recorded before building.
+No v1.0 code review, formal verification, or live interaction check is claimed. Historical
+v0.9 checks remain recorded below, not reused as v1.0 evidence.
 
 ## Quick start
 
@@ -56,13 +46,32 @@ open "Project Control.app"
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
 The latest completed application lives directly beside this README as **Project Control.app**,
-version **v0.8/build 8**. The previous v0.7 bundle is preserved for recovery. Quit the running
-app before reopening an update.
+version **v0.9/build 9**. The replaced v0.8 bundle is preserved unchanged under
+`build/previous.JxnKxh/Project Control.app`; the older v0.7 recovery also remains.
+The existing app session was left untouched. Quit it before reopening to load v0.9.
+
+## Sidebar classification
+
+The repository's [README content contract](../README.md#readme-content-contract-for-project-control)
+owns the optional **Category**, **Technical scope**, and **Technologies** columns. Categories appear
+in first-appearance order, with projects retaining their register order. They are collapsible and
+show counts. Each project row retains its icon and note progress. Technical scope is a quiet text
+line; each documented technology or approach is a separate content-sized tag, wrapping as needed.
+The current groups are **AI Applications**, **Agent Workspaces**, **Project Management**,
+**Knowledge & Learning**, and **Utility Collections**. No names or memberships are hard-coded.
+
+A missing or blank category uses **Uncategorized**. Missing scope and technology values are omitted.
+The former **AI usage** column is ignored; it is not converted into tags. Authors migrate actual
+technologies into **Technologies**, following the root contract and the Project Control-only
+[tag policy](../AGENTS.md#project-control). Root README edits regroup projects and refresh tags
+through the existing background check, without a rebuild or changes to notes. Collapse state is
+local to the open window and resets on repository changes. A selected project that changes category
+is revealed in its destination group. A stale project README does not block valid root metadata.
 
 ## Versioning and build delivery
 
 - Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. The next update after v0.8/build 8 is **v0.9/build 9**. A clean recompilation of the same unchanged update does not create a new release.
+- Every application update advances the release version and increments the integer build number. This source update advances v0.9/build 9 to **v1.0/build 10**; its successor is **v1.1/build 11**. A clean recompilation of the same unchanged update does not create a new release.
 - Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
@@ -188,6 +197,86 @@ The 33 rejected visual studies and screenshots were removed from the working pro
 
 ## Development and focused checks
 
+### v1.0 source status
+
+The parser, sidebar, scoped tag policy, and root register are updated in source. Passed **19
+focused parser/register checks**, **5 store checks**, native type-checking, and **24 native
+tag-layout cases** at 64-, 148-, and 320-point widths, including empty and long labels. Offscreen
+views at 900×660 and 1160×840 and a six-project tag panel were inspected. An isolated render
+needed normal macOS icon-service access outside the agent sandbox; it captured only its own
+never-shown views, not desktop pixels. No screen-recording permission was changed or retried.
+These checks do not establish live scrolling, keyboard interaction, or installed-app behavior.
+The v0.9 bundle and its recovery copies are unchanged; no v1.0 bundle exists yet.
+The user authorized separate commits before building. Implementation is recorded in
+`9f3e399`, `eb643cb`, and `2a512b8`; release documentation and metadata precede the new build.
+
+Run only the classification regressions from this project folder:
+
+```sh
+make test-core test-store TEST_ARGS=--classification
+```
+
+These exercise optional/reordered columns, literal technology names, empty/duplicate tags,
+retired AI metadata, tag edits/removals, the actual six-project register, and stale-project
+refresh while preserving selection and notes. Omitting `TEST_ARGS` retains the existing test
+targets' complete behavior.
+
+### v0.9 delivery evidence
+
+The focused checks cover case-insensitive and reordered optional metadata columns, custom
+category names, missing/blank/short rows, duplicate projects, source ordering, README-triggered
+regrouping, and preservation of selection/notes while project content is stale. The new source
+fixtures and the live six-project register passed: **312 core checks and 38 store checks**.
+
+Native type-checking and a cache-free optimized build passed. Isolated, never-shown views were
+rendered at 900×660 and 1160×840, plus a tall register showing all five categories and a
+minimum-width long-repository-name case. The header icon/title alignment, separate ellipsis,
+wrapping badges, counts, selection highlight, and real app/fallback icons were inspected.
+The design pass retains the navy/icy-blue palette and uses informational badges, not health scores.
+These renders do not establish live scrolling, collapsing, keyboard, menu, or window-chrome behavior.
+
+macOS denied live window capture; no capture permission or privacy setting was changed or retried.
+The render probe and icon packager needed normal macOS icon-service access outside the agent
+sandbox; neither captured the desktop. Strict signing, matching source/bundle metadata,
+unchanged Nexus icon bytes, and root-level launch passed. Only the newly started background
+smoke-test instance was closed; the existing app session was preserved.
+
+The preceding v0.8 source/build work was already committed before this build. Its replaced
+bundle retains its original executable, metadata, icon checksums, and valid signature under
+`build/previous.JxnKxh/Project Control.app`. Temporary render sources/images, test binaries,
+compiler caches, and intermediate icons were removed. This v0.9 batch was uncommitted at
+delivery; its retained header/category implementation is now captured with v1.0 in `9f3e399`,
+`eb643cb`, and `2a512b8`, not in a separate v0.9 release commit. Optional code review and
+formal verification have not run for that batch.
+
+### v0.8 delivery evidence
+
+The **v0.8 (build 8)** release was delivered as **Project Control.app** beside this
+README. It adds explicit README section routing, background content-digest checks, visible
+stale-source recovery, and 117 individually named architecture technologies/concepts across
+all six projects. The selected design, Nexus icon, navigation, notes, diagrams, and app discovery remain.
+
+Review corrected an old-repository polling race during repository switches, required a real
+register-table header, and kept a failed different-root choice from falsely marking the current
+repository stale. Final verification passed **303 core checks and 34 store checks**, native
+type-checking, clean compilation, strict signing and source/bundle metadata checks. A disposable
+copy without the polling guard failed the new repository-switch regression at the expected assertion.
+No actionable findings remain in this reviewed scope.
+
+Native offscreen rendering produced all six architecture views at 583- and 843-point content
+widths; minimum-width views, a regular-width representative, and the stale warning were inspected.
+This is layout evidence, not live window/keyboard/file-picker verification. An existing app process
+was left untouched; quit and reopen the root-level app to load the new binary. No privacy setting
+or capture permission was changed.
+
+The previous v0.7 source was committed before this update, and its unchanged bundle remains
+recoverable under `build/previous.sH4KB5/Project Control.app`. The obsolete v0.6 recovery and
+superseded pre-review v0.8 candidate were moved to macOS Trash under
+`Project Control - retired bundles 2026-08-31-sync`. Temporary test, mutation, rendering, and
+compiler/icon artifacts were removed. The separate Observatory v2.2 snapshot was rebuilt with
+permission to leave its pending Atlas/release work uncommitted.
+
+
 From this project folder:
 
 ```sh
@@ -207,7 +296,7 @@ The subsequent v0.5 review reproduced four defects using disposable fixtures: AS
 
 For v0.6, all 71 core checks and 18 isolated store checks passed, as did native type-checking. Added regressions cover leading blank lines, adjacent prose/tables, escaped pipes, distinct source headers, literal model/path identifiers, root overview refresh, parent/child selection, and app preference for icons. Offscreen native rendering checked repository/project layouts at 900×660 and 1160×840, the real Local Assistant table component at both content widths, a three-column scrolling table, real app icons, and neutral fallback symbols. Native icon-service access required the render probe outside the agent sandbox; it rendered only its own never-shown views and captured no desktop pixels. A cache-free build passed strict signature checks, source/bundle metadata equality, unchanged Nexus icon checks, and launch from the project-root v0.6 bundle. The previous v0.5 bundle retained its signature and executable/metadata/icon checksums. The superseded v0.4 bundle was moved to Trash, and temporary render sources/images, test executables, compiler caches, and intermediate icons were removed. Live UI interaction remains unconfirmed; optional code review and formal verification have not run for this batch.
 
-For v0.7, all 128 core checks and 18 isolated store checks passed, along with native type-checking. Added cases cover complete architecture tables across all six projects, mixed architecture/workflow headings, source ordering, and dated/undated histories; an empty-date separator regression found during testing was corrected. Offscreen native rendering checked all six project headers at minimum and regular content widths, title-line icon alignment, dated history headings, and Local Assistant's complete 15-row architecture table. Wrapped cells exposed uneven per-cell dividers; full-width grid dividers corrected the layout and were checked at both widths. These probes rendered only their own never-shown views, without capturing desktop pixels. A cache-free native build passed strict signature, source/bundle metadata, unchanged Nexus icon, project-root launch, and checksum-matched v0.6 recovery checks. Cleanup left only the required v0.6 recovery bundle under `build/`; v0.5 was retired to Trash, though a final Trash inventory was denied by macOS and was not retried. The user explicitly permitted this build before committing v0.6. Live UI interaction, optional code review, and formal verification had not run at delivery; no commit was made at that point. The later category-grouping review and verification are recorded under Current release.
+For v0.7, all 128 core checks and 18 isolated store checks passed, along with native type-checking. Added cases cover complete architecture tables across all six projects, mixed architecture/workflow headings, source ordering, and dated/undated histories; an empty-date separator regression found during testing was corrected. Offscreen native rendering checked all six project headers at minimum and regular content widths, title-line icon alignment, dated history headings, and Local Assistant's complete 15-row architecture table. Wrapped cells exposed uneven per-cell dividers; full-width grid dividers corrected the layout and were checked at both widths. These probes rendered only their own never-shown views, without capturing desktop pixels. A cache-free native build passed strict signature, source/bundle metadata, unchanged Nexus icon, project-root launch, and checksum-matched v0.6 recovery checks. Cleanup left only the required v0.6 recovery bundle under `build/`; v0.5 was retired to Trash, though a final Trash inventory was denied by macOS and was not retried. The user explicitly permitted this build before committing v0.6. Live UI interaction, optional code review, and formal verification had not run at delivery; no commit was made at that point. The later category-grouping review and verification are recorded under v0.8 delivery evidence.
 
 Generated staging files and recovery copies stay under ignored `build/`; the final `.app` stays at the project root and is also ignored. The next application build must satisfy the versioning and previous-build gate above. Changing the delivery recipe or preparing icon concepts does not imply that a new binary was built.
 
@@ -221,7 +310,9 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 
 ### UI acceptance rules
 
-- Show the selected Nexus app icon beside Project Control in the header.
+- Show the selected Nexus app icon at 36 points beside the 18-point Project Control title, vertically centered in a 60-point content header with 24-point side padding. Reserve native title-bar safe space separately; do not add an unexplained large left inset.
+- Keep a dedicated, accessible ellipsis menu without a redundant disclosure indicator. Check the actual header at the minimum supported width and with a long repository name; text must yield before controls overlap.
+- Group projects by the explicit Category column, with counts and keyboard-focusable full-row disclosure buttons. Keep scope and tags separate, following the root [Project Control tag policy](../AGENTS.md#project-control) and [README contract](../README.md#readme-content-contract-for-project-control). Preserve source order, project identity, selection, and notes; check wrapping tags at the minimum supported width.
 - Keep the project register search-free; the full padded row is the selection target and remains a native keyboard-focusable button.
 - Keep a selectable repository parent above its indented projects. Repository overview/history, Read README, and Last read belong on that parent's screen, not in a footer.
 - Show the same project icon in its sidebar row and detail header when an unambiguous project-root app exists; otherwise use a neutral symbol.
@@ -238,15 +329,23 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 <!-- project-control:section=history -->
 ## Change log
 
-| Version | Date | Updates |
-|---|---|---|
-| v0.8 / build 8 | 2026-08-31 | Added stable README mappings, content-digest refresh, source warnings/recovery, and one technology/concept per architecture row. Review fixed the polling/switch race, malformed empty-register acceptance, and misleading different-root stale state. Passed 303 core and 34 store checks, a focused mutation check, native type-checking, clean compilation, native offscreen layouts, and signed-bundle metadata/identity checks. Preserved v0.7; retired v0.6 and the superseded candidate to Trash; removed temporary/generated artifacts. The existing app process was not restarted; live UI interaction remains unverified. |
-| README grouping · no new app build | 2026-08-31 | Grouped all six projects' architecture components into relevant category tables using existing native headings and tables. Preserved every source row and documented the category convention. The v0.7/build-7 application is unchanged; Observatory's embedded README advances separately to v2.1. Passed 162 core checks, 18 store checks, native type-checking, exact row/group checks, README links, native offscreen layouts, and unchanged-bundle identity/signature checks. Review found no actionable defects; live interaction remains unverified. |
-| v0.7 / build 7 | 2026-08-31 | Delivered larger title-aligned project icons, dates beside history headings, and complete architecture tables with full-width row dividers. Added source-backed tables to all six project READMEs and retained mixed architecture/workflow sections. Passed 128 core checks, 18 store checks, native type-checking, offscreen header/history/table layouts, clean compilation, strict bundle checks, and root-level launch. Preserved v0.6 unchanged, retired v0.5 to Trash, and removed temporary/generated artifacts. The user permitted building before committing v0.6; source was uncommitted at build time. Live interaction remains unconfirmed. |
-| v0.6 / build 6 | 2026-08-30 | Added structured native README tables, preserved model/path identifiers, preferred project icons, and a selectable repository-parent screen replacing footer content. Added table/navigation acceptance rules and focused regressions. Passed 71 core checks, 18 store checks, native type-checking, offscreen layout checks, clean compilation, strict signature/metadata/icon checks, and root-level launch. Preserved v0.5 unchanged, retired v0.4 to Trash, and removed temporary/generated artifacts. Live UI interaction remains unconfirmed; source was uncommitted at delivery. |
-| v0.5 / build 5 | 2026-08-30 | Fixed four review findings in workflow parsing, versioned-title ownership, fresh app metadata validation, and executable-availability refresh. Added nine core regression assertions; passed 57 core checks, 14 store checks, native type-checking, clean compilation, strict signature/metadata/icon checks, and root-level launch. Committed reviewed source before building, preserved v0.4 unchanged, retired v0.3 to Trash, and removed temporary/generated artifacts. Live UI interaction remains unconfirmed. |
-| v0.4 / build 4 | 2026-08-30 | Added the Nexus header icon, full-row sidebar navigation without search, automatic project-root app detection and manual fallback, separate README Overview/Architecture/Models/Workflows tabs, and native node-and-arrow diagrams with explicit branch/merge support. Recorded UI acceptance rules. Passed 48 core checks, 14 store checks, native type-checking, offscreen layout checks, clean compilation, strict signature/bundle checks, and project-root launch. Preserved v0.3 unchanged, moved v0.2 to Trash, and removed temporary/generated artifacts. Live interaction checks remain unconfirmed. |
-| v0.3 / build 3 | 2026-08-30 | Review fixes preserve fenced-code boundaries, escaped table pipes, optional trailing delimiters, and URL/step colons in workflows. Capture metadata before reads, share canonical identities for folder aliases, queue the latest repository selection while loading, and apply the same path boundary to root/project README opening. Passed 27 core checks, 10 isolated store checks (including a concurrent-edit/polling regression), native application type-checking, clean compilation, strict signature checks, bundle metadata/icon checks, and project-root launch. Preserved v0.2 unchanged; moved the superseded icon comparison and v0.1 bundle to Trash and removed generated artifacts. The user explicitly authorized building before committing v0.2. Native visual inspection remains unconfirmed. |
-| v0.2 / build 2 | 2026-08-30 | Selected A · Nexus, added editable SVG and PNG masters plus native icon packaging, and wired the icon into the bundle. Advanced both version and build. Passed ten-size icon-payload checks, clean native compilation, signed root-level delivery, metadata checks, and process launch; preserved v0.1 with matching executable/metadata checksums. Native Dock/window inspection remains unconfirmed. The user explicitly authorized this build without committing v0.1; no commit was created. |
-| Delivery/design preparation · no new app build | 2026-08-30 | Relocated the unchanged v0.1/build-1 application beside this README. Configured signature-checked root-level delivery with recoverable prior bundles, and recorded the single-digit minor/version-and-build increment policy. Added three icon choices; selection and the next-build authorization were pending at this stage. |
-| v0.1 / build 1 | 2026-08-30 | Implemented native README discovery/refresh, introductions, architecture and explicit workflow maps, separate histories, atomic structured notes, note-based progress, and explicit folder/README/app actions. Passed 19 focused checks, native compilation, clean rebuild, bundle checks, README-link checks, and clean-built process launch. Fixed stale metadata caching found by the refresh test. Retired 33 rejected design artifacts recoverably and removed their obsolete links. Native visual/keyboard inspection remains blocked by macOS capture permission. |
+The v0.8 implementation and release records are committed through `6232bf9`. Earlier entries
+retain the status at delivery; later source commits are identified below. A retrospective
+record does not assert that each intermediate build had its own Git commit. This documentation
+reconciliation is not a new app build and does not rerun the historical verification.
+
+| Version | Date | Updates | Git evidence |
+|---|---|---|---|
+| v1.0 / build 10 · source only | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. v0.9 remains the delivered bundle. The user authorized separate source/documentation commits before the new build; no build-gate exception is used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd` |
+| v0.9 / build 9 | 2026-08-31 | Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap. Added collapsible source-ordered categories, counts, and independently wrapping technical-scope/AI-usage badges from optional root-register columns. Missing metadata remains unspecified; root classification changes still apply when a project README is stale. Existing notes and selection are preserved. Passed 312 core checks, 38 store checks, native type-checking, offscreen layouts, clean compilation, strict bundle identity/signature checks, and project-root launch. Preserved v0.8 unchanged; removed temporary/generated intermediates. Live UI interaction, optional review, and formal verification remain unconfirmed or not run. Source was uncommitted at delivery. | Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; no separate v0.9 release commit |
+| Documentation reconciliation · no new app build | 2026-08-31 | Matched all retained release records to Git evidence, clarified releases committed together, and adopted the root-only instruction/history rules. At reconciliation, diagram work was paused and v0.8/build 8 was unchanged. The records are included with the v1.0 release documentation. | Prior release references below; no separate app build |
+| v0.8 / build 8 | 2026-08-31 | Added stable README mappings, content-digest refresh, source warnings/recovery, and one technology/concept per architecture row. Review fixed the polling/switch race, malformed empty-register acceptance, and misleading different-root stale state. Passed 303 core and 34 store checks, a focused mutation check, native type-checking, clean compilation, native offscreen layouts, and signed-bundle metadata/identity checks. Preserved v0.7; retired v0.6 and the superseded candidate to Trash; removed temporary/generated artifacts. The existing app process was not restarted; live UI interaction remains unverified. | `a6266cf`, `6402aba`, `26f4fdf`, `c323a23`, `6232bf9` |
+| README grouping · no new app build | 2026-08-31 | Grouped all six projects' architecture components into relevant category tables using existing native headings and tables. Preserved every source row and documented the category convention. The v0.7/build-7 application is unchanged; Observatory's embedded README advances separately to v2.1. Passed 162 core checks, 18 store checks, native type-checking, exact row/group checks, README links, native offscreen layouts, and unchanged-bundle identity/signature checks. Review found no actionable defects; live interaction remains unverified. | `0a17adc`, `8cf8850` |
+| v0.7 / build 7 | 2026-08-31 | Delivered larger title-aligned project icons, dates beside history headings, and complete architecture tables with full-width row dividers. Added source-backed tables to all six project READMEs and retained mixed architecture/workflow sections. Passed 128 core checks, 18 store checks, native type-checking, offscreen header/history/table layouts, clean compilation, strict bundle checks, and root-level launch. Preserved v0.6 unchanged, retired v0.5 to Trash, and removed temporary/generated artifacts. The user permitted building before committing v0.6; source was uncommitted at build time. Live interaction remains unconfirmed. | `0125869`, `70321c5`, `0a17adc`, `8cf8850` |
+| v0.6 / build 6 | 2026-08-30 | Added structured native README tables, preserved model/path identifiers, preferred project icons, and a selectable repository-parent screen replacing footer content. Added table/navigation acceptance rules and focused regressions. Passed 71 core checks, 18 store checks, native type-checking, offscreen layout checks, clean compilation, strict signature/metadata/icon checks, and root-level launch. Preserved v0.5 unchanged, retired v0.4 to Trash, and removed temporary/generated artifacts. Live UI interaction remains unconfirmed; source was uncommitted at delivery. | Retrospective record in `0a17adc`; implemented source committed with v0.7 |
+| v0.5 / build 5 | 2026-08-30 | Fixed four review findings in workflow parsing, versioned-title ownership, fresh app metadata validation, and executable-availability refresh. Added nine core regression assertions; passed 57 core checks, 14 store checks, native type-checking, clean compilation, strict signature/metadata/icon checks, and root-level launch. Committed reviewed source before building, preserved v0.4 unchanged, retired v0.3 to Trash, and removed temporary/generated artifacts. Live UI interaction remains unconfirmed. | `aa794c4`, `1f2e7ae`, `d0b9426`, `9f086e9`, `74ccd1a` |
+| v0.4 / build 4 | 2026-08-30 | Added the Nexus header icon, full-row sidebar navigation without search, automatic project-root app detection and manual fallback, separate README Overview/Architecture/Models/Workflows tabs, and native node-and-arrow diagrams with explicit branch/merge support. Recorded UI acceptance rules. Passed 48 core checks, 14 store checks, native type-checking, offscreen layout checks, clean compilation, strict signature/bundle checks, and project-root launch. Preserved v0.3 unchanged, moved v0.2 to Trash, and removed temporary/generated artifacts. Live interaction checks remain unconfirmed. | Retrospective record in `9f086e9`; implemented source committed with v0.5 |
+| v0.3 / build 3 | 2026-08-30 | Review fixes preserve fenced-code boundaries, escaped table pipes, optional trailing delimiters, and URL/step colons in workflows. Capture metadata before reads, share canonical identities for folder aliases, queue the latest repository selection while loading, and apply the same path boundary to root/project README opening. Passed 27 core checks, 10 isolated store checks (including a concurrent-edit/polling regression), native application type-checking, clean compilation, strict signature checks, bundle metadata/icon checks, and project-root launch. Preserved v0.2 unchanged; moved the superseded icon comparison and v0.1 bundle to Trash and removed generated artifacts. The user explicitly authorized building before committing v0.2. Native visual inspection remains unconfirmed. | `07f72b4`, `1f1dfad`, `352ad0b`, `6c8dd32` |
+| v0.2 / build 2 | 2026-08-30 | Selected A · Nexus, added editable SVG and PNG masters plus native icon packaging, and wired the icon into the bundle. Advanced both version and build. Passed ten-size icon-payload checks, clean native compilation, signed root-level delivery, metadata checks, and process launch; preserved v0.1 with matching executable/metadata checksums. Native Dock/window inspection remains unconfirmed. The user explicitly authorized this build without committing v0.1; no commit was created. | Retrospective record in `6c8dd32`; source committed with v0.3 |
+| Delivery/design preparation · no new app build | 2026-08-30 | Relocated the unchanged v0.1/build-1 application beside this README. Configured signature-checked root-level delivery with recoverable prior bundles, and recorded the single-digit minor/version-and-build increment policy. Added three icon choices; selection and the next-build authorization were pending at this stage. | Retrospective record in `6c8dd32` |
+| v0.1 / build 1 | 2026-08-30 | Implemented native README discovery/refresh, introductions, architecture and explicit workflow maps, separate histories, atomic structured notes, note-based progress, and explicit folder/README/app actions. Passed 19 focused checks, native compilation, clean rebuild, bundle checks, README-link checks, and clean-built process launch. Fixed stale metadata caching found by the refresh test. Retired 33 rejected design artifacts recoverably and removed their obsolete links. Native visual/keyboard inspection remains blocked by macOS capture permission. | Retrospective record in `6c8dd32`; source committed with v0.3 |
