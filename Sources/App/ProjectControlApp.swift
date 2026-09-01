@@ -13,11 +13,11 @@ internal struct ProjectControlApp: App {
     internal var body: some Scene {
         Window(ControlConstants.appName, id: ControlConstants.bundleID) {
             ControlWindow(store: store)
-                .preferredColorScheme(.dark)
-                .frame(minWidth: 900, minHeight: 660)
+                .preferredColorScheme(.light)
+                .frame(minWidth: 980, minHeight: 620)
                 .task { await store.observe() }
         }
-        .defaultSize(width: 1160, height: 840)
+        .defaultSize(width: 1320, height: 760)
         .windowStyle(.hiddenTitleBar)
         .commands {
             CommandGroup(after: .newItem) {

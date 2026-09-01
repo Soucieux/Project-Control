@@ -20,8 +20,8 @@ internal struct WorkflowDiagram: View {
                             Text(node.label).font(.system(size: 13)).lineSpacing(4)
                                 .multilineTextAlignment(.center).foregroundStyle(ControlTheme.ink)
                                 .frame(width: 224).fixedSize(horizontal: false, vertical: true).padding(14)
-                                .background(InstrumentFrame().fill(ControlTheme.rail))
-                                .overlay(InstrumentFrame().stroke(ControlTheme.signal.opacity(0.5), lineWidth: 1))
+                                .background(ControlTheme.surfaceStrong.opacity(0.72), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(ControlTheme.mint.opacity(0.5), lineWidth: 1))
                                 .anchorPreference(key: WorkflowBounds.self, value: .bounds) { [node.id: $0] }
                         }
                     }
@@ -30,13 +30,13 @@ internal struct WorkflowDiagram: View {
                 .backgroundPreferenceValue(WorkflowBounds.self) { anchors in
                     GeometryReader { proxy in
                         connections(anchors, proxy: proxy)
-                            .stroke(ControlTheme.signal.opacity(0.8), style: StrokeStyle(lineWidth: 1.4, lineJoin: .round))
+                            .stroke(ControlTheme.mint.opacity(0.8), style: StrokeStyle(lineWidth: 1.4, lineJoin: .round))
                     }.allowsHitTesting(false).accessibilityHidden(true)
                 }
-        }.fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ControlTheme.surface)
-            .overlay(Rectangle().stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
+        }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(ControlTheme.surface.opacity(0.54), in: RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous).stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(route.label).accessibilityValue(accessibleConnections)
     }

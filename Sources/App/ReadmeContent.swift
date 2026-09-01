@@ -38,8 +38,9 @@ internal struct ReadmeTableView: View {
                 ScrollView(.horizontal) { grid(width: 240) }.fixedSize(horizontal: false, vertical: true)
             } else { grid(width: nil) }
         }
-        .background(ControlTheme.surface)
-        .overlay(Rectangle().stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
+        .background(ControlTheme.surfaceStrong.opacity(0.68))
+        .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
     }
 
     /// Aligns source headers and data in one grid, preserving empty cells and source row order.
@@ -54,7 +55,7 @@ internal struct ReadmeTableView: View {
                             .fontWeight(.semibold).foregroundStyle(ControlTheme.ink)
                             .accessibilityAddTraits(.isHeader)
                     }
-                }.background(ControlTheme.rail.opacity(0.5))
+                }.background(ControlTheme.signal.opacity(0.16))
                 Rectangle().fill(ControlTheme.line).frame(height: 1).gridCellUnsizedAxes(.horizontal)
             }
             ForEach(Array(table.rows.enumerated()), id: \.offset) { _, row in

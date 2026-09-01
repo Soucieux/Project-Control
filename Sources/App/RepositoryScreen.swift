@@ -16,14 +16,14 @@ internal struct RepositoryScreen: View {
                 Text(ControlConstants.lastRead + ControlConstants.space + snapshot.readAt.formatted(date: .omitted, time: .standard))
                     .font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
             }
-            HStack(spacing: 18) {
-                Image(systemName: ControlConstants.folderIcon).font(.system(size: 36, weight: .light))
-                    .foregroundStyle(ControlTheme.signal).accessibilityHidden(true)
-                Text(snapshot.root.lastPathComponent).font(.system(size: 38, weight: .light))
-                    .tracking(-1).fixedSize(horizontal: false, vertical: true)
-            }.padding(25).frame(maxWidth: .infinity, alignment: .leading)
-                .background(InstrumentFrame().fill(ControlTheme.surface))
-                .overlay(InstrumentFrame().stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
+            GlassCard {
+                HStack(spacing: 18) {
+                    Image(systemName: ControlConstants.folderIcon).font(.system(size: 36, weight: .light))
+                        .foregroundStyle(ControlTheme.mint).accessibilityHidden(true)
+                    Text(snapshot.root.lastPathComponent).font(.system(size: 38, weight: .light))
+                        .tracking(-1).fixedSize(horizontal: false, vertical: true)
+                }
+            }
             Button { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) } label: {
                 Label(ControlConstants.read, systemImage: ControlConstants.readIcon)
             }.buttonStyle(.bordered).controlSize(.large)
@@ -44,7 +44,8 @@ internal struct RepositoryScreen: View {
                     }.buttonStyle(.plain).accessibilityAddTraits(showHistory == history ? .isSelected : [])
                 }
                 Spacer(minLength: 0)
-            }.overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1).allowsHitTesting(false) }
+            }.padding(.horizontal, 14)
+                .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
             Group {
                 if showHistory { HistoryList(entries: snapshot.history) }
                 else { ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview) }

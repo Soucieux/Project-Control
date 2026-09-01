@@ -19,21 +19,21 @@ internal struct ProjectScreen: View {
                 if store.loading { ProgressView().controlSize(.small) }
                 Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
             }
-            HStack(spacing: 24) {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(alignment: .center, spacing: 18) {
-                        ProjectIcon(project: project, size: 60)
-                        Text(project.name).font(.system(size: 38, weight: .light)).tracking(-1)
-                            .fixedSize(horizontal: false, vertical: true)
+            GlassCard {
+                HStack(spacing: 24) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(alignment: .center, spacing: 18) {
+                            ProjectIcon(project: project, size: 60)
+                            Text(project.name).font(.system(size: 38, weight: .light)).tracking(-1)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced()).foregroundStyle(ControlTheme.mint)
+                            .padding(.leading, 78)
                     }
-                    Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced()).foregroundStyle(ControlTheme.signal)
-                        .padding(.leading, 78)
+                    Spacer(minLength: 0)
+                    NoteGauge(notes: notes)
                 }
-                Spacer(minLength: 0)
-                NoteGauge(notes: notes)
-            }.padding(25).frame(maxWidth: .infinity, alignment: .leading)
-                .background(InstrumentFrame().fill(ControlTheme.surface))
-                .overlay(InstrumentFrame().stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
+            }
             actions
             if project.isStale || store.syncFailure != nil {
                 Text(ControlConstants.staleContent).font(.callout).foregroundStyle(ControlTheme.amber)
@@ -52,8 +52,9 @@ internal struct ProjectScreen: View {
                         }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
                     }
                 }
-            }.fixedSize(horizontal: false, vertical: true)
-                .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1).allowsHitTesting(false) }
+            }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 14)
+                .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
             Group {
                 switch tab {
                 case .overview: ReadmeContent(blocks: project.overview, empty: ControlConstants.noIntroduction)
@@ -79,7 +80,8 @@ internal struct ProjectScreen: View {
     }
 
     private var actions: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
             let target = store.application(for: project)
             HStack(spacing: 10) {
                 Button { store.open(project.folder) } label: { Label(ControlConstants.folder, systemImage: ControlConstants.folderIcon) }
@@ -108,6 +110,7 @@ internal struct ProjectScreen: View {
                 + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
                 ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
                 .font(.caption).foregroundStyle(ControlTheme.muted)
+            }
         }
     }
 
@@ -128,7 +131,7 @@ internal struct ProjectScreen: View {
     }
 
     private var workNotes: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
                 Text(ControlConstants.noteHint).font(.caption).foregroundStyle(ControlTheme.muted)
                 Spacer()
@@ -158,16 +161,15 @@ internal struct ProjectScreen: View {
                         Button(ControlConstants.edit) { editedNote = note }
                         Button(ControlConstants.delete, role: .destructive) { deletion = note }
                     } label: { Image(systemName: ControlConstants.menuIcon) }.frame(width: 32).disabled(!store.storageReady)
-                }.padding(.vertical, 10)
-                Rectangle().fill(ControlTheme.line).frame(height: 1)
+                }.padding(14).background(Color.white.opacity(0.34), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             if !store.storageReady { Text(ControlConstants.notesLocked).foregroundStyle(ControlTheme.amber).font(.callout) }
         }
     }
 
     private var health: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Rectangle().fill(ControlTheme.line).frame(height: 1)
+        GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
             HStack {
                 InstrumentLabel(title: ControlConstants.documentHealth)
                 Spacer()
@@ -175,6 +177,7 @@ internal struct ProjectScreen: View {
             }
             Text(!project.folderAvailable ? ControlConstants.folderMissing : project.readmeAvailable ? ControlConstants.available : ControlConstants.noReadme)
                 .font(.caption).foregroundStyle(project.readmeAvailable ? ControlTheme.muted : ControlTheme.amber)
+            }
         }.padding(.top, 8)
     }
 }
@@ -206,6 +209,7 @@ internal struct NoteEditor: View {
                     if onSave(note) { dismiss() } else { failed = true }
                 }.keyboardShortcut(.defaultAction).disabled(!valid).buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background)
             }
-        }.padding(28).frame(width: 480).foregroundStyle(ControlTheme.ink).background(ControlTheme.surface)
+        }.padding(28).frame(width: 480).foregroundStyle(ControlTheme.ink)
+            .background(.regularMaterial)
     }
 }
