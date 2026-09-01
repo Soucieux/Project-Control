@@ -8,21 +8,19 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current locally delivered release is **v2.1 (build 12)**. It corrects the cinematic glass system with an
-edge-to-edge outlined shell, a full-window local sky and cloud scene, and native in-window material
-that samples that scene beneath the content plane. The black hierarchy rail still expands and
-collapses with aligned icons, project disclosure rows animate individually, fixed-height content
-scrolls with hidden indicators, and the no-password artwork lock keeps Unlock centered.
+The current locally delivered release is **v2.2 (build 13)**. It reads **Category**,
+**Technical scope**, and **Technologies** from the first three labelled list items in each root-register
+Professional scope cell. The compact three-column register therefore preserves the complete project
+summary without forcing metadata into narrow standalone columns. Older registers with separate
+classification columns remain compatible and take precedence when present, including explicit blanks.
 
-The redesign retains README-derived content, project classifications, project icons, structured
-work notes, app discovery, native tables, detail tabs, diagrams, and source synchronization.
-Reduce Motion disables the transitions; Reduce Transparency replaces the material with a stronger
-solid surface. Complete native type-checking passed. A controlled 1320×760 render confirmed shell
-coverage at every edge midpoint and visible color variation across the glass plane; that render was
-inspected for the zero-gap boundary, shared scene, and readable content. Cache-free optimized
-compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, and a
-separate-instance project-root launch also passed. Core and store suites were unchanged and were not
-rerun; optional code review and formal verification did not run.
+The v2.1 cinematic glass interface and all existing README-derived content, project icons, structured
+work notes, app discovery, native tables, detail tabs, diagrams, source synchronization, motion, and
+accessibility fallbacks remain unchanged. All 20 focused core checks and 5 isolated store checks passed,
+including labelled-scope parsing, explicit blanks, case-insensitive labels, legacy-column precedence,
+and the retired AI-usage column. Complete native type-checking, cache-free optimized compilation,
+strict signing, exact source/bundle metadata equality, icon/executable checks, and a separate-instance
+project-root launch also passed. Optional code review and formal verification did not run.
 
 ## Quick start
 
@@ -47,35 +45,39 @@ open "Project Control.app"
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The final **v2.1/build 12** application lives beside this README as **Project Control.app**. The
-replaced v2.0/build-11 bundle is preserved under `build/previous.Yj7LyM/Project Control.app`; the
-unchanged v1.0 bundle is preserved under `build/previous.yMUK2z/Project Control.app`; v0.9 remains
-under `build/previous.6S5wt3/Project Control.app`, and the documented v0.8/v0.7 recoveries also remain.
-The separate v2.1 smoke-test process and all generated compiler/icon intermediates were removed.
+The final **v2.2/build 13** application lives beside this README as **Project Control.app**. The
+replaced v2.1/build-12 bundle is preserved under `build/previous.ftKKT9/Project Control.app`;
+v2.0/build 11 remains under `build/previous.Yj7LyM/Project Control.app`; the unchanged v1.0 bundle
+remains under `build/previous.yMUK2z/Project Control.app`; v0.9 remains under
+`build/previous.6S5wt3/Project Control.app`, and the documented v0.8/v0.7 recoveries also remain.
+The separate v2.2 smoke-test process and all generated compiler/icon intermediates were removed.
 
 ## Sidebar classification
 
 The repository's [README content contract](../README.md#readme-content-contract-for-project-control)
-owns the optional **Category**, **Technical scope**, and **Technologies** columns. Categories appear
-in first-appearance order, with projects retaining their register order. They are collapsible and
-show counts. Each project row retains its icon and note progress. Technical scope is a quiet text
-line; each documented technology or approach is a separate content-sized tag, wrapping as needed.
+owns the first three labelled items in every **Professional scope** cell: **Category**,
+**Technical scope**, and **Technologies**. Categories appear in first-appearance order, with projects
+retaining their register order. They are collapsible and show counts. Each project row retains its
+icon and note progress. Technical scope is a quiet text line; each documented technology or approach
+is a separate content-sized tag, wrapping as needed.
 The current groups are **AI Applications**, **Agent Workspaces**, **Project Management**,
 **Knowledge & Learning**, and **Utility Collections**. Names and memberships are not hard-coded;
 the compact rail assigns neutral position markers without inferring a category's capabilities.
 
 A missing or blank category uses **Uncategorized**. Missing scope and technology values are omitted.
-The former **AI usage** column is ignored; it is not converted into tags. Authors migrate actual
-technologies into **Technologies**, following the root contract and the Project Control-only
-[tag policy](../AGENTS.md#project-control). Root README edits regroup projects and refresh tags
-through the existing background check, without a rebuild or changes to notes. Collapse state is
-local to the open window and resets on repository changes. A selected project that changes category
-is revealed in its destination group. A stale project README does not block valid root metadata.
+Older separate classification columns remain compatible and override same-named scope labels when
+present, including explicit blanks; current READMEs must not duplicate both formats. The former
+**AI usage** column is ignored and never converted into tags. Authors keep actual technologies in
+**Technologies**, following the root contract and the Project Control-only [tag policy](../AGENTS.md#project-control).
+Root README edits regroup projects and refresh tags through the existing background check, without
+a rebuild or changes to notes. Collapse state is local to the open window and resets on repository
+changes. A selected project that changes category is revealed in its destination group. A stale
+project README does not block valid root metadata.
 
 ## Versioning and build delivery
 
 - Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. This glass correction advances v2.0/build 11 to **v2.1/build 12**; its successor is **v2.2/build 13**. A clean recompilation of the same unchanged update does not create a new release.
+- Every application update advances the release version and increments the integer build number. This metadata migration advances v2.1/build 12 to **v2.2/build 13**; its successor is **v2.3/build 14**. A clean recompilation of the same unchanged update does not create a new release.
 - Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
@@ -207,6 +209,21 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.2 delivery evidence
+
+The v2.2/build-13 source moves Category, Technical scope, and Technologies into the first three
+labelled list items of every root-register Professional scope cell, allowing the human-facing table
+to use three readable columns. The parser reads those labels case-insensitively and strips display
+markup. Older separate columns remain compatible and override same-named scope labels when present,
+including explicit blanks; the retired AI-usage column remains ignored. Existing glass UI, project
+content, notes, launch behavior, and synchronization paths are unchanged. All 20 focused core checks
+and 5 isolated store checks passed, including the new labelled-scope, blank-value, compatibility,
+and precedence regressions. Complete native type-checking, cache-free optimized compilation, strict
+signing, exact source/bundle metadata equality, arm64 executable and icon checks, bundle promotion,
+and a separate-instance project-root launch passed. Source is committed in `ad84aa7`. The v2.1 bundle
+is preserved at `build/previous.ftKKT9`; generated compiler/icon intermediates and the smoke process
+were removed. Optional code review and formal verification did not run.
 
 ### v2.1 delivery evidence
 
@@ -390,6 +407,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| v2.2 / build 13 | 2026-09-01 | Moved Category, Technical scope, and Technologies into the first three labelled Professional scope bullets so the root register can use three readable columns without losing project detail. Added case-insensitive labelled-scope parsing, explicit blank behavior, and backward-compatible separate-column precedence; the retired AI-usage column remains ignored. Existing glass UI and all project-management behavior are unchanged. Passed 20 focused core checks, 5 isolated store checks, complete native type-checking, cache-free optimized compilation, strict signing, exact metadata equality, arm64 executable/icon checks, promotion, and separate-instance root launch. Preserved v2.1/build 12 under `build/previous.ftKKT9`; removed generated intermediates and the smoke process. Optional review and formal verification did not run. | Source `ad84aa7`; this project documentation and delivery checkpoint |
 | v2.1 / build 12 | 2026-09-01 | Delivered the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the rail, added a full-window local sky/cloud/texture scene, switched native material to in-window sampling, and removed the normal opaque tint. Reduce Transparency retains a solid fallback; existing data and interaction paths are unchanged. Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability. Cache-free optimized compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, promotion, and separate-instance launch passed. Core/store suites were unchanged and not rerun; optional review and formal verification did not run. Preserved v2.0/build 11 under `build/previous.Yj7LyM`; removed generated intermediates and the smoke process. | Source `8c7981c`; source record `0c57d69`; root source record `9738555`; this delivery checkpoint |
 | v2.0 / build 11 | 2026-09-01 | Delivered the complete cinematic glass redesign: a transparent native window, real behind-window desktop blur, one outlined rounded shell, aligned expanding/collapsing hierarchy rail, staggered per-project disclosure motion, bounded internal scrolling with hidden indicators, rounded content cards, and a no-password artwork lock with centered Unlock. The user's screenshot rejected the first signed candidate because it showed an internal green field; `0e07484` replaced it with actual behind-window material. Offscreen inspection also removed a redundant lock caption that crossed the fortress silhouette. Preserved README-derived data, notes, classifications, icons, app discovery, tables, tabs, diagrams, and background synchronization. Passed 323 core checks, 39 store checks, native type-checking, optimized compilation, strict signing, exact source/bundle metadata equality, and separate-instance root launch. Final live capture remained unavailable because ScreenCaptureKit access was denied; optional review and formal verification did not run. Removed the superseded v2.0 bundle and generated intermediates; preserved v1.0 and documented older recoveries. Superseded Vector/Lens design files remain in Git history. | Initial source `32f2df4`; desktop glass `0e07484`; source records `2f44ecd`, `92c5186`; root records `92491bd`, `a1edc1d`; this delivery checkpoint |
 | v1.0 / build 10 | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. User-authorized source/release commits preceded a cache-free optimized build. Strict signing, matching source/bundle metadata, unchanged Nexus icon, and project-root launch passed. Preserved v0.9 with unchanged executable/metadata/icon checksums and retained documented older recoveries. Removed generated compiler/icon intermediates and closed the new smoke-test process; no existing Project Control process was present. No build-gate exception was used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd`; pre-build release records `19ac73f`, `6d6e110` |
