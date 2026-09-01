@@ -8,22 +8,20 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current locally delivered release is **v2.0 (build 11)**. It replaces the earlier angular navy interface
-with the approved cinematic glass system: a transparent native window and real behind-window blur
-inside one outlined rounded shell, a black hierarchy rail that expands and collapses with aligned icons, individually
-animated project disclosure rows, fixed-height scrolling with hidden indicators, and a
-no-password artwork lock whose Unlock control is centered in the whole application.
+The current source release is **v2.1 (build 12)**. It corrects the cinematic glass system with an
+edge-to-edge outlined shell, a full-window local sky and cloud scene, and native in-window material
+that samples that scene beneath the content plane. The black hierarchy rail still expands and
+collapses with aligned icons, project disclosure rows animate individually, fixed-height content
+scrolls with hidden indicators, and the no-password artwork lock keeps Unlock centered.
 
 The redesign retains README-derived content, project classifications, project icons, structured
 work notes, app discovery, native tables, detail tabs, diagrams, and source synchronization.
-Reduce Motion disables the new transitions; Reduce Transparency strengthens the content surface.
-All 323 core checks, 39 store checks, complete native type-checking, cache-free optimized compilation,
-strict signing, exact source/bundle metadata equality, and a separate-instance project-root launch
-passed. An initial signed v2.0 candidate reached the project root, but the user's screenshot showed
-that it blurred an internal sage field rather than the desktop; source `0e07484` replaces that
-implementation with real behind-window material. The corrected bundle was promoted only after the
-source and dual-README checkpoints were committed. macOS denied ScreenCaptureKit access, so no final
-live screenshot or interaction claim is made; optional code review and formal verification did not run.
+Reduce Motion disables the transitions; Reduce Transparency replaces the material with a stronger
+solid surface. Complete native type-checking passed. A controlled 1320×760 render confirmed shell
+coverage at every edge midpoint and visible color variation across the glass plane; that render was
+inspected for the zero-gap boundary, shared scene, and readable content. The distributable app has
+not yet been built or launched, so the project-root app remains the previously delivered
+v2.0/build-11 bundle until the v2.1 source and dual-README checkpoints are committed.
 
 ## Quick start
 
@@ -48,7 +46,8 @@ open "Project Control.app"
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The final **v2.0/build 11** application lives beside this README as **Project Control.app**. The
+The currently delivered **v2.0/build 11** application lives beside this README as **Project Control.app**;
+the approved v2.1/build-12 source has not yet replaced it. The
 unchanged v1.0 bundle is preserved under `build/previous.yMUK2z/Project Control.app`; v0.9 remains
 under `build/previous.6S5wt3/Project Control.app`, and the documented v0.8/v0.7 recoveries also remain.
 The superseded green-field v2.0 candidate and all generated compiler/icon intermediates were removed.
@@ -190,13 +189,13 @@ Project Control/
 
 ## Design reference
 
-The running SwiftUI app is now the canonical implementation of the approved cinematic glass
-direction. `CinematicBackground.swift` owns the transparent-window bridge, real behind-window
-material, and local artwork lock;
+The SwiftUI source is the canonical implementation of the approved cinematic glass direction.
+`CinematicBackground.swift` owns the transparent-window bridge, full-window local scene,
+in-window material, and local artwork lock;
 `DesignSystem.swift` owns the sage/lime/ink palette, rounded glass cards, and 0.62–0.78 second
 motion; `ControlWindow.swift` owns the layered rail, content surface, hierarchy, and lock state.
 The superseded Vector/Lens HTML and JavaScript preview is retained in Git history rather than as
-an active project file, preventing a stale reference from being mistaken for the v2.0 interface.
+an active project file, preventing a stale reference from being mistaken for the current interface.
 
 **A · Nexus** is selected. Its [editable vector master](Resources/ProjectControl.svg) and [transparent 1024-pixel PNG master](Resources/ProjectControl.png) preserve the approved geometry and palette. The superseded three-choice comparison was moved to macOS Trash under `Project Control - retired icon study 2026-08-30`, with its checksum unchanged. `make icons` uses macOS `sips` and `iconutil` to package standard/Retina representations from 16 through 1024 pixels into `ProjectControl.icns`. `make app` includes that icon automatically; no extra build dependency is required. When changing the vector, export its matching 1024×1024 RGBA PNG as well; the build uses the checked-in PNG because the native SVG decoder could not read this artwork reliably.
 
@@ -207,6 +206,18 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.1 source checkpoint
+
+The v2.1/build-12 source removes every outer shell inset, keeps title-bar clearance inside the
+navigation rail, and replaces desktop-only sampling with a full-window local scene and
+`withinWindow` native material. Normal appearance adds no opaque tint above the material; Reduce
+Transparency alone uses the existing strong surface. The lock artwork shares the same scene and
+also fills the window. README parsing, classifications, notes, app discovery, tabs, native tables,
+and diagrams are unchanged. Complete native type-checking and a controlled 1320×760 render passed;
+the render confirmed full edge coverage and visible scene variation across the content plane.
+Distributable compilation, signing, bundle promotion, launch, code review, and formal verification
+have not run for v2.1 at this source checkpoint.
 
 ### v2.0 source checkpoint
 
@@ -344,7 +355,7 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 
 ### UI acceptance rules
 
-- Use the wide, bounded-height cinematic shell: a softly colored local backdrop must remain visible through the rounded material content surface, and long content must scroll inside that surface without visibly drawing a scrollbar.
+- Follow the root [full-window glass acceptance rule](../AGENTS.md#project-control). Keep long content inside the bounded surface and hide its scrollbar indicator.
 - Keep the black hierarchy rail behind the content surface with continuous outer corners. Expand or collapse it over approximately 0.78 seconds, fade labels, and keep every compact icon centered on exactly the same rail axis.
 - Animate each disclosed project row into or out of its category over approximately 0.62 seconds with a small stagger; do not animate only the category container. Respect Reduce Motion.
 - Show the Nexus app icon beside the Project Control title inside the rounded content header. Reserve native title-bar safe space separately; repository text must yield before the lock and ellipsis controls overlap.
@@ -374,6 +385,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| v2.1 / build 12 | 2026-09-01 | Prepared the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the rail, added a full-window local sky/cloud/texture scene, switched native material to in-window sampling, and removed the normal opaque tint. Reduce Transparency retains a solid fallback; existing data and interaction paths are unchanged. Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability. Distributable build, signing, bundle promotion, launch, optional review, and formal verification have not run at this checkpoint; the project-root bundle remains v2.0/build 11. | Source `8c7981c`; this documentation checkpoint |
 | v2.0 / build 11 | 2026-09-01 | Delivered the complete cinematic glass redesign: a transparent native window, real behind-window desktop blur, one outlined rounded shell, aligned expanding/collapsing hierarchy rail, staggered per-project disclosure motion, bounded internal scrolling with hidden indicators, rounded content cards, and a no-password artwork lock with centered Unlock. The user's screenshot rejected the first signed candidate because it showed an internal green field; `0e07484` replaced it with actual behind-window material. Offscreen inspection also removed a redundant lock caption that crossed the fortress silhouette. Preserved README-derived data, notes, classifications, icons, app discovery, tables, tabs, diagrams, and background synchronization. Passed 323 core checks, 39 store checks, native type-checking, optimized compilation, strict signing, exact source/bundle metadata equality, and separate-instance root launch. Final live capture remained unavailable because ScreenCaptureKit access was denied; optional review and formal verification did not run. Removed the superseded v2.0 bundle and generated intermediates; preserved v1.0 and documented older recoveries. Superseded Vector/Lens design files remain in Git history. | Initial source `32f2df4`; desktop glass `0e07484`; source records `2f44ecd`, `92c5186`; root records `92491bd`, `a1edc1d`; this delivery checkpoint |
 | v1.0 / build 10 | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. User-authorized source/release commits preceded a cache-free optimized build. Strict signing, matching source/bundle metadata, unchanged Nexus icon, and project-root launch passed. Preserved v0.9 with unchanged executable/metadata/icon checksums and retained documented older recoveries. Removed generated compiler/icon intermediates and closed the new smoke-test process; no existing Project Control process was present. No build-gate exception was used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd`; pre-build release records `19ac73f`, `6d6e110` |
 | v0.9 / build 9 | 2026-08-31 | Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap. Added collapsible source-ordered categories, counts, and independently wrapping technical-scope/AI-usage badges from optional root-register columns. Missing metadata remains unspecified; root classification changes still apply when a project README is stale. Existing notes and selection are preserved. Passed 312 core checks, 38 store checks, native type-checking, offscreen layouts, clean compilation, strict bundle identity/signature checks, and project-root launch. Preserved v0.8 unchanged; removed temporary/generated intermediates. Live UI interaction, optional review, and formal verification remain unconfirmed or not run. Source was uncommitted at delivery. | Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; no separate v0.9 release commit |
