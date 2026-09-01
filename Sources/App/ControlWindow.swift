@@ -12,7 +12,8 @@ internal struct ControlWindow: View {
 
     internal var body: some View {
         ZStack {
-            CinematicBackdrop()
+            Color.clear
+            WindowTransparencyConfigurator().frame(width: 0, height: 0).accessibilityHidden(true)
             if displayLocked {
                 LockedArtwork { setLocked(false) }
                     .padding(.horizontal, 20).padding(.top, 30).padding(.bottom, 18)
@@ -36,6 +37,12 @@ internal struct ControlWindow: View {
             contentSurface
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
+                .stroke(Color.black.opacity(0.72), lineWidth: 2).allowsHitTesting(false)
+        }
+        .shadow(color: Color.black.opacity(0.22), radius: 34, y: 16)
         .padding(.horizontal, 20).padding(.top, 30).padding(.bottom, 18)
         .animation(reduceMotion ? nil : ControlTheme.navigationMotion, value: sidebarExpanded)
     }
@@ -99,9 +106,9 @@ internal struct ControlWindow: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
             ZStack {
-                RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous).fill(.ultraThinMaterial)
+                DesktopGlass()
                 RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                    .fill((reduceTransparency ? ControlTheme.surfaceStrong : ControlTheme.surface).opacity(reduceTransparency ? 0.98 : 0.70))
+                    .fill((reduceTransparency ? ControlTheme.surfaceStrong : Color.white).opacity(reduceTransparency ? 0.98 : 0.14))
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
@@ -109,7 +116,6 @@ internal struct ControlWindow: View {
             RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
                 .stroke(Color.white.opacity(0.52), lineWidth: 1).allowsHitTesting(false)
         }
-        .shadow(color: Color.black.opacity(0.16), radius: 32, y: 16)
         .zIndex(1)
     }
 

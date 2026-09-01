@@ -27,7 +27,6 @@ internal enum ControlConstants {
     internal static let expandNavigation = "Expand navigation"
     internal static let lockDisplay = "Lock and show artwork"
     internal static let unlockDisplay = "Unlock"
-    internal static let lockedArtwork = "Display locked · project information hidden"
     internal static let expanded = "Expanded"
     internal static let collapsed = "Collapsed"
     internal static let expandedIcon = "chevron.down"

@@ -1,23 +1,49 @@
+import AppKit
 import SwiftUI
 
-/// Soft landscape color fields remain visible through the native material surface.
-internal struct CinematicBackdrop: View {
-    internal var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                LinearGradient(colors: [ControlTheme.sceneTop, ControlTheme.sceneBottom], startPoint: .topLeading, endPoint: .bottomTrailing)
-                Ellipse().fill(ControlTheme.cloud.opacity(0.78))
-                    .frame(width: proxy.size.width * 0.62, height: proxy.size.height * 0.33)
-                    .blur(radius: 54).offset(x: -proxy.size.width * 0.22, y: proxy.size.height * 0.34)
-                Ellipse().fill(Color.white.opacity(0.42))
-                    .frame(width: proxy.size.width * 0.48, height: proxy.size.height * 0.27)
-                    .blur(radius: 60).offset(x: proxy.size.width * 0.30, y: -proxy.size.height * 0.33)
-                Ellipse().fill(Color(red: 0.35, green: 0.54, blue: 0.54).opacity(0.28))
-                    .frame(width: proxy.size.width * 0.48, height: proxy.size.height * 0.43)
-                    .blur(radius: 72).offset(x: proxy.size.width * 0.34, y: proxy.size.height * 0.26)
-            }
-        }.ignoresSafeArea().accessibilityHidden(true)
+/// Makes the host window transparent so behind-window material can reveal the desktop.
+internal struct WindowTransparencyConfigurator: NSViewRepresentable {
+    /// Creates a passive view that configures its containing window after attachment.
+    /// - Parameter context: SwiftUI representable context.
+    /// - Returns: A transparent AppKit bridge view.
+    internal func makeNSView(context: Context) -> NSView { TransparentWindowBridge() }
+
+    /// Keeps the bridge inert after the one-time window configuration.
+    /// - Parameters: nsView: Existing bridge. context: SwiftUI representable context.
+    /// - Returns: Nothing; visible state remains owned by SwiftUI.
+    internal func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+/// Configures only the containing Project Control window, never global appearance.
+private final class TransparentWindowBridge: NSView {
+    /// Applies transparent title-bar and content settings when AppKit supplies the window.
+    /// - Returns: Nothing; preserves standard traffic lights and the window shadow.
+    fileprivate override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        window?.isOpaque = false
+        window?.backgroundColor = .clear
+        window?.titlebarAppearsTransparent = true
+        window?.isMovableByWindowBackground = true
     }
+}
+
+/// A native behind-window blur that reveals real desktop content rather than an internal color field.
+internal struct DesktopGlass: NSViewRepresentable {
+    /// Creates an active visual-effect surface that samples behind the application window.
+    /// - Parameter context: SwiftUI representable context.
+    /// - Returns: A noninteractive native material view.
+    internal func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .underWindowBackground
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    /// Keeps the native material active across SwiftUI updates.
+    /// - Parameters: nsView: Existing material view. context: SwiftUI representable context.
+    /// - Returns: Nothing; reapplies the stable visual-effect state.
+    internal func updateNSView(_ nsView: NSVisualEffectView, context: Context) { nsView.state = .active }
 }
 
 /// A non-authenticating privacy cover inspired by the approved landscape interlude.
@@ -31,15 +57,12 @@ internal struct LockedArtwork: View {
                 fortress(in: proxy.size)
                 shore(in: proxy.size)
                 dotField
-                VStack(spacing: 14) {
-                    Button(action: unlock) {
-                        Label(ControlConstants.unlockDisplay, systemImage: ControlConstants.unlockIcon)
-                            .font(.system(size: 15, weight: .semibold)).padding(.horizontal, 22).padding(.vertical, 12)
-                    }.buttonStyle(.plain).foregroundStyle(ControlTheme.railInk)
-                        .background(ControlTheme.rail.opacity(0.86), in: Capsule())
-                        .overlay { Capsule().stroke(Color.white.opacity(0.23), lineWidth: 1) }
-                    Text(ControlConstants.lockedArtwork).font(.caption).foregroundStyle(ControlTheme.ink.opacity(0.62))
-                }
+                Button(action: unlock) {
+                    Label(ControlConstants.unlockDisplay, systemImage: ControlConstants.unlockIcon)
+                        .font(.system(size: 15, weight: .semibold)).padding(.horizontal, 22).padding(.vertical, 12)
+                }.buttonStyle(.plain).foregroundStyle(ControlTheme.railInk)
+                    .background(ControlTheme.rail.opacity(0.86), in: Capsule())
+                    .overlay { Capsule().stroke(Color.white.opacity(0.23), lineWidth: 1) }
             }
             .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
             .overlay { RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous).stroke(Color.black.opacity(0.38), lineWidth: 2) }
