@@ -16,10 +16,11 @@ internal struct ControlWindow: View {
             WindowTransparencyConfigurator().frame(width: 0, height: 0).accessibilityHidden(true)
             if displayLocked {
                 LockedArtwork { setLocked(false) }
-                    .padding(.horizontal, 20).padding(.top, 30).padding(.bottom, 18)
+                    .ignoresSafeArea()
                     .transition(.opacity.combined(with: .scale(scale: 0.985)))
             } else {
                 applicationShell
+                    .ignoresSafeArea()
                     .transition(.opacity.combined(with: .scale(scale: 0.99)))
             }
         }
@@ -32,18 +33,19 @@ internal struct ControlWindow: View {
     }
 
     private var applicationShell: some View {
-        HStack(spacing: -20) {
-            navigationRail
-            contentSurface
+        ZStack {
+            CinematicBackdrop()
+            HStack(spacing: -20) {
+                navigationRail
+                contentSurface
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                .stroke(Color.black.opacity(0.72), lineWidth: 2).allowsHitTesting(false)
+                .strokeBorder(Color.black.opacity(0.72), lineWidth: 2).allowsHitTesting(false)
         }
-        .shadow(color: Color.black.opacity(0.22), radius: 34, y: 16)
-        .padding(.horizontal, 20).padding(.top, 30).padding(.bottom, 18)
         .animation(reduceMotion ? nil : ControlTheme.navigationMotion, value: sidebarExpanded)
     }
 
@@ -85,7 +87,7 @@ internal struct ControlWindow: View {
                 Spacer(minLength: 0)
             }
         }
-        .padding(12).padding(.trailing, 26)
+        .padding(.horizontal, 12).padding(.bottom, 12).padding(.top, 34).padding(.trailing, 26)
         .frame(width: sidebarExpanded ? 244 : 88)
         .frame(maxHeight: .infinity)
         .foregroundStyle(ControlTheme.railInk)
@@ -106,9 +108,11 @@ internal struct ControlWindow: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
             ZStack {
-                DesktopGlass()
-                RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                    .fill((reduceTransparency ? ControlTheme.surfaceStrong : Color.white).opacity(reduceTransparency ? 0.98 : 0.14))
+                SceneGlass().opacity(0.54)
+                if reduceTransparency {
+                    RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
+                        .fill(ControlTheme.surfaceStrong.opacity(0.98))
+                }
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
