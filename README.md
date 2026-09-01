@@ -8,20 +8,19 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current locally delivered release is **v1.0 (build 10)** at the project root. It replaces
-mandatory AI-usage badges with optional, individually wrapping technology/approach tags from
-the root README. Category and technical scope stay separate; absent metadata produces no tag.
-The app does not infer AI use from a category, project name, or the presence of AI lessons.
+The next source release is **v2.0 (build 11)**. It replaces the earlier angular navy interface
+with the approved cinematic glass system: a wide rounded material surface over a visible sage
+landscape, a black hierarchy rail that expands and collapses with aligned icons, individually
+animated project disclosure rows, fixed-height scrolling with hidden indicators, and a
+no-password artwork lock whose Unlock control is centered in the whole application.
 
-The header, category navigation, notes, app discovery, icons, detail tabs, and diagrams remain.
-v1.0 passed 19 focused parser/register checks, 5 store checks, native type-checking, 24 tag-layout
-cases, a cache-free optimized build, strict signature/metadata/icon checks, and project-root launch.
-Source is committed separately: metadata/synchronization `9f3e399`, header `eb643cb`, sidebar
-`2a512b8`, root metadata/policy `b43b9fd`, and release records `19ac73f` / `6d6e110`.
-These commits preceded the build; no build-gate exception was used. v0.9 source changes were
-captured with v1.0, not as a separate release commit; its unchanged bundle remains recoverable.
-No v1.0 code review, formal verification, or live interaction check is claimed. Historical
-v0.9 checks remain recorded below, not reused as v1.0 evidence.
+The redesign retains README-derived content, project classifications, project icons, structured
+work notes, app discovery, native tables, detail tabs, diagrams, and source synchronization.
+Reduce Motion disables the new transitions; Reduce Transparency strengthens the content surface.
+Before distributable compilation, all 323 core checks, 39 store checks, and complete native
+type-checking passed. The previously delivered **v1.0 (build 10)** remains at the project root
+until v2.0 is built and promoted. No v2.0 optimized-build, signature, installed-launch,
+live-interaction, code-review, or formal-verification claim is made at this source checkpoint.
 
 ## Quick start
 
@@ -36,19 +35,21 @@ open "Project Control.app"
 ```
 
 1. Choose **Choose repository…** and select the `Professional Quality` folder, not this subfolder.
-2. Select the repository parent for its README **Overview**, **Repository history**, **Read README** action, and **Last read** timestamp. Its indented project children come from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable.
+2. Use the top rail control to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Read README** action, and **Last read** timestamp. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon shares one centerline.
 3. Open **Work notes → Add note**. Save a title, optional context, and status: **Next**, **In progress**, or **Done**. The ring counts completed notes, not overall project completion.
 4. **Overview** shows the README's overview or opening description. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables use native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow nodes and arrows show only documented connections. **Project history** stays with its project; repository content no longer occupies the footer.
 5. **Open folder** and **Read README** open the item outside the app. **Open App** detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
+6. Use the header lock control to temporarily replace all project content with the local artwork view. It requires no password, changes no files, has no footer strip, and restores the interface from the centered **Unlock** button.
 
 `Command-O` chooses a repository; `Command-R` refreshes it. `Command-N` adds a note while Work notes is visible. The app remembers the last valid repository.
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The latest completed application lives directly beside this README as **Project Control.app**,
-version **v1.0/build 10**. The replaced v0.9 bundle is preserved unchanged under
-`build/previous.6S5wt3/Project Control.app`; the documented v0.8 and v0.7 recoveries also remain.
-The background launch-check instance was closed. Open the root-level app to use v1.0.
+The latest completed application still lives directly beside this README as **Project Control.app**,
+version **v1.0/build 10**, while the v2.0 source checkpoint is prepared. The replaced v0.9 bundle
+is preserved unchanged under `build/previous.6S5wt3/Project Control.app`; the documented v0.8 and
+v0.7 recoveries also remain. This paragraph must be updated only after the signed v2.0 bundle is
+promoted and checked.
 
 ## Sidebar classification
 
@@ -58,7 +59,8 @@ in first-appearance order, with projects retaining their register order. They ar
 show counts. Each project row retains its icon and note progress. Technical scope is a quiet text
 line; each documented technology or approach is a separate content-sized tag, wrapping as needed.
 The current groups are **AI Applications**, **Agent Workspaces**, **Project Management**,
-**Knowledge & Learning**, and **Utility Collections**. No names or memberships are hard-coded.
+**Knowledge & Learning**, and **Utility Collections**. Names and memberships are not hard-coded;
+the compact rail assigns neutral position markers without inferring a category's capabilities.
 
 A missing or blank category uses **Uncategorized**. Missing scope and technology values are omitted.
 The former **AI usage** column is ignored; it is not converted into tags. Authors migrate actual
@@ -71,7 +73,7 @@ is revealed in its destination group. A stale project README does not block vali
 ## Versioning and build delivery
 
 - Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. This source update advances v0.9/build 9 to **v1.0/build 10**; its successor is **v1.1/build 11**. A clean recompilation of the same unchanged update does not create a new release.
+- Every application update advances the release version and increments the integer build number. This complete visual redesign advances v1.0/build 10 to **v2.0/build 11**; its successor is **v2.1/build 12**. A clean recompilation of the same unchanged update does not create a new release.
 - Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
@@ -141,7 +143,7 @@ The development app is not sandboxed or notarized. Its scanner is restricted to 
 
 | Technology or concept | Use in this project |
 |---|---|
-| SwiftUI | Builds the register, project screens, work-note editor, History, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
+| SwiftUI | Builds the layered glass shell, animated hierarchy rail, artwork lock, project screens, work-note editor, History, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
 | AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions; ProjectIcon keeps app and fallback artwork consistent. |
 
 ### Backend & Application Logic
@@ -176,10 +178,9 @@ No LLM, embedding service, RAG index, network client, or automatic project execu
 ```text
 Project Control/
 ├── Sources/Core/       # README extraction, models, constants, local storage
-├── Sources/App/        # Native application, state, interface
+├── Sources/App/        # Native state, glass interface, backdrop, lock artwork
 ├── Resources/          # Bundle identity, version, and editable Nexus icon
 ├── Tests/              # Focused synthetic and read-only repository checks
-├── Design/             # Selected animated reference and motion sources
 ├── Makefile            # Local build, focused checks, launch
 ├── Project Control.app # Latest completed app; ignored by Git
 └── build/              # Staging, caches, recovery copies; ignored by Git
@@ -187,15 +188,32 @@ Project Control/
 
 ## Design reference
 
-The [selected animated preview](Design/framecraft-vector-lens.html) is a design reference, not the running app. It combines Vector's angular frames with Lens's navy/icy-blue palette; its static notes and older project count remain illustrative.
+The running SwiftUI app is now the canonical implementation of the approved cinematic glass
+direction. `CinematicBackground.swift` owns the visible scene and local artwork lock;
+`DesignSystem.swift` owns the sage/lime/ink palette, rounded glass cards, and 0.62–0.78 second
+motion; `ControlWindow.swift` owns the layered rail, content surface, hierarchy, and lock state.
+The superseded Vector/Lens HTML and JavaScript preview is retained in Git history rather than as
+an active project file, preventing a stale reference from being mistaken for the v2.0 interface.
 
 **A · Nexus** is selected. Its [editable vector master](Resources/ProjectControl.svg) and [transparent 1024-pixel PNG master](Resources/ProjectControl.png) preserve the approved geometry and palette. The superseded three-choice comparison was moved to macOS Trash under `Project Control - retired icon study 2026-08-30`, with its checksum unchanged. `make icons` uses macOS `sips` and `iconutil` to package standard/Retina representations from 16 through 1024 pixels into `ProjectControl.icns`. `make app` includes that icon automatically; no extra build dependency is required. When changing the vector, export its matching 1024×1024 RGBA PNG as well; the build uses the checked-in PNG because the native SVG decoder could not read this artwork reliably.
 
-The preview embeds its [motion constants](Design/framecraft-vector-lens.motion.constants.js) and [motion behavior](Design/framecraft-vector-lens.motion.js). Keep the sources and embedded block aligned when editing that reference. Native controls use SwiftUI instead, with short interaction-driven motion and Reduce Motion support. There is no perpetual scanning, spinning, or fabricated activity.
+Native controls use state-driven SwiftUI transitions with Reduce Motion and Reduce Transparency
+support. There is no perpetual scanning, spinning, fabricated activity, remote artwork, WebView,
+or runtime network dependency.
 
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.0 source checkpoint
+
+The v2.0/build-11 source implements the rounded native material shell, visible local backdrop,
+aligned collapsible rail, staggered project-row disclosures, hidden scroll indicators, and centered
+artwork unlock. README parsing, classifications, notes, application discovery, content tabs,
+tables, and workflow data paths remain unchanged. All **323 core checks** and **39 store checks**
+passed, followed by complete native type-checking. The distributable build and installed-artifact
+checks are deliberately not claimed before the source and dual-README records are committed.
+Live interaction, optional code review, and formal verification have not run.
 
 ### v1.0 delivery evidence
 
@@ -316,7 +334,11 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 
 ### UI acceptance rules
 
-- Show the selected Nexus app icon at 36 points beside the 18-point Project Control title, vertically centered in a 60-point content header with 24-point side padding. Reserve native title-bar safe space separately; do not add an unexplained large left inset.
+- Use the wide, bounded-height cinematic shell: a softly colored local backdrop must remain visible through the rounded material content surface, and long content must scroll inside that surface without visibly drawing a scrollbar.
+- Keep the black hierarchy rail behind the content surface with continuous outer corners. Expand or collapse it over approximately 0.78 seconds, fade labels, and keep every compact icon centered on exactly the same rail axis.
+- Animate each disclosed project row into or out of its category over approximately 0.62 seconds with a small stagger; do not animate only the category container. Respect Reduce Motion.
+- Show the Nexus app icon beside the Project Control title inside the rounded content header. Reserve native title-bar safe space separately; repository text must yield before the lock and ellipsis controls overlap.
+- The lock control hides the complete rail and content surface without authentication, black footer, or status row. Show only local artwork and place Unlock at the geometric center of the application. Respect Reduce Transparency.
 - Keep a dedicated, accessible ellipsis menu without a redundant disclosure indicator. Check the actual header at the minimum supported width and with a long repository name; text must yield before controls overlap.
 - Group projects by the explicit Category column, with counts and keyboard-focusable full-row disclosure buttons. Keep scope and tags separate, following the root [Project Control tag policy](../AGENTS.md#project-control) and [README contract](../README.md#readme-content-contract-for-project-control). Preserve source order, project identity, selection, and notes; check wrapping tags at the minimum supported width.
 - Keep the project register search-free; the full padded row is the selection target and remains a native keyboard-focusable button.
@@ -330,7 +352,7 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 - Follow the repository README's single content contract: category-grouped tables, one named technology/concept per row, plain-language use descriptions, stable section markers, and explicit exclusions. Do not bundle languages, frameworks, models, or protocols into a responsibility row.
 - Show a history row's standalone date beside its project/version title; the expanded body contains the change description without a duplicate date.
 - Render workflows as connected diagrams, not numbered lists. Preserve explicit branches and independent routes; never invent relationships to fill a diagram.
-- Keep the selected visual language, content-sized diagram nodes, horizontal scrolling for wide graphs/tabs, accessible connection descriptions, and reduced-motion behavior.
+- Keep rounded cards and content-sized diagram nodes, center narrower diagrams within their available space, preserve horizontal scrolling for wide graphs/tabs, and retain accessible connection descriptions.
 
 <!-- project-control:section=history -->
 ## Change log
@@ -342,6 +364,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| v2.0 / build 11 | 2026-09-01 | Source checkpoint for the complete cinematic glass redesign: added a visible local landscape under native material, a wide rounded shell, aligned expanding/collapsing hierarchy rail, staggered per-project disclosure motion, bounded internal scrolling with hidden indicators, rounded content cards, and a no-password artwork lock with centered Unlock. Preserved README-derived data, notes, classifications, icons, app discovery, tables, tabs, diagrams, and background synchronization. Passed 323 core checks, 39 store checks, and native type-checking. The signed distributable, installed launch, live interaction, optional review, and formal verification are not yet claimed. Superseded Vector/Lens design files are removed from the active tree but remain in Git history. | Source `32f2df4`; this documentation checkpoint |
 | v1.0 / build 10 | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. User-authorized source/release commits preceded a cache-free optimized build. Strict signing, matching source/bundle metadata, unchanged Nexus icon, and project-root launch passed. Preserved v0.9 with unchanged executable/metadata/icon checksums and retained documented older recoveries. Removed generated compiler/icon intermediates and closed the new smoke-test process; no existing Project Control process was present. No build-gate exception was used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd`; pre-build release records `19ac73f`, `6d6e110` |
 | v0.9 / build 9 | 2026-08-31 | Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap. Added collapsible source-ordered categories, counts, and independently wrapping technical-scope/AI-usage badges from optional root-register columns. Missing metadata remains unspecified; root classification changes still apply when a project README is stale. Existing notes and selection are preserved. Passed 312 core checks, 38 store checks, native type-checking, offscreen layouts, clean compilation, strict bundle identity/signature checks, and project-root launch. Preserved v0.8 unchanged; removed temporary/generated intermediates. Live UI interaction, optional review, and formal verification remain unconfirmed or not run. Source was uncommitted at delivery. | Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; no separate v0.9 release commit |
 | Documentation reconciliation · no new app build | 2026-08-31 | Matched all retained release records to Git evidence, clarified releases committed together, and adopted the root-only instruction/history rules. At reconciliation, diagram work was paused and v0.8/build 8 was unchanged. The records are included with the v1.0 release documentation. | Prior release references below; no separate app build |
