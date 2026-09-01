@@ -66,6 +66,8 @@ internal enum ControlConstants {
     internal static let htmlBreakPattern = #"</(?:li|p)>|<br\s*/?>"#
     internal static let htmlPattern = #"<[^>]*>"#
     internal static let inlineCodePattern = #"(`+)(.+?)\1"#
+    internal static let scopeLabelPatternPrefix = #"(?is)<strong>\s*"#
+    internal static let scopeLabelPatternSuffix = #"\s*:?\s*</strong>\s*(.*?)(?=</li>|<br\s*/?>|$)"#
     internal static let underscoreEmphasisPattern = #"(?<!\w)_{1,2}(.+?)_{1,2}(?!\w)"#
     internal static let markupPattern = #"[*`]|^\s*(?:[-+>]\s+|\d+\.\s+)"#
     internal static let separatorPattern = #"^[:\-\s|]+$"#

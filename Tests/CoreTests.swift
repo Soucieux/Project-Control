@@ -127,12 +127,20 @@ internal enum CoreTests {
         check(refreshed.projects.map(\.id) == snapshot.projects.map(\.id)
             && refreshed.categories[0].name == TestConstants.renamedCategory
             && refreshed.projects[0].classification.technologies == [TestConstants.swiftUI, TestConstants.hostedAI], TestConstants.checkClassificationRefresh)
-        try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.classifiedTagsCell, with: ControlConstants.empty)
+        try TestConstants.classifiedRoot.replacingOccurrences(
+            of: TestConstants.classifiedTagsCell, with: TestConstants.emptyClassifiedTagsCell)
             .write(to: readme, atomically: true, encoding: .utf8)
         let cleared = try RepositoryReader.load(repository)
         check(cleared.projects[0].classification == ProjectClassification(category: TestConstants.managementCategory,
             technicalScope: TestConstants.desktopScope), TestConstants.checkTechnologyRemoval)
-        try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.tagsHeader, with: TestConstants.ignoredTagsHeader)
+        try TestConstants.legacyClassifiedRoot.replacingOccurrences(
+            of: TestConstants.legacyScope, with: TestConstants.conflictingLegacyScope)
+            .write(to: readme, atomically: true, encoding: .utf8)
+        let compatible = try RepositoryReader.load(repository)
+        check(compatible.projects[0].classification == ProjectClassification(category: TestConstants.managementCategory,
+            technicalScope: TestConstants.desktopScope, technologies: [TestConstants.swiftUI, TestConstants.readmeDriven]),
+            TestConstants.checkClassificationCompatibility)
+        try TestConstants.legacyClassifiedRoot.replacingOccurrences(of: TestConstants.tagsHeader, with: TestConstants.ignoredTagsHeader)
             .write(to: readme, atomically: true, encoding: .utf8)
         let retiredColumn = try RepositoryReader.load(repository)
         check(retiredColumn.projects.allSatisfy { $0.classification.technologies.isEmpty }, TestConstants.checkLegacyAI)

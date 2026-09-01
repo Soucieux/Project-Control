@@ -5,6 +5,18 @@ internal enum TestConstants {
     internal static let classifiedRoot = """
     # Classified repository
     ## Projects
+    | Project | Scope |
+    |---|---|
+    | [Example](Example/) | <ul><li><strong>cAtEgOrY:</strong> Management</li><li><strong>Technical scope:</strong> **Native desktop**</li><li><strong>Technologies:</strong> **SwiftUI**; ; README-driven; swiftui;</li><li><strong>Product:</strong> Primary tool.</li></ul> |
+    | [Missing](Missing/) | <ul><li><strong>Category:</strong> AI Applications</li><li><strong>Technical scope:</strong> Full-stack web</li><li><strong>Technologies:</strong> Next.js; LangGraph; Hosted AI</li><li><strong>Product:</strong> Hosted service.</li></ul> |
+    | [Another](Another/) | <ul><li><strong>Category:</strong> AI Applications</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> Local AI; RAG; C++; model_name-v1</li><li><strong>Product:</strong> Local assistant.</li></ul> |
+    | [Blank](Blank/) | <ul><li><strong>Category:</strong></li><li><strong>Technical scope:</strong></li><li><strong>Technologies:</strong> ; ;</li><li><strong>Product:</strong> Metadata not yet documented.</li></ul> |
+    | [Short](Short/) | Legacy short row. |
+    | [Example](Example/) | <ul><li><strong>Category:</strong> Wrong</li><li><strong>Technical scope:</strong> Wrong</li><li><strong>Technologies:</strong> Wrong</li><li><strong>Product:</strong> Duplicate row.</li></ul> |
+    """
+    internal static let legacyClassifiedRoot = """
+    # Legacy classified repository
+    ## Projects
     | Project | Scope | tEcHnOlOgIeS | cAtEgOrY | Technical scope | AI usage |
     |---|---|---|---|---|---|
     | [Example](Example/) | Primary tool. | **SwiftUI**; ; README-driven; swiftui; | Management | **Native desktop** | No AI |
@@ -12,7 +24,6 @@ internal enum TestConstants {
     | [Another](Another/) | Local assistant. | Local AI; RAG; C++; model_name-v1 | AI Applications | Native desktop | Local AI |
     | [Blank](Blank/) | Metadata not yet documented. | ; ; | | | Not documented |
     | [Short](Short/) | Legacy short row. |
-    | [Example](Example/) | Duplicate row. | Wrong | Wrong | Wrong | Wrong |
     """
     internal static let classificationDirectory = "Classification"
     internal static let managementCategory = "Management"
@@ -23,7 +34,10 @@ internal enum TestConstants {
     internal static let swiftUI = "SwiftUI"
     internal static let readmeDriven = "README-driven"
     internal static let hostedAI = "Hosted AI"
-    internal static let classifiedTagsCell = "**SwiftUI**; ; README-driven; swiftui;"
+    internal static let legacyScope = "Primary tool."
+    internal static let conflictingLegacyScope = "<strong>Category:</strong> Wrong<br><strong>Technical scope:</strong> Wrong<br><strong>Technologies:</strong> Wrong<br>Primary tool."
+    internal static let classifiedTagsCell = "<strong>Technologies:</strong> **SwiftUI**; ; README-driven; swiftui;"
+    internal static let emptyClassifiedTagsCell = "<strong>Technologies:</strong>"
     internal static let tagsHeader = "tEcHnOlOgIeS"
     internal static let ignoredTagsHeader = "Legacy technologies"
     internal static let classificationOnly = "--classification"
@@ -38,7 +52,8 @@ internal enum TestConstants {
         "Python Accomplishments": ["Python", "Browser automation", "Speech APIs"]
     ]
     internal static let liveCategories = ["AI Applications", "Agent Workspaces", "Project Management", "Knowledge & Learning", "Utility Collections"]
-    internal static let checkClassification = "optional classification columns are read by case-insensitive header and rendered as plain text"
+    internal static let checkClassification = "scope labels are read case-insensitively and rendered as plain text"
+    internal static let checkClassificationCompatibility = "legacy classification columns remain supported and override conflicting scope labels"
     internal static let checkClassificationGroups = "categories and members retain first appearance without duplicating projects"
     internal static let checkClassificationUnknown = "absent, blank, and short metadata creates no technology or absence tags"
     internal static let checkTechnologyTags = "technology tags preserve literal names and first order while trimming blanks and case-insensitive duplicates"

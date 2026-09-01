@@ -37,6 +37,18 @@ internal enum ReadmeParser {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Reads one explicitly labelled value from a scope cell without interpreting arbitrary HTML.
+    /// - Parameters: value: Raw scope cell. label: Trusted metadata label.
+    /// - Returns: Plain nonempty value following the label, or nil when it is absent or blank.
+    internal static func labelledValue(_ value: String, label: String) -> String? {
+        let pattern = ControlConstants.scopeLabelPatternPrefix
+            + NSRegularExpression.escapedPattern(for: label)
+            + ControlConstants.scopeLabelPatternSuffix
+        guard let matched = match(value, pattern, group: 1) else { return nil }
+        let result = plain(matched).trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? nil : result
+    }
+
     /// Removes prose styling while leaving inline-code identifiers and paths to the caller.
     /// - Parameter value: A fragment outside Markdown code spans.
     /// - Returns: Unstyled, inert text with boundary whitespace preserved for concatenation.

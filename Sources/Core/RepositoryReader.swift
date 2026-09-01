@@ -60,11 +60,14 @@ internal enum RepositoryReader {
                 let identifier = folder.resolvingSymlinksInPath().standardizedFileURL.path
                 guard seen.insert(identifier).inserted else { return nil }
                 identities += projectFingerprint(folder, within: canonical)
-                var record = project(name: name, folder: folder, scope: ReadmeParser.plain(row[1]), root: canonical)
+                let scope = row[1]
+                var record = project(name: name, folder: folder, scope: ReadmeParser.plain(scope), root: canonical)
                 record.classification = ProjectClassification(
-                    category: registerValue(ControlConstants.categoryColumn, headers: headers, row: row) ?? ControlConstants.uncategorized,
-                    technicalScope: registerValue(ControlConstants.technicalScopeColumn, headers: headers, row: row),
-                    technologies: technologyTags(registerValue(ControlConstants.technologiesColumn, headers: headers, row: row)))
+                    category: registerValue(ControlConstants.categoryColumn, headers: headers, row: row, scope: scope)
+                        ?? ControlConstants.uncategorized,
+                    technicalScope: registerValue(ControlConstants.technicalScopeColumn, headers: headers, row: row, scope: scope),
+                    technologies: technologyTags(registerValue(
+                        ControlConstants.technologiesColumn, headers: headers, row: row, scope: scope)))
                 return record
             }
         }
@@ -73,13 +76,15 @@ internal enum RepositoryReader {
             overview: ReadmeParser.overview(sections, fallback: ControlConstants.noRepositoryOverview))
     }
 
-    /// Reads an optional metadata column by header rather than by a fixed cell position.
-    /// - Parameters: key: Normalized column name. headers: Normalized source headings. row: Source cells.
-    /// - Returns: Inert display text, or nil for an absent, short, or blank cell.
-    private static func registerValue(_ key: String, headers: [String], row: [String]) -> String? {
-        guard let index = headers.firstIndex(of: key), row.indices.contains(index) else { return nil }
-        let value = ReadmeParser.plain(row[index]).trimmingCharacters(in: .whitespacesAndNewlines)
-        return value.isEmpty ? nil : value
+    /// Reads legacy column metadata first, then falls back to a labelled scope value when the column is absent.
+    /// - Parameters: key: Normalized metadata name. headers: Normalized source headings. row: Source cells. scope: Raw scope cell.
+    /// - Returns: Inert display text, or nil for an explicit blank, missing label, or blank labelled value.
+    private static func registerValue(_ key: String, headers: [String], row: [String], scope: String) -> String? {
+        if let index = headers.firstIndex(of: key), row.indices.contains(index) {
+            let value = ReadmeParser.plain(row[index]).trimmingCharacters(in: .whitespacesAndNewlines)
+            return value.isEmpty ? nil : value
+        }
+        return ReadmeParser.labelledValue(scope, label: key)
     }
 
     /// Separates explicitly documented technologies without deriving tags from other metadata.
