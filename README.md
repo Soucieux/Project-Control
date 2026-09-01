@@ -8,7 +8,7 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current source release is **v2.1 (build 12)**. It corrects the cinematic glass system with an
+The current locally delivered release is **v2.1 (build 12)**. It corrects the cinematic glass system with an
 edge-to-edge outlined shell, a full-window local sky and cloud scene, and native in-window material
 that samples that scene beneath the content plane. The black hierarchy rail still expands and
 collapses with aligned icons, project disclosure rows animate individually, fixed-height content
@@ -19,9 +19,10 @@ work notes, app discovery, native tables, detail tabs, diagrams, and source sync
 Reduce Motion disables the transitions; Reduce Transparency replaces the material with a stronger
 solid surface. Complete native type-checking passed. A controlled 1320×760 render confirmed shell
 coverage at every edge midpoint and visible color variation across the glass plane; that render was
-inspected for the zero-gap boundary, shared scene, and readable content. The distributable app has
-not yet been built or launched, so the project-root app remains the previously delivered
-v2.0/build-11 bundle until the v2.1 source and dual-README checkpoints are committed.
+inspected for the zero-gap boundary, shared scene, and readable content. Cache-free optimized
+compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, and a
+separate-instance project-root launch also passed. Core and store suites were unchanged and were not
+rerun; optional code review and formal verification did not run.
 
 ## Quick start
 
@@ -46,11 +47,11 @@ open "Project Control.app"
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The currently delivered **v2.0/build 11** application lives beside this README as **Project Control.app**;
-the approved v2.1/build-12 source has not yet replaced it. The
+The final **v2.1/build 12** application lives beside this README as **Project Control.app**. The
+replaced v2.0/build-11 bundle is preserved under `build/previous.Yj7LyM/Project Control.app`; the
 unchanged v1.0 bundle is preserved under `build/previous.yMUK2z/Project Control.app`; v0.9 remains
 under `build/previous.6S5wt3/Project Control.app`, and the documented v0.8/v0.7 recoveries also remain.
-The superseded green-field v2.0 candidate and all generated compiler/icon intermediates were removed.
+The separate v2.1 smoke-test process and all generated compiler/icon intermediates were removed.
 
 ## Sidebar classification
 
@@ -74,7 +75,7 @@ is revealed in its destination group. A stale project README does not block vali
 ## Versioning and build delivery
 
 - Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. This complete visual redesign advances v1.0/build 10 to **v2.0/build 11**; its successor is **v2.1/build 12**. A clean recompilation of the same unchanged update does not create a new release.
+- Every application update advances the release version and increments the integer build number. This glass correction advances v2.0/build 11 to **v2.1/build 12**; its successor is **v2.2/build 13**. A clean recompilation of the same unchanged update does not create a new release.
 - Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
@@ -207,7 +208,7 @@ The 33 rejected visual studies and screenshots were removed from the working pro
 
 ## Development and focused checks
 
-### v2.1 source checkpoint
+### v2.1 delivery evidence
 
 The v2.1/build-12 source removes every outer shell inset, keeps title-bar clearance inside the
 navigation rail, and replaces desktop-only sampling with a full-window local scene and
@@ -215,9 +216,13 @@ navigation rail, and replaces desktop-only sampling with a full-window local sce
 Transparency alone uses the existing strong surface. The lock artwork shares the same scene and
 also fills the window. README parsing, classifications, notes, app discovery, tabs, native tables,
 and diagrams are unchanged. Complete native type-checking and a controlled 1320×760 render passed;
-the render confirmed full edge coverage and visible scene variation across the content plane.
-Distributable compilation, signing, bundle promotion, launch, code review, and formal verification
-have not run for v2.1 at this source checkpoint.
+the render confirmed full edge coverage and visible scene variation across the content plane and was
+inspected for boundary, backdrop, and readability. After the source and dual-README checkpoints were
+committed, cache-free optimized compilation, strict signing, source/bundle metadata equality,
+icon/executable checks, bundle promotion, and a separate-instance root launch passed. The v2.0 bundle
+is preserved at `build/previous.Yj7LyM`; generated intermediates and the smoke process were removed.
+Core/store behavior was unchanged and those suites were not rerun. Optional code review and formal
+verification did not run.
 
 ### v2.0 source checkpoint
 
@@ -385,7 +390,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
-| v2.1 / build 12 | 2026-09-01 | Prepared the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the rail, added a full-window local sky/cloud/texture scene, switched native material to in-window sampling, and removed the normal opaque tint. Reduce Transparency retains a solid fallback; existing data and interaction paths are unchanged. Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability. Distributable build, signing, bundle promotion, launch, optional review, and formal verification have not run at this checkpoint; the project-root bundle remains v2.0/build 11. | Source `8c7981c`; this documentation checkpoint |
+| v2.1 / build 12 | 2026-09-01 | Delivered the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the rail, added a full-window local sky/cloud/texture scene, switched native material to in-window sampling, and removed the normal opaque tint. Reduce Transparency retains a solid fallback; existing data and interaction paths are unchanged. Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability. Cache-free optimized compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, promotion, and separate-instance launch passed. Core/store suites were unchanged and not rerun; optional review and formal verification did not run. Preserved v2.0/build 11 under `build/previous.Yj7LyM`; removed generated intermediates and the smoke process. | Source `8c7981c`; source record `0c57d69`; root source record `9738555`; this delivery checkpoint |
 | v2.0 / build 11 | 2026-09-01 | Delivered the complete cinematic glass redesign: a transparent native window, real behind-window desktop blur, one outlined rounded shell, aligned expanding/collapsing hierarchy rail, staggered per-project disclosure motion, bounded internal scrolling with hidden indicators, rounded content cards, and a no-password artwork lock with centered Unlock. The user's screenshot rejected the first signed candidate because it showed an internal green field; `0e07484` replaced it with actual behind-window material. Offscreen inspection also removed a redundant lock caption that crossed the fortress silhouette. Preserved README-derived data, notes, classifications, icons, app discovery, tables, tabs, diagrams, and background synchronization. Passed 323 core checks, 39 store checks, native type-checking, optimized compilation, strict signing, exact source/bundle metadata equality, and separate-instance root launch. Final live capture remained unavailable because ScreenCaptureKit access was denied; optional review and formal verification did not run. Removed the superseded v2.0 bundle and generated intermediates; preserved v1.0 and documented older recoveries. Superseded Vector/Lens design files remain in Git history. | Initial source `32f2df4`; desktop glass `0e07484`; source records `2f44ecd`, `92c5186`; root records `92491bd`, `a1edc1d`; this delivery checkpoint |
 | v1.0 / build 10 | 2026-08-31 | Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate. Added per-tag wrapping, case-insensitive deduplication, explicit empty/legacy behavior, and focused parser/store regressions. Updated all six register entries and the Project Control-only tag rule. Passed 19 parser/register checks, 5 store checks, native type-checking, and 24 tag-layout cases; inspected isolated native renders. No live-interaction, code-review, or formal-verification claim. User-authorized source/release commits preceded a cache-free optimized build. Strict signing, matching source/bundle metadata, unchanged Nexus icon, and project-root launch passed. Preserved v0.9 with unchanged executable/metadata/icon checksums and retained documented older recoveries. Removed generated compiler/icon intermediates and closed the new smoke-test process; no existing Project Control process was present. No build-gate exception was used. | `9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd`; pre-build release records `19ac73f`, `6d6e110` |
 | v0.9 / build 9 | 2026-08-31 | Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap. Added collapsible source-ordered categories, counts, and independently wrapping technical-scope/AI-usage badges from optional root-register columns. Missing metadata remains unspecified; root classification changes still apply when a project README is stale. Existing notes and selection are preserved. Passed 312 core checks, 38 store checks, native type-checking, offscreen layouts, clean compilation, strict bundle identity/signature checks, and project-root launch. Preserved v0.8 unchanged; removed temporary/generated intermediates. Live UI interaction, optional review, and formal verification remain unconfirmed or not run. Source was uncommitted at delivery. | Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; no separate v0.9 release commit |
