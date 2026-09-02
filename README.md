@@ -8,25 +8,34 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current local release is **v2.3 (build 14)**. It adds a repository-level **Commit activity** tab
-that groups every Git commit reachable from local refs into newest-first calendar years and twelve
-fixed month columns. Counts use absolute 0, 1–4, 5–9, 10–14, and 15+ intensity levels; future months
-are dimmed and conceal their values. Hovering over a populated month shows each affected registered
-project's icon, name, and commit count. A commit touching more than one project appears once under
-each affected project, while the cell total still counts that Git commit once.
+The current local release is **v2.4 (build 15)**. It removes the competing SwiftUI mask around the
+complete shell so the native macOS window alone owns the outer corner shape. The black chassis still
+covers the full application, while the light-artwork detail panel uses a thin three-point inset and
+an independently tuned 18-point radius. Its four rendered corners visually follow the native window
+curve, retaining one narrow black perimeter without the light wedges exposed by the former masks.
+Lock and unlock now crossfade edge-to-edge without scaling either layer, and the native window owns
+the lock artwork's outer corners as well.
 
-Project Control invokes the fixed system Git executable directly with read-only arguments. It reads
-commit timestamps, changed-file paths for top-level project mapping, and ref object identities—never
-commit messages, authors, file contents, repository scripts, or network data. Ref fingerprints join
-the existing README/app fingerprints so background and manual refreshes rebuild monthly activity.
-The interface now uses one continuous rounded black chassis across the whole window. Its exposed
-left area is the navigation rail, while an inset light-artwork panel sits above it for project details
-with four rounded corners and a narrow black perimeter. The detail panel uses a blurred rendering of
-the same local artwork shown clearly by the lock screen. The reference-style brand row restores the
-collapsed rail, and every navigation icon retains one fixed axis while labels fade in. Eight focused
-core checks, one store check, complete native
-type-checking, optimized compilation, strict signing, exact version/build checks, arm64/icon checks,
-and live root-app inspection passed. Optional code review and formal verification did not run.
+Below the tabs, a README view containing only paragraphs or bullets now places that untitled prose
+inside the same rounded translucent content plane used by workflow diagrams. Existing structured
+presentation remains unchanged: a source heading stays above its table or content box, native tables
+keep their own surfaces, Workflows keeps its title-above-diagram layout, and the identity/actions above
+the tabs receive no new wrapping. A denser sage halftone now rises from the bottom of the shared local
+artwork; the active detail surface repeats it as a crisp lower overlay above the background blur, while
+the clear lock artwork adds a denser full-frame field of dots and short matrix marks over the same
+lower pattern. The repository README,
+repository actions, and Lock are arranged as consistently styled pinned footer rows below a hierarchy
+separator, using book, adjustment, and lock symbols with longer balanced **Open README file**,
+**Repository menu**, and **Lock application** labels. A second separator introduces the compact local
+workspace, README-sync cadence, and live bundle version. That metadata begins on the visible icon
+column rather than the raw rail edge. The footer icons retain the compact rail axis, and the header no
+longer duplicates lock or menu controls. The v2.3 Commit activity behavior
+and read-only Git boundary remain unchanged. All 332 core checks and 39 store checks passed, followed
+by optimized native compilation, strict signing, exact v2.4/build-15 metadata, arm64/icon checks, and
+live inspection of repository/project Overviews, Architecture, Workflows, expanded/collapsed rails,
+lock artwork, halftone density, and all corrected curves. The complete code review found no actionable
+source findings. Formal verification repeated a clean optimized rebuild, package identity checks, and
+live expanded/collapsed, Overview, Workflows, and lock-state inspection.
 
 ## Quick start
 
@@ -41,18 +50,18 @@ open "Project Control.app"
 ```
 
 1. Choose **Choose repository…** and select the `Professional Quality` folder, not this subfolder.
-2. Use the brand row at the top of the rail to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Commit activity**, **Read README** action, and **Last read** timestamp. Commit activity reads local Git timestamps, changed paths solely for project mapping, and ref identities; hover a populated month for the project distribution. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon shares one centerline.
+2. Use the brand row at the top of the rail to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Commit activity**, and **Last read** timestamp. The pinned rail footer opens the repository README, provides repository actions, and locks the display; its status block shows the installed version/build. Commit activity reads local Git timestamps, changed paths solely for project mapping, and ref identities; hover a populated month for the project distribution. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon—including the footer actions—shares one centerline.
 3. Open **Work notes → Add note**. Save a title, optional context, and status: **Next**, **In progress**, or **Done**. The ring counts completed notes, not overall project completion.
-4. **Overview** shows the README's overview or opening description. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables use native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow nodes and arrows show only documented connections. **Project history** stays with its project; repository content no longer occupies the footer.
+4. **Overview** shows the README's overview or opening description. Untitled paragraph-and-bullet content below the tabs uses one rounded translucent surface; source headings remain outside their existing table or content box. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables use native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow nodes and arrows show only documented connections. **Project history** stays with its project; repository content no longer occupies the footer.
 5. **Open folder** and **Read README** open the item outside the app. **Open App** detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
-6. Use the header lock control to temporarily replace all project content with the local artwork view. It requires no password, changes no files, has no footer strip, and restores the interface from the centered **Unlock** button.
+6. Use **Lock** in the rail footer to temporarily replace all project content with the local artwork view. It requires no password, changes no files, has no footer strip, and restores the interface from the centered **Unlock** button.
 
 `Command-O` chooses a repository; `Command-R` refreshes it. `Command-N` adds a note while Work notes is visible. The app remembers the last valid repository.
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The signed **Project Control.app** beside this README is v2.3/build 14. The replaced v2.2/build-13
-bundle is preserved under `build/previous.IqYCW4`; older documented recovery bundles remain unchanged.
+The signed **Project Control.app** beside this README is v2.4/build 15. The replaced v2.3/build-14
+bundle is preserved under `build/previous.bIh8aG`; older documented recovery bundles remain unchanged.
 
 ## Sidebar classification
 
@@ -76,14 +85,13 @@ a rebuild or changes to notes. Collapse state is local to the open window and re
 changes. A selected project that changes category is revealed in its destination group. A stale
 project README does not block valid root metadata.
 
-## Versioning and build delivery
+## Build delivery
 
-- Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. This commit-activity release advances v2.2/build 13 to **v2.3/build 14**; its successor is **v2.4/build 15**. A clean recompilation of the same unchanged update does not create a new release.
-- Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
+**Change-history numbering:** Project Control uses marketing versions and integer build numbers.
+Follow the repository-wide [version and build-number policy](../README.md#version-and-build-number-policy).
+
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
-- Before creating a new versioned/distributable build, obey the root build-history gate: commit previous-build changes only with explicit authorization, or obtain explicit permission to proceed without a commit. Icon/design studies and relocating an unchanged bundle are not new application releases.
 
 <!-- project-control:section=workflows -->
 ## How information stays current
@@ -213,8 +221,9 @@ Project Control/
 The SwiftUI source is the canonical implementation of the approved cinematic direction.
 `CinematicBackground.swift` owns the transparent-window bridge and the one local artwork source
 shared by the detail and lock presentations; `DesignSystem.swift` owns the sage/lime/ink palette,
-rounded cards, black-chassis geometry, and 0.62–0.78 second motion; `ControlWindow.swift` owns the
-bottom chassis, inset artwork surface, reference-style rail, hierarchy, and lock state.
+rounded cards, black-chassis geometry, and 0.62–0.78 second motion; `ControlWindow.swift` lets the
+native window own the outer corners while it composes the chassis, inset artwork surface,
+reference-style rail, hierarchy, and lock state.
 The superseded Vector/Lens HTML and JavaScript preview is retained in Git history rather than as
 an active project file, preventing a stale reference from being mistaken for the current interface.
 
@@ -227,6 +236,33 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.4 delivery evidence
+
+The v2.4/build-15 source removes only the artificial whole-shell SwiftUI clip and outline; the native
+window owns the outside corners while the full black chassis and independently rounded detail surface
+remain. The three-point reveal and visually tuned 18-point detail radius align all four rendered detail
+corners with the native window instead of deriving the radius from an assumed outer value. Lock and
+unlock use an opacity-only transition, and the lock artwork has no competing outer mask or outline.
+`ReadmeContent` detects views made only of paragraph/bullet prose and encloses those untitled areas in
+the established rounded translucent plane. Heading-led content, native tables, Workflow titles and
+diagrams, history disclosure rows, work-note rows, and every area above the tabs retain their existing
+presentation. A lower-third sage halftone is drawn inside the shared active/lock artwork and repeated
+above the normal detail blur so its dots remain visible in the same lower position. The clear lock
+view also places a denser full-frame matrix of dots and short marks over the artwork. Repository
+README, repository actions, and Lock controls use matching book, adjustment, and lock rows with longer
+balanced Open README file, Repository menu, and Lock application labels beneath a hierarchy separator;
+compact workspace/sync status and the live bundle version follow a second separator and align to the
+visible icon column rather than the rail edge.
+All footer icons remain centered in the collapsed rail,
+and the detail header keeps identity/context without duplicated actions. All 332 core checks and 39
+store checks passed. Optimized arm64 compilation, strict signing, exact source/bundle v2.4/build-15
+metadata, icon checks, root-bundle promotion, and live inspection of repository/project Overviews,
+Architecture, Workflows, expanded/collapsed rails, lock artwork, halftone density, and the native/detail
+curves passed. The complete code review found no actionable source findings. Formal verification
+repeated a clean optimized rebuild, strict signing, source/bundle identity, arm64/icon checks, and live
+expanded/collapsed, Overview, Workflows, and lock-state inspection. The replaced v2.3/build-14 bundle
+is preserved at `build/previous.bIh8aG`.
 
 ### v2.3 delivery evidence
 
@@ -410,20 +446,22 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 
 ### UI acceptance rules
 
-- Keep exactly two visible shell layers: one rounded black chassis covering the complete window, and one inset light-artwork surface covering only the detail region. The chassis remains visible as the left rail and the narrow perimeter around all four detail corners. Do not place a desktop-blur or artwork layer under the chassis. Keep long content inside the bounded detail surface and hide its scrollbar indicator.
-- Use the same local artwork source for the active detail panel and the lock screen: blur it behind normal content and show it clearly while locked. Expand or collapse the rail over approximately 0.78 seconds, fade labels without re-centering icons, keep every compact icon on one fixed axis, and make the brand control visible in both states.
+- Keep exactly two visible shell layers: one black chassis covering the complete native window, and one light-artwork surface covering only the detail region. Let the native window own the outer curve; use a three-point detail inset and tune the detail radius so one thin black perimeter follows all four corners. The rendered native-window comparison is authoritative: all four detail corners must visually follow the native window, and a radius is not acceptable merely because it was derived from the inset. Do not add a competing whole-shell clip or widen the reveal. Do not place a desktop-blur or artwork layer under the chassis. Keep long content inside the bounded detail surface and hide its scrollbar indicator.
+- Use the same local artwork source for the active detail panel and the lock screen: blur it behind normal content and show it clearly while locked. Keep the denser sage halftone confined to the lower artwork and fade it upward; repeat that pattern as a crisp overlay above the normal detail blur so the dots remain visibly anchored at the same lower position. Do not replace the active detail's lower pattern with a uniform full-screen layer. Add the reference-style denser full-frame dot-and-short-mark matrix only to the clear lock artwork. Expand or collapse the rail over approximately 0.78 seconds, fade labels without re-centering icons, keep every compact icon on one fixed axis, and make the brand control visible in both states.
 - Animate each disclosed project row into or out of its category over approximately 0.62 seconds with a small stagger; do not animate only the category container. Respect Reduce Motion.
-- Show the Nexus app icon beside the Project Control title inside the rounded content header. Reserve native title-bar safe space separately; repository text must yield before the lock and ellipsis controls overlap.
-- The lock control hides the complete rail and content surface without authentication, black footer, or status row. Show only local artwork and place Unlock at the geometric center of the application. Respect Reduce Transparency.
-- Keep a dedicated, accessible ellipsis menu without a redundant disclosure indicator. Check the actual header at the minimum supported width and with a long repository name; text must yield before controls overlap.
+- Show the Nexus app icon beside the Project Control title inside the detail header. Reserve native title-bar safe space separately; repository text must truncate safely. Do not duplicate lock, repository README, or repository-menu controls in this header.
+- Pin repository README, repository actions, and Lock as three identically styled, full-width leading footer rows below a separator from the scrolling hierarchy. Use the book, horizontal-adjustment, and lock symbols with longer balanced Open README file, Repository menu, and Lock application labels; retain the full action names in help and accessibility text. Render the menu's visible row through the same fixed leading footer layout as the plain buttons rather than accepting the borderless menu's intrinsic alignment. Add a second separator before compact workspace/sync status and the live bundle version, and align that metadata with the visible icon column instead of the raw rail edge. In compact mode, hide labels/status/version and center every action icon on the same axis as navigation icons.
+- The footer lock control hides the complete rail and content surface without authentication, black footer, or status row. Show only the shared local artwork and place Unlock at the geometric center of the application. Enter and leave this state with an edge-to-edge opacity transition only: do not scale the shell or artwork, add a custom outer lock mask, or expose a temporary top gap. Respect Reduce Transparency.
+- Keep a dedicated, accessible repository-actions menu without a redundant disclosure indicator. It belongs in the rail footer, not the detail header, and its label must use the same typography, color, spacing, and full-row target as the neighboring footer actions.
 - Group projects by the explicit Category column, with counts and keyboard-focusable full-row disclosure buttons. Keep scope and tags separate, following the root [Project Control tag policy](../AGENTS.md#project-control) and [README contract](../README.md#readme-content-contract-for-project-control). Preserve source order, project identity, selection, and notes; check wrapping tags at the minimum supported width.
 - Keep the project register search-free; the full padded row is the selection target and remains a native keyboard-focusable button.
-- Keep a selectable repository parent above its indented projects. Repository overview/history, Read README, and Last read belong on that parent's screen, not in a footer.
+- Keep a selectable repository parent above its indented projects. Repository Overview, Repository history, Commit activity, and Last read belong on that parent's screen. The repository README action belongs in the pinned rail footer and must not be duplicated on the detail screen.
 - Keep Commit activity on the repository parent only. Show newest years first, one year label and twelve equal month cells, fixed absolute intensity thresholds, concealed future values, an accessible five-level legend, the complete loaded commit total, and distinct valid-year count. At widths up to 940 points, use the compact metrics without horizontal clipping. Hovering a populated cell shows each affected registered project's icon, name, and participation count; disclose that multi-project totals can overlap.
 - Show the same project icon in its sidebar row and detail header when an unambiguous project-root app exists; otherwise use a neutral symbol.
 - Size detail icons consistently with the repository reference and align their center with the project-name line, not the combined title/version stack. Check real and fallback icons with short and wrapped names.
 - Keep Open App beside Read README. Discover project-root apps first; use manual location only as the fallback, and never launch during scanning.
 - Keep README Overview content in Overview, with separate Architecture, Models, Workflows, Work notes, and Project history tabs.
+- Wrap a below-tab README view made only of paragraphs or bullets in the established rounded translucent plane. Do not invent a heading. Preserve heading-above-box sections, Workflow diagrams, tables, history rows, work-note rows, and every area above the tabs without adding another wrapper.
 - Render README tables as native headers and cells, never as a raw or duplicated Markdown paragraph. Preserve model identifiers and paths. Keep regressions for leading blank lines, adjacent prose, escaped pipes, and underscore-containing identifiers.
 - Keep every documented architecture-table row visible, including models, embeddings, RAG, orchestration, retrieval, and storage. Models is a secondary view, not a reason to remove documented technologies or concepts. Check coverage for every registered project and never label an absent framework as installed.
 - Follow the repository README's single content contract: category-grouped tables, one named technology/concept per row, plain-language use descriptions, stable section markers, and explicit exclusions. Do not bundle languages, frameworks, models, or protocols into a responsibility row.
@@ -441,6 +479,8 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| Documentation policy · no new app build | 2026-09-02 | Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here, and added the required linked project declaration. Application source, metadata, signed bundle, and v2.4/build 15 are unchanged. | This documentation commit |
+| v2.4 / build 15 | 2026-09-02 | Removed the competing whole-shell SwiftUI clip and outline so the native macOS window owns the outer corners without light wedges. Kept the full black chassis and three-point detail reveal, then visually tuned the detail layer to an 18-point radius so all four rendered curves follow the native window. Removed the lock artwork's custom outer mask and changed lock/unlock to an edge-to-edge opacity transition without shell scaling. Wrapped only untitled below-tab paragraph/bullet README views in the established rounded translucent plane; heading-led content, tables, Workflows, history, notes, and content above the tabs remain unchanged. Added a lower-third sage halftone to the shared active/lock artwork, repeated it crisply above the normal detail blur, and added a denser full-frame dot-and-short-mark matrix only to the clear lock view. Moved repository README, repository actions, and Lock into consistently styled full-width pinned footer rows with aligned book, adjustment, and lock symbols and longer balanced Open README file, Repository menu, and Lock application labels. The menu's visible row now uses the same fixed leading layout as the plain buttons instead of the borderless menu's intrinsic alignment. Compact workspace/sync status and the live bundle version follow below on the visible icon-column inset; duplicate header/detail controls remain removed and the compact icon axis is retained. Passed 332 core checks, 39 store checks, optimized compilation, strict signing, exact v2.4/build-15 metadata, arm64/icon checks, and live repository/project Overview, Architecture, Workflows, expanded/collapsed footer, lock-artwork, halftone, and corner inspection. The complete code review found no actionable source findings. Formal verification repeated a clean optimized rebuild, strict package-identity checks, and live expanded/collapsed, Overview, Workflows, and lock-state inspection. Preserved v2.3/build 14 under `build/previous.bIh8aG`. | Source `014523d`; this project documentation checkpoint; signed project-root app |
 | v2.3 / build 14 | 2026-09-01 | Added repository Commit activity with newest-first years, twelve responsive month cells, fixed absolute intensities, concealed future values, complete unique-commit totals, and per-project hover distributions with real project icons when available. Read-only Git access now includes changed paths solely to map registered top-level folders; messages, authors, and file contents remain unread. Reworked the shell into a full-window rounded black chassis plus an inset four-corner light-artwork detail layer, reused the same artwork clearly for the lock screen and blurred behind normal content, removed rail/detail overlap and visible scrollbars, adopted the reference-style brand control, and kept every rail icon on one fixed animation axis. Passed 8 focused core checks, 1 store check, complete native type-checking, optimized compilation, strict signing, exact v2.3/build-14 metadata checks, arm64/icon checks, and live expanded/collapsed/lock inspection. Optional code review and formal verification did not run. Preserved v2.2/build 13 under `build/previous.IqYCW4`. | Activity `bb0689e`; shell `a01102b`; this documentation checkpoint; signed project-root app |
 | v2.2 / build 13 | 2026-09-01 | Moved Category, Technical scope, and Technologies into the first three labelled Professional scope bullets so the root register can use three readable columns without losing project detail. Added case-insensitive labelled-scope parsing, explicit blank behavior, and backward-compatible separate-column precedence; the retired AI-usage column remains ignored. Existing glass UI and all project-management behavior are unchanged. Passed 20 focused core checks, 5 isolated store checks, complete native type-checking, cache-free optimized compilation, strict signing, exact metadata equality, arm64 executable/icon checks, promotion, and separate-instance root launch. Preserved v2.1/build 12 under `build/previous.ftKKT9`; removed generated intermediates and the smoke process. Optional review and formal verification did not run. | Source `ad84aa7`; this project documentation and delivery checkpoint |
 | v2.1 / build 12 | 2026-09-01 | Delivered the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the rail, added a full-window local sky/cloud/texture scene, switched native material to in-window sampling, and removed the normal opaque tint. Reduce Transparency retains a solid fallback; existing data and interaction paths are unchanged. Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability. Cache-free optimized compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, promotion, and separate-instance launch passed. Core/store suites were unchanged and not rerun; optional review and formal verification did not run. Preserved v2.0/build 11 under `build/previous.Yj7LyM`; removed generated intermediates and the smoke process. | Source `8c7981c`; source record `0c57d69`; root source record `9738555`; this delivery checkpoint |
