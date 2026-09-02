@@ -52,14 +52,19 @@ internal struct InstrumentLabel: View {
 
 /// A rounded, softly elevated information surface shared by project content.
 internal struct GlassCard<Content: View>: View {
+    private let contentPadding: CGFloat
     private let content: Content
 
     /// Stores the card content without introducing a second interaction layer.
+    /// - Parameter contentPadding: Inset between the card edge and its readable content.
     /// - Parameter content: Readable native content placed on the translucent surface.
-    internal init(@ViewBuilder content: () -> Content) { self.content = content() }
+    internal init(contentPadding: CGFloat = 22, @ViewBuilder content: () -> Content) {
+        self.contentPadding = contentPadding
+        self.content = content()
+    }
 
     internal var body: some View {
-        content.padding(22)
+        content.padding(contentPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(ControlTheme.surfaceStrong.opacity(0.72), in: RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
             .overlay {

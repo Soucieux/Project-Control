@@ -19,53 +19,69 @@ internal struct ProjectScreen: View {
                 if store.loading { ProgressView().controlSize(.small) }
                 Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
             }
-            GlassCard {
-                HStack(spacing: 24) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .center, spacing: 18) {
-                            ProjectIcon(project: project, size: 60)
-                            Text(project.name).font(.system(size: 38, weight: .light)).tracking(-1)
-                                .fixedSize(horizontal: false, vertical: true)
+            GlassCard(contentPadding: 16) {
+                VStack(alignment: .leading, spacing: 14) {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .top, spacing: 24) {
+                            identity.fixedSize(horizontal: true, vertical: false)
+                            Spacer(minLength: 0)
+                            NoteGauge(notes: notes)
                         }
-                        Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced()).foregroundStyle(ControlTheme.mint)
-                            .padding(.leading, 78)
+                        VStack(alignment: .leading, spacing: 16) {
+                            identity
+                            HStack { Spacer(minLength: 0); NoteGauge(notes: notes) }
+                        }
                     }
-                    Spacer(minLength: 0)
-                    NoteGauge(notes: notes)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .bottom, spacing: 28) {
+                            actions.padding(.leading, 78)
+                            healthSummary
+                            Spacer(minLength: 0)
+                        }
+                        HStack(alignment: .bottom, spacing: 18) {
+                            actions
+                            healthSummary
+                            Spacer(minLength: 0)
+                        }
+                        VStack(alignment: .leading, spacing: 14) {
+                            actions
+                            healthSummary
+                        }
+                    }
                 }
             }
-            actions
             if project.isStale || store.syncFailure != nil {
                 Text(ControlConstants.staleContent).font(.callout).foregroundStyle(ControlTheme.amber)
             }
             if let warning = project.sourceWarning {
                 Text(warning).font(.caption).foregroundStyle(ControlTheme.amber)
             }
-            ScrollView(.horizontal) {
-                HStack(spacing: 20) {
-                    ForEach(ProjectTab.allCases) { item in
-                        Button { tab = item } label: {
-                            Text(item.label).font(.system(size: 13, weight: tab == item ? .semibold : .regular))
-                                .foregroundStyle(tab == item ? ControlTheme.ink : ControlTheme.muted)
-                                .padding(.vertical, 12).contentShape(Rectangle())
-                                .overlay(alignment: .bottom) { if tab == item { Rectangle().fill(ControlTheme.signal).frame(height: 2) } }
-                        }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
+            VStack(alignment: .leading, spacing: 8) {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 20) {
+                        ForEach(ProjectTab.allCases) { item in
+                            Button { tab = item } label: {
+                                Text(item.label).font(.system(size: 13, weight: tab == item ? .semibold : .regular))
+                                    .foregroundStyle(tab == item ? ControlTheme.ink : ControlTheme.muted)
+                                    .padding(.vertical, 12).contentShape(Rectangle())
+                                    .overlay(alignment: .bottom) { if tab == item { Rectangle().fill(ControlTheme.signal).frame(height: 2) } }
+                            }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
+                        }
                     }
-                }
-            }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 14)
-                .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-            Group {
-                switch tab {
-                case .overview: ReadmeContent(blocks: project.overview, empty: ControlConstants.noIntroduction)
-                case .architecture: ReadmeContent(blocks: project.architecture, empty: ControlConstants.noArchitecture)
-                case .models: ReadmeContent(blocks: project.models, empty: ControlConstants.noModels)
-                case .workflows: workflows
-                case .notes: workNotes
-                case .history: HistoryList(entries: project.history)
-                }
-            }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
-            health
+                }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 14)
+                    .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                Group {
+                    switch tab {
+                    case .overview: ReadmeContent(blocks: project.overview, empty: ControlConstants.noIntroduction)
+                    case .architecture: ReadmeContent(blocks: project.architecture, empty: ControlConstants.noArchitecture)
+                    case .models: ReadmeContent(blocks: project.models, empty: ControlConstants.noModels)
+                    case .workflows: workflows
+                    case .notes: workNotes
+                    case .history: HistoryList(entries: project.history)
+                    }
+                }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
+            }.frame(maxWidth: .infinity, alignment: .leading)
         }
         .sheet(item: $editedNote) { note in
             NoteEditor(note: note) { updated in store.save(updated, for: project.id) }
@@ -79,38 +95,60 @@ internal struct ProjectScreen: View {
         } message: { Text(ControlConstants.deleteExplanation) }
     }
 
-    private var actions: some View {
-        GlassCard {
+    private var applicationTarget: URL? { store.application(for: project) }
+
+    private var identity: some View {
+        HStack(alignment: .center, spacing: 18) {
+            ProjectIcon(project: project, size: 60)
             VStack(alignment: .leading, spacing: 10) {
-            let target = store.application(for: project)
-            HStack(spacing: 10) {
-                Button { store.open(project.folder) } label: { Label(ControlConstants.folder, systemImage: ControlConstants.folderIcon) }
-                    .buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background).disabled(!project.folderAvailable)
-                Button { store.open(project.readme) } label: { Label(ControlConstants.read, systemImage: ControlConstants.readIcon) }
-                    .disabled(!project.readmeAvailable)
-                if target == nil && project.applications.count > 1 {
-                    Menu {
-                        ForEach(project.applications, id: \.self) { application in
-                            Button(application.deletingPathExtension().lastPathComponent) {
-                                store.launch(project, selectedApp: application)
-                            }
-                        }
-                    } label: { Label(ControlConstants.launch, systemImage: ControlConstants.playIcon) }
-                } else {
-                    Button { store.launch(project) } label: { Label(ControlConstants.launch, systemImage: ControlConstants.playIcon) }
-                }
-                if store.state.applications[project.id] != nil {
-                    Menu {
-                        Button(ControlConstants.clearApp) { store.clearApplication(for: project.id) }
-                    } label: { Image(systemName: ControlConstants.menuIcon) }.frame(width: 32)
-                        .help(ControlConstants.clearApp).disabled(!store.storageReady)
-                }
+                Text(project.name).font(.system(size: 38, weight: .light)).tracking(-1)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
+                    .foregroundStyle(ControlTheme.mint)
+            }
+        }
+    }
+
+    private var actions: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) { actionControls }
+                VStack(alignment: .leading, spacing: 10) { actionControls }
             }.controlSize(.large).buttonStyle(.bordered)
-            Text(target.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
+            Text(applicationTarget.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
                 + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
                 ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
                 .font(.caption).foregroundStyle(ControlTheme.muted)
-            }
+        }
+    }
+
+    @ViewBuilder private var actionControls: some View {
+        Button { store.open(project.folder) } label: { Label(ControlConstants.folder, systemImage: ControlConstants.folderIcon) }
+            .buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background).disabled(!project.folderAvailable)
+        Button { store.open(project.readme) } label: { Label(ControlConstants.read, systemImage: ControlConstants.readIcon) }
+            .disabled(!project.readmeAvailable)
+        HStack(spacing: 10) {
+            launchControls
+        }
+    }
+
+    @ViewBuilder private var launchControls: some View {
+        if applicationTarget == nil && project.applications.count > 1 {
+            Menu {
+                ForEach(project.applications, id: \.self) { application in
+                    Button(application.deletingPathExtension().lastPathComponent) {
+                        store.launch(project, selectedApp: application)
+                    }
+                }
+            } label: { Label(ControlConstants.launch, systemImage: ControlConstants.playIcon) }
+        } else {
+            Button { store.launch(project) } label: { Label(ControlConstants.launch, systemImage: ControlConstants.playIcon) }
+        }
+        if store.state.applications[project.id] != nil {
+            Menu {
+                Button(ControlConstants.clearApp) { store.clearApplication(for: project.id) }
+            } label: { Image(systemName: ControlConstants.menuIcon) }.frame(width: 32)
+                .help(ControlConstants.clearApp).disabled(!store.storageReady)
         }
     }
 
@@ -167,18 +205,20 @@ internal struct ProjectScreen: View {
         }
     }
 
-    private var health: some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                InstrumentLabel(title: ControlConstants.documentHealth)
-                Spacer()
-                Text(ControlConstants.runtimeUnknown).font(.caption).foregroundStyle(ControlTheme.muted)
-            }
-            Text(!project.folderAvailable ? ControlConstants.folderMissing : project.readmeAvailable ? ControlConstants.available : ControlConstants.noReadme)
-                .font(.caption).foregroundStyle(project.readmeAvailable ? ControlTheme.muted : ControlTheme.amber)
-            }
-        }.padding(.top, 8)
+    private var healthSummary: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            InstrumentLabel(title: ControlConstants.documentHealth)
+            Label(healthMessage, systemImage: project.folderAvailable && project.readmeAvailable
+                ? ControlConstants.completeIcon : ControlConstants.warningIcon)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(project.folderAvailable && project.readmeAvailable ? ControlTheme.mint : ControlTheme.amber)
+            Text(ControlConstants.runtimeUnknown).font(.caption).foregroundStyle(ControlTheme.muted)
+        }.fixedSize(horizontal: true, vertical: false)
+    }
+
+    private var healthMessage: String {
+        !project.folderAvailable ? ControlConstants.folderMissing
+            : project.readmeAvailable ? ControlConstants.available : ControlConstants.noReadme
     }
 }
 
