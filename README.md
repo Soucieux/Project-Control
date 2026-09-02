@@ -8,19 +8,25 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current locally delivered release is **v2.2 (build 13)**. It reads **Category**,
-**Technical scope**, and **Technologies** from the first three labelled list items in each root-register
-Professional scope cell. The compact three-column register therefore preserves the complete project
-summary without forcing metadata into narrow standalone columns. Older registers with separate
-classification columns remain compatible and take precedence when present, including explicit blanks.
+The current local release is **v2.3 (build 14)**. It adds a repository-level **Commit activity** tab
+that groups every Git commit reachable from local refs into newest-first calendar years and twelve
+fixed month columns. Counts use absolute 0, 1–4, 5–9, 10–14, and 15+ intensity levels; future months
+are dimmed and conceal their values. Hovering over a populated month shows each affected registered
+project's icon, name, and commit count. A commit touching more than one project appears once under
+each affected project, while the cell total still counts that Git commit once.
 
-The v2.1 cinematic glass interface and all existing README-derived content, project icons, structured
-work notes, app discovery, native tables, detail tabs, diagrams, source synchronization, motion, and
-accessibility fallbacks remain unchanged. All 20 focused core checks and 5 isolated store checks passed,
-including labelled-scope parsing, explicit blanks, case-insensitive labels, legacy-column precedence,
-and the retired AI-usage column. Complete native type-checking, cache-free optimized compilation,
-strict signing, exact source/bundle metadata equality, icon/executable checks, and a separate-instance
-project-root launch also passed. Optional code review and formal verification did not run.
+Project Control invokes the fixed system Git executable directly with read-only arguments. It reads
+commit timestamps, changed-file paths for top-level project mapping, and ref object identities—never
+commit messages, authors, file contents, repository scripts, or network data. Ref fingerprints join
+the existing README/app fingerprints so background and manual refreshes rebuild monthly activity.
+The interface now uses one continuous rounded black chassis across the whole window. Its exposed
+left area is the navigation rail, while an inset light-artwork panel sits above it for project details
+with four rounded corners and a narrow black perimeter. The detail panel uses a blurred rendering of
+the same local artwork shown clearly by the lock screen. The reference-style brand row restores the
+collapsed rail, and every navigation icon retains one fixed axis while labels fade in. Eight focused
+core checks, one store check, complete native
+type-checking, optimized compilation, strict signing, exact version/build checks, arm64/icon checks,
+and live root-app inspection passed. Optional code review and formal verification did not run.
 
 ## Quick start
 
@@ -35,7 +41,7 @@ open "Project Control.app"
 ```
 
 1. Choose **Choose repository…** and select the `Professional Quality` folder, not this subfolder.
-2. Use the top rail control to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Read README** action, and **Last read** timestamp. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon shares one centerline.
+2. Use the brand row at the top of the rail to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Commit activity**, **Read README** action, and **Last read** timestamp. Commit activity reads local Git timestamps, changed paths solely for project mapping, and ref identities; hover a populated month for the project distribution. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon shares one centerline.
 3. Open **Work notes → Add note**. Save a title, optional context, and status: **Next**, **In progress**, or **Done**. The ring counts completed notes, not overall project completion.
 4. **Overview** shows the README's overview or opening description. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables use native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow nodes and arrows show only documented connections. **Project history** stays with its project; repository content no longer occupies the footer.
 5. **Open folder** and **Read README** open the item outside the app. **Open App** detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
@@ -45,12 +51,8 @@ open "Project Control.app"
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The final **v2.2/build 13** application lives beside this README as **Project Control.app**. The
-replaced v2.1/build-12 bundle is preserved under `build/previous.ftKKT9/Project Control.app`;
-v2.0/build 11 remains under `build/previous.Yj7LyM/Project Control.app`; the unchanged v1.0 bundle
-remains under `build/previous.yMUK2z/Project Control.app`; v0.9 remains under
-`build/previous.6S5wt3/Project Control.app`, and the documented v0.8/v0.7 recoveries also remain.
-The separate v2.2 smoke-test process and all generated compiler/icon intermediates were removed.
+The signed **Project Control.app** beside this README is v2.3/build 14. The replaced v2.2/build-13
+bundle is preserved under `build/previous.IqYCW4`; older documented recovery bundles remain unchanged.
 
 ## Sidebar classification
 
@@ -77,7 +79,7 @@ project README does not block valid root metadata.
 ## Versioning and build delivery
 
 - Use `v<major>.<minor>` with a single minor digit from **0 through 9**: `v0.8 → v0.9 → v1.0`, never `v0.10`.
-- Every application update advances the release version and increments the integer build number. This metadata migration advances v2.1/build 12 to **v2.2/build 13**; its successor is **v2.3/build 14**. A clean recompilation of the same unchanged update does not create a new release.
+- Every application update advances the release version and increments the integer build number. This commit-activity release advances v2.2/build 13 to **v2.3/build 14**; its successor is **v2.4/build 15**. A clean recompilation of the same unchanged update does not create a new release.
 - Keep `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`, the release description here, the project changelog, and the repository README's project row/date/changelog aligned in the same batch. Do not relabel an existing signed bundle as a newer build.
 - Prepare the bundle under ignored `build/`, then check its signature before moving the complete bundle to **Project Control.app** at this project root. `make app` performs this promotion; `make run` opens that root-level app. Never leave the only finished app several folders deep.
 - Preserve a replaced root-level bundle in an ignored `build/previous.*` directory. If promotion fails, restore it. These recovery copies can be removed during an explicitly scoped cleanup.
@@ -93,16 +95,20 @@ legacy headings, and recovery. Keep markers with their owning headings when reor
 ```text
 README saved → background content check → mapped section parsing → native screen update
 Repository Projects table → registered project READMEs → project navigation and content
+Local Git refs → timestamps plus project-folder paths → monthly totals and hover distributions
 Local work notes → completed-note count and progress ring
 ```
 
 ### Synchronization implementation
 
-RepositoryReader reads only bounded repository/project READMEs and app identity metadata.
+RepositoryReader reads only bounded repository/project READMEs, read-only Git timestamps/ref
+identities, and app identity metadata. GitActivityReader invokes `/usr/bin/git` directly without a
+shell, using fixed `log --all --format=%ct` and `show-ref --head --hash` arguments.
 A background check runs approximately every two seconds while the app view is active. It compares
-fresh metadata and CryptoKit SHA-256 content digests, so same-size edits with preserved timestamps
-are detected. It captures identities before parsing so a concurrent edit triggers a later refresh.
-ControlStore publishes a complete snapshot on the main actor and preserves existing selection and notes.
+fresh metadata, Git refs, and CryptoKit SHA-256 content digests, so same-size README edits and ref
+changes are detected. It captures identities before parsing so a concurrent edit triggers a later
+refresh. ControlStore publishes a complete snapshot on the main actor and preserves existing
+selection and notes.
 
 An unreadable or invalid project README keeps that project's last good content visibly stale;
 other projects still update. A valid removal of a mapped section clears the old section. An invalid
@@ -124,6 +130,13 @@ the snapshot read time, not an assertion that stale project content or runtime h
 - History tables supply the latest thirty source-ordered entries. Standalone dates appear beside
   the project/version title; the detail body does not repeat them. Mapped release text supplies
   the header's version/build label, not arbitrary historical or protocol versions.
+- Commit activity uses the complete unfiltered `git log --all` record list. Valid years render newest
+  first. Changed paths are mapped only to current registered top-level project folders and never opened.
+  A multi-project commit contributes once to the cell total and once to each affected project's hover
+  count; records with no mapped project path appear as Repository-level. Invalid timestamps
+  contribute to the total but not monthly buckets; future-dated records contribute to the total and
+  their year while future cells remain dimmed and conceal counts. Distinct valid years are not treated
+  as a continuous range. No README filter, project classification, history limit, or pagination applies.
 - Each README read is limited to 2 MB and constrained to canonical paths within the repository.
   Fenced source code is excluded; Markdown/HTML is inert. No scripts, commands, remote images,
   model downloads, or source-code scans run.
@@ -138,7 +151,11 @@ Notes and application choices are saved atomically in the standard per-user Appl
 
 No README is edited. Automatic app discovery scans only the project folder's immediate visible `.app` children, not nested build/recovery folders. Bundle metadata and an executable entry point must be present and contained in the bundle; automatic candidates cannot escape the project through symlinks. A valid remembered manual location is the fallback when automatic detection is ambiguous or unavailable. Launching uses macOS's application-opening service only after Open App or an explicit app choice, without a shell or arguments. Runtime monitoring and arbitrary script launch are not implemented. Malformed local data disables note editing and preserves the file rather than silently resetting it; restore a known-good copy and relaunch. Opening an app does not require writable note storage, although a manual location cannot then be remembered.
 
-The development app is not sandboxed or notarized. Its scanner is restricted to selected-repository READMEs, app-bundle identity metadata, and filesystem metadata; the UI also asks macOS for discovered apps' icons. That is an application-level boundary, not an operating-system sandbox claim. It does not read project source files or executable contents. The app contains no network client.
+The development app is not sandboxed or notarized. Its scanner is restricted to selected-repository
+READMEs, Git commit timestamps/changed paths/ref identities, app-bundle identity metadata, and filesystem metadata;
+the UI also asks macOS for discovered apps' icons. That is an application-level boundary, not an
+operating-system sandbox claim. It does not read commit content, project source files, or executable
+contents. The app contains no network client.
 
 <!-- project-control:section=architecture -->
 ## Architecture
@@ -147,16 +164,16 @@ The development app is not sandboxed or notarized. Its scanner is restricted to 
 
 | Technology or concept | Use in this project |
 |---|---|
-| SwiftUI | Builds the layered glass shell, animated hierarchy rail, artwork lock, project screens, work-note editor, History, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
+| SwiftUI | Builds the black chassis, shared-artwork detail layer, animated hierarchy rail, artwork lock, project screens, work-note editor, History, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
 | AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions; ProjectIcon keeps app and fallback artwork consistent. |
 
 ### Backend & Application Logic
 
 | Technology or concept | Use in this project |
 |---|---|
-| Swift | Native application language. ControlStore owns selection and background reloads; RepositoryReader reads bounded source documents; ReadmeParser handles sections, tables, and history. |
+| Swift | Native application language. ControlStore owns selection and background reloads; RepositoryReader reads bounded source documents and activity snapshots; ReadmeParser handles sections, tables, and history. |
 | Swift concurrency | Runs README reads and change detection off the interface thread; updates the observable store on the main actor. |
-| Foundation | Provides bounded file reads, canonical paths, dates, regular expressions, and structured-data encoding. |
+| Foundation | Provides bounded file reads, canonical paths, Git process execution, calendar grouping, dates, regular expressions, and structured-data encoding. |
 | Directed graphs | WorkflowParser and WorkflowDiagram render documented nodes, arrows, branches, and merges without inventing relationships. |
 
 ### Data & Storage
@@ -164,6 +181,7 @@ The development app is not sandboxed or notarized. Its scanner is restricted to 
 | Technology or concept | Use in this project |
 |---|---|
 | Markdown | Repository/project README files are the content baseline. Stable section markers select the app-visible subset. |
+| Git metadata | Complete local reachable-commit timestamps supply monthly activity; changed paths map commits to registered projects for hover details; ref object identities trigger refresh without reading messages, authors, or file contents. |
 | JSON | WorkspaceStorage atomically saves local work notes and app choices outside the repository; malformed data is never reset automatically. |
 | UserDefaults | Remembers the last successfully selected repository separately from work-note storage. |
 
@@ -171,7 +189,7 @@ The development app is not sandboxed or notarized. Its scanner is restricted to 
 
 | Technology or concept | Use in this project |
 |---|---|
-| CryptoKit | Computes bounded README content digests for refresh detection, including same-size edits with preserved timestamps. |
+| CryptoKit | Computes bounded README and Git-ref content digests for refresh detection. |
 | Uniform Type Identifiers | Constrains the native application picker to application bundles. |
 | Canonical path validation | Keeps README reads inside the selected repository. ApplicationLocator validates top-level app identity; discovery never launches apps. |
 
@@ -182,7 +200,7 @@ No LLM, embedding service, RAG index, network client, or automatic project execu
 ```text
 Project Control/
 ├── Sources/Core/       # README extraction, models, constants, local storage
-├── Sources/App/        # Native state, glass interface, backdrop, lock artwork
+├── Sources/App/        # Native state, layered interface, shared detail/lock artwork
 ├── Resources/          # Bundle identity, version, and editable Nexus icon
 ├── Tests/              # Focused synthetic and read-only repository checks
 ├── Makefile            # Local build, focused checks, launch
@@ -192,11 +210,11 @@ Project Control/
 
 ## Design reference
 
-The SwiftUI source is the canonical implementation of the approved cinematic glass direction.
-`CinematicBackground.swift` owns the transparent-window bridge, full-window local scene,
-in-window material, and local artwork lock;
-`DesignSystem.swift` owns the sage/lime/ink palette, rounded glass cards, and 0.62–0.78 second
-motion; `ControlWindow.swift` owns the layered rail, content surface, hierarchy, and lock state.
+The SwiftUI source is the canonical implementation of the approved cinematic direction.
+`CinematicBackground.swift` owns the transparent-window bridge and the one local artwork source
+shared by the detail and lock presentations; `DesignSystem.swift` owns the sage/lime/ink palette,
+rounded cards, black-chassis geometry, and 0.62–0.78 second motion; `ControlWindow.swift` owns the
+bottom chassis, inset artwork surface, reference-style rail, hierarchy, and lock state.
 The superseded Vector/Lens HTML and JavaScript preview is retained in Git history rather than as
 an active project file, preventing a stale reference from being mistaken for the current interface.
 
@@ -209,6 +227,21 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.3 delivery evidence
+
+The v2.3/build-14 source adds the read-only repository Commit activity tab and its project-aware
+hover distributions. The completed visual correction uses one rounded black chassis as the full
+window base, exposes that chassis as the left rail and detail perimeter, and places one rounded
+light-artwork detail panel above it. The active detail view blurs the same artwork that the lock view
+shows clearly. The expanded brand row and collapsed 40-point icon column share one leading axis;
+top navigation, scrolling project groups, and the pinned local-only status remain structurally
+separate. Reduce Motion suppresses transitions, while Reduce Transparency retains the solid detail
+fallback. Eight focused activity core checks, one store check, native type-checking, optimized
+compilation, strict signing, metadata, executable, icon, and live expanded/collapsed/lock checks
+passed. Optional code review and formal verification did not run. The activity implementation is
+committed in `bb0689e`, the shell implementation is committed in `a01102b`, and this documentation
+checkpoint records their delivered state.
 
 ### v2.2 delivery evidence
 
@@ -351,7 +384,7 @@ make test
 make app
 ```
 
-`make test-core` covers README topic ownership, structured tables and literal identifiers, overview formatting, explicit diagram branches/merges, source-code exclusion, histories, release/build parsing, missing documents, refresh fingerprints, app discovery/ambiguity/symlink boundaries, note persistence, and corrupt data. `make test-store` checks queued repository changes, parent/child selection across refreshes, note mutations, save failures, and automatic/manual app resolution using isolated storage/preferences; it never launches applications or reads the user's workspace. `make test` runs both focused targets. Disposable app fixtures are never executed and are removed afterward. A read-only smoke check also checks this repository's register and Local Assistant's model tables, five request routes, and RAG diagram. No other subproject's suite runs.
+`make test-core` covers README topic ownership, structured tables and literal identifiers, overview formatting, explicit diagram branches/merges, source-code exclusion, histories, release/build parsing, missing documents, refresh fingerprints, commit totals/months/intensities/future states, app discovery/ambiguity/symlink boundaries, note persistence, and corrupt data. `make test-store` checks queued repository changes, parent/child selection across refreshes, commit-activity publication, note mutations, save failures, and automatic/manual app resolution using isolated storage/preferences; it never launches applications or reads the user's workspace. `make test` runs both focused targets. Disposable app fixtures are never executed and are removed afterward. Read-only smoke checks also cover the live repository register, Git timestamp/ref access, and Local Assistant's model tables, five request routes, and RAG diagram. No other subproject's suite runs.
 
 For v0.2, focused packaging checks confirmed all ten icon sizes and their stored source pixels, matching source/bundled metadata and icon files, valid signatures, unchanged v0.1 recovery files, and launch from the root-level v0.2 app. Eight PNG icon representations round-tripped exactly. macOS `iconutil` changes translucent RGB values when exporting the 16/32-pixel ARGB representations, so those were checked against the packed channel data instead. This does not substitute for actual Dock inspection. Icon packaging required running the native tool outside the agent sandbox; no app permission or privacy setting was changed.
 
@@ -377,8 +410,8 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 
 ### UI acceptance rules
 
-- Follow the root [full-window glass acceptance rule](../AGENTS.md#project-control). Keep long content inside the bounded surface and hide its scrollbar indicator.
-- Keep the black hierarchy rail behind the content surface with continuous outer corners. Expand or collapse it over approximately 0.78 seconds, fade labels, and keep every compact icon centered on exactly the same rail axis.
+- Keep exactly two visible shell layers: one rounded black chassis covering the complete window, and one inset light-artwork surface covering only the detail region. The chassis remains visible as the left rail and the narrow perimeter around all four detail corners. Do not place a desktop-blur or artwork layer under the chassis. Keep long content inside the bounded detail surface and hide its scrollbar indicator.
+- Use the same local artwork source for the active detail panel and the lock screen: blur it behind normal content and show it clearly while locked. Expand or collapse the rail over approximately 0.78 seconds, fade labels without re-centering icons, keep every compact icon on one fixed axis, and make the brand control visible in both states.
 - Animate each disclosed project row into or out of its category over approximately 0.62 seconds with a small stagger; do not animate only the category container. Respect Reduce Motion.
 - Show the Nexus app icon beside the Project Control title inside the rounded content header. Reserve native title-bar safe space separately; repository text must yield before the lock and ellipsis controls overlap.
 - The lock control hides the complete rail and content surface without authentication, black footer, or status row. Show only local artwork and place Unlock at the geometric center of the application. Respect Reduce Transparency.
@@ -386,6 +419,7 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 - Group projects by the explicit Category column, with counts and keyboard-focusable full-row disclosure buttons. Keep scope and tags separate, following the root [Project Control tag policy](../AGENTS.md#project-control) and [README contract](../README.md#readme-content-contract-for-project-control). Preserve source order, project identity, selection, and notes; check wrapping tags at the minimum supported width.
 - Keep the project register search-free; the full padded row is the selection target and remains a native keyboard-focusable button.
 - Keep a selectable repository parent above its indented projects. Repository overview/history, Read README, and Last read belong on that parent's screen, not in a footer.
+- Keep Commit activity on the repository parent only. Show newest years first, one year label and twelve equal month cells, fixed absolute intensity thresholds, concealed future values, an accessible five-level legend, the complete loaded commit total, and distinct valid-year count. At widths up to 940 points, use the compact metrics without horizontal clipping. Hovering a populated cell shows each affected registered project's icon, name, and participation count; disclose that multi-project totals can overlap.
 - Show the same project icon in its sidebar row and detail header when an unambiguous project-root app exists; otherwise use a neutral symbol.
 - Size detail icons consistently with the repository reference and align their center with the project-name line, not the combined title/version stack. Check real and fallback icons with short and wrapped names.
 - Keep Open App beside Read README. Discover project-root apps first; use manual location only as the fallback, and never launch during scanning.
@@ -407,6 +441,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| v2.3 / build 14 | 2026-09-01 | Added repository Commit activity with newest-first years, twelve responsive month cells, fixed absolute intensities, concealed future values, complete unique-commit totals, and per-project hover distributions with real project icons when available. Read-only Git access now includes changed paths solely to map registered top-level folders; messages, authors, and file contents remain unread. Reworked the shell into a full-window rounded black chassis plus an inset four-corner light-artwork detail layer, reused the same artwork clearly for the lock screen and blurred behind normal content, removed rail/detail overlap and visible scrollbars, adopted the reference-style brand control, and kept every rail icon on one fixed animation axis. Passed 8 focused core checks, 1 store check, complete native type-checking, optimized compilation, strict signing, exact v2.3/build-14 metadata checks, arm64/icon checks, and live expanded/collapsed/lock inspection. Optional code review and formal verification did not run. Preserved v2.2/build 13 under `build/previous.IqYCW4`. | Activity `bb0689e`; shell `a01102b`; this documentation checkpoint; signed project-root app |
 | v2.2 / build 13 | 2026-09-01 | Moved Category, Technical scope, and Technologies into the first three labelled Professional scope bullets so the root register can use three readable columns without losing project detail. Added case-insensitive labelled-scope parsing, explicit blank behavior, and backward-compatible separate-column precedence; the retired AI-usage column remains ignored. Existing glass UI and all project-management behavior are unchanged. Passed 20 focused core checks, 5 isolated store checks, complete native type-checking, cache-free optimized compilation, strict signing, exact metadata equality, arm64 executable/icon checks, promotion, and separate-instance root launch. Preserved v2.1/build 12 under `build/previous.ftKKT9`; removed generated intermediates and the smoke process. Optional review and formal verification did not run. | Source `ad84aa7`; this project documentation and delivery checkpoint |
 | v2.1 / build 12 | 2026-09-01 | Delivered the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the rail, added a full-window local sky/cloud/texture scene, switched native material to in-window sampling, and removed the normal opaque tint. Reduce Transparency retains a solid fallback; existing data and interaction paths are unchanged. Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability. Cache-free optimized compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, promotion, and separate-instance launch passed. Core/store suites were unchanged and not rerun; optional review and formal verification did not run. Preserved v2.0/build 11 under `build/previous.Yj7LyM`; removed generated intermediates and the smoke process. | Source `8c7981c`; source record `0c57d69`; root source record `9738555`; this delivery checkpoint |
 | v2.0 / build 11 | 2026-09-01 | Delivered the complete cinematic glass redesign: a transparent native window, real behind-window desktop blur, one outlined rounded shell, aligned expanding/collapsing hierarchy rail, staggered per-project disclosure motion, bounded internal scrolling with hidden indicators, rounded content cards, and a no-password artwork lock with centered Unlock. The user's screenshot rejected the first signed candidate because it showed an internal green field; `0e07484` replaced it with actual behind-window material. Offscreen inspection also removed a redundant lock caption that crossed the fortress silhouette. Preserved README-derived data, notes, classifications, icons, app discovery, tables, tabs, diagrams, and background synchronization. Passed 323 core checks, 39 store checks, native type-checking, optimized compilation, strict signing, exact source/bundle metadata equality, and separate-instance root launch. Final live capture remained unavailable because ScreenCaptureKit access was denied; optional review and formal verification did not run. Removed the superseded v2.0 bundle and generated intermediates; preserved v1.0 and documented older recoveries. Superseded Vector/Lens design files remain in Git history. | Initial source `32f2df4`; desktop glass `0e07484`; source records `2f44ecd`, `92c5186`; root records `92491bd`, `a1edc1d`; this delivery checkpoint |
