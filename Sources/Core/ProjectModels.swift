@@ -44,6 +44,19 @@ internal enum ProjectTab: Int, CaseIterable, Identifiable {
     }
 }
 
+/// Stable repository tab identities keep README content and Git activity visibly separate.
+internal enum RepositoryTab: Int, CaseIterable, Identifiable {
+    case overview, history, activity
+    internal var id: Int { rawValue }
+    internal var label: String {
+        switch self {
+        case .overview: ControlConstants.overview
+        case .history: ControlConstants.repositoryHistory
+        case .activity: ControlConstants.commitActivity
+        }
+    }
+}
+
 /// One source-labelled node at an explicit depth in a workflow.
 internal struct WorkflowNode: Identifiable {
     internal let id: Int
@@ -89,6 +102,29 @@ internal struct ProjectCategory: Identifiable {
     internal var id: String { name }
 }
 
+/// Twelve source-derived commit counts for one valid calendar year.
+internal struct CommitActivityYear: Identifiable, Equatable {
+    internal let year: Int
+    internal let months: [Int]
+    internal var projectCounts: [[String: Int]] = []
+    internal var id: Int { year }
+}
+
+/// One local Git record containing only its timestamp and mapped project identities.
+internal struct GitCommitMetadata: Equatable {
+    internal let timestamp: String
+    internal let projectIDs: Set<String>
+}
+
+/// Complete loaded Git activity; totals remain independent from valid monthly buckets.
+internal struct CommitActivity: Equatable {
+    internal let years: [CommitActivityYear]
+    internal let totalCount: Int
+    internal let available: Bool
+    internal var yearCount: Int { years.count }
+    internal static let unavailable = CommitActivity(years: [], totalCount: 0, available: false)
+}
+
 /// Read-only, display-ready information for a project registered in the root README.
 internal struct ProjectRecord: Identifiable {
     internal let id: String
@@ -118,6 +154,7 @@ internal struct RepositorySnapshot {
     internal let readAt: Date
     internal let fingerprint: [String]
     internal var overview: [ReadmeBlock] = []
+    internal var commitActivity: CommitActivity = .unavailable
 
     internal var categories: [ProjectCategory] {
         var groups: [ProjectCategory] = []

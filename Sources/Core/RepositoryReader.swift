@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 
-/// Loads bounded READMEs and app identity metadata; never reads source files or runs project commands.
+/// Loads bounded READMEs, Git timestamps and paths, and app identity metadata; never reads source files or executes repository code.
 internal enum RepositoryReader {
     /// Reads a bounded regular file as UTF-8, rejecting symlink destinations outside the root.
     /// - Parameters: url: README path. root: Allowed repository boundary.
@@ -35,7 +35,7 @@ internal enum RepositoryReader {
     internal static func load(_ root: URL) throws -> RepositorySnapshot {
         let canonical = root.resolvingSymlinksInPath().standardizedFileURL
         let rootReadme = canonical.appendingPathComponent(ControlConstants.readme)
-        var identities = [documentIdentity(rootReadme, within: canonical)]
+        var identities = [documentIdentity(rootReadme, within: canonical), GitActivityReader.fingerprint(canonical)]
         let document = try read(rootReadme, within: canonical)
         let sections = try ReadmeParser.validatedSections(document)
         let explicitlyMapped = sections.contains { $0.mapping != nil }
@@ -71,9 +71,11 @@ internal enum RepositoryReader {
                 return record
             }
         }
+        let commitActivity = GitActivityReader.load(canonical, projects: projects)
         return RepositorySnapshot(root: canonical, projects: projects, history: ReadmeParser.history(sections),
             readAt: Date(), fingerprint: identities,
-            overview: ReadmeParser.overview(sections, fallback: ControlConstants.noRepositoryOverview))
+            overview: ReadmeParser.overview(sections, fallback: ControlConstants.noRepositoryOverview),
+            commitActivity: commitActivity)
     }
 
     /// Reads legacy column metadata first, then falls back to a labelled scope value when the column is absent.
@@ -130,7 +132,8 @@ internal enum RepositoryReader {
     /// - Parameter snapshot: Last successful snapshot.
     /// - Returns: Ordered content/metadata identities, including missing or unreadable files.
     internal static func fingerprint(_ snapshot: RepositorySnapshot) -> [String] {
-        [documentIdentity(snapshot.root.appendingPathComponent(ControlConstants.readme), within: snapshot.root)]
+        [documentIdentity(snapshot.root.appendingPathComponent(ControlConstants.readme), within: snapshot.root),
+            GitActivityReader.fingerprint(snapshot.root)]
             + snapshot.projects.flatMap { projectFingerprint($0.folder, within: snapshot.root) }
     }
 

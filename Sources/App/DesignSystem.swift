@@ -18,6 +18,14 @@ internal enum ControlTheme {
     internal static let sceneBottom = Color(red: 0.82, green: 0.78, blue: 0.66)
     internal static let sceneWater = Color(red: 0.28, green: 0.48, blue: 0.51)
     internal static let cloud = Color(red: 0.95, green: 0.89, blue: 0.72)
+    internal static let activityLevels = [
+        Color.white.opacity(0.22),
+        Color(red: 0.76, green: 0.84, blue: 0.67),
+        Color(red: 0.50, green: 0.66, blue: 0.48),
+        Color(red: 0.28, green: 0.50, blue: 0.37),
+        Color(red: 0.10, green: 0.29, blue: 0.22)
+    ]
+    internal static let activityFuture = Color.white.opacity(0.08)
     internal static let motion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.62)
     internal static let navigationMotion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.78)
     internal static let cornerRadius: CGFloat = 26

@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// The repository parent owns its README overview, history, source action, and read timestamp.
+/// The repository parent owns its README overview, history, commit activity, source action, and read timestamp.
 internal struct RepositoryScreen: View {
     @ObservedObject internal var store: ControlStore
     internal let snapshot: RepositorySnapshot
-    @State private var showHistory = false
+    @State private var tab = RepositoryTab.overview
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     internal var body: some View {
@@ -32,24 +32,28 @@ internal struct RepositoryScreen: View {
                     .font(.callout).foregroundStyle(ControlTheme.amber)
             }
             HStack(spacing: 20) {
-                ForEach([false, true], id: \.self) { history in
-                    Button { showHistory = history } label: {
-                        Text(history ? ControlConstants.repositoryHistory : ControlConstants.overview)
-                            .font(.system(size: 13, weight: showHistory == history ? .semibold : .regular))
-                            .foregroundStyle(showHistory == history ? ControlTheme.ink : ControlTheme.muted)
+                ForEach(RepositoryTab.allCases) { item in
+                    Button { tab = item } label: {
+                        Text(item.label)
+                            .font(.system(size: 13, weight: tab == item ? .semibold : .regular))
+                            .foregroundStyle(tab == item ? ControlTheme.ink : ControlTheme.muted)
                             .padding(.vertical, 12).contentShape(Rectangle())
                             .overlay(alignment: .bottom) {
-                                if showHistory == history { Rectangle().fill(ControlTheme.signal).frame(height: 2) }
+                                if tab == item { Rectangle().fill(ControlTheme.signal).frame(height: 2) }
                             }
-                    }.buttonStyle(.plain).accessibilityAddTraits(showHistory == history ? .isSelected : [])
+                    }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
                 }
                 Spacer(minLength: 0)
             }.padding(.horizontal, 14)
                 .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
             Group {
-                if showHistory { HistoryList(entries: snapshot.history) }
-                else { ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview) }
-            }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: showHistory)
+                switch tab {
+                case .overview: ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview)
+                case .history: HistoryList(entries: snapshot.history)
+                case .activity: CommitActivityView(activity: snapshot.commitActivity,
+                    projects: snapshot.projects, now: Date())
+                }
+            }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
         }
     }
 }

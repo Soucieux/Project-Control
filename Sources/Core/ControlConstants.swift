@@ -14,6 +14,18 @@ internal enum ControlConstants {
     internal static let stateFile = "workspace.json"
     internal static let appExtension = "app"
     internal static let folderPreference = "repositoryPath"
+    internal static let gitExecutable = "/usr/bin/git"
+    internal static let gitCurrentDirectory = "-C"
+    internal static let gitLog = "log"
+    internal static let gitAll = "--all"
+    internal static let gitTimestampRecordFormat = "--format=%x1e%ct"
+    internal static let gitNameOnly = "--name-only"
+    internal static let gitNoRenames = "--no-renames"
+    internal static let gitRecordPrefix = "\u{001E}"
+    internal static let gitShowReference = "show-ref"
+    internal static let gitHead = "--head"
+    internal static let gitHashOnly = "--hash"
+    internal static let gitUnavailableFingerprint = "git-unavailable"
     internal static let projectsHeading = "projects"
     internal static let categoryColumn = "category"
     internal static let technicalScopeColumn = "technical scope"
@@ -96,12 +108,31 @@ internal enum ControlConstants {
     internal static let changeRepository = "Change repository…"
     internal static let refresh = "Refresh now"
     internal static let repository = "REPOSITORY"
-    internal static let repositorySummary = "Overview & history"
+    internal static let repositorySummary = "Overview, history & activity"
     internal static let noRepositoryOverview = "No repository overview documented. Open the README for more context."
     internal static let overview = "Overview"
     internal static let notes = "Work notes"
     internal static let history = "Project history"
     internal static let repositoryHistory = "Repository history"
+    internal static let commitActivity = "Commit activity"
+    internal static let activityByMonth = "Activity by month"
+    internal static let commitActivityExplanation = "All reachable Git commits grouped by timestamp. Commit content is never read."
+    internal static let commitActivityUnavailable = "Commit activity is unavailable because this folder has no readable Git history."
+    internal static let commitDistributionTitleFormat = "%@ %d"
+    internal static let commitCountFormat = "%d commits"
+    internal static let repositoryLevel = "Repository-level"
+    internal static let multiProjectCommitNote = "A commit touching multiple projects appears in each affected project."
+    internal static let repositoryActivityID = "repository-level"
+    internal static let futureMonths = "Future months are dimmed"
+    internal static let less = "Less"
+    internal static let more = "More"
+    internal static let commitActivitySummaryRemainderFormat = "commits logged across %d years"
+    internal static let commitMonthAccessibilityFormat = "%@ %d: %d commits"
+    internal static let futureMonthAccessibilityFormat = "%@ %d: future month"
+    internal static let commitActivityMonthLabels = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+        "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    internal static let commitActivityMonthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"]
     internal static let architecture = "Architecture"
     internal static let models = "Models"
     internal static let workflow = "Workflows"
@@ -178,6 +209,8 @@ internal enum ControlConstants {
     internal static let releaseUnknown = "Release not specified"
     internal static let notesLocked = "Notes are read-only until the saved workspace can be loaded."
     internal static let maxDiagramNodes = 32
+    internal static let monthCount = 12
+    internal static let activityCompactBreakpoint: CGFloat = 940
     internal static let maxReadmeBytes = 2_000_000
     internal static let refreshSeconds: TimeInterval = 2
 }

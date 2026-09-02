@@ -106,7 +106,8 @@ internal final class ControlStore: ObservableObject {
                     return retained
                 }
                 snapshot = RepositorySnapshot(root: result.root, projects: projects, history: result.history,
-                    readAt: result.readAt, fingerprint: result.fingerprint, overview: result.overview)
+                    readAt: result.readAt, fingerprint: result.fingerprint, overview: result.overview,
+                    commitActivity: result.commitActivity)
                 syncFailure = nil
                 fingerprint = result.fingerprint
                 if selection != result.root.path && !result.projects.contains(where: { $0.id == selection }) {

@@ -11,6 +11,11 @@ internal enum CoreTests {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
+        if CommandLine.arguments.contains(TestConstants.activityOnly) {
+            commitActivityChecks(root)
+            print(TestConstants.passed + String(count))
+            return
+        }
         if CommandLine.arguments.contains(TestConstants.classificationOnly) {
             try classificationChecks(root)
             liveTechnologyChecks(try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot)))
@@ -61,6 +66,7 @@ internal enum CoreTests {
         parserChecks()
         tableChecks()
         architectureHistoryChecks()
+        commitActivityChecks(root)
         try mappingChecks(root)
         try classificationChecks(root)
         try aliasChecks(repository, project: project, outside: outside)
@@ -97,6 +103,54 @@ internal enum CoreTests {
             }
         }
         print(TestConstants.passed + String(count))
+    }
+
+    /// Checks unfiltered totals, valid-month grouping, fixed intensity, future handling, and live Git loading.
+    /// - Parameter root: Disposable non-Git directory used to exercise the unavailable state.
+    /// - Returns: Nothing; terminates on an activity calculation or read-boundary regression.
+    private static func commitActivityChecks(_ root: URL) {
+        var calendar = Calendar(identifier: .gregorian)
+        guard let timeZone = TimeZone(secondsFromGMT: 0),
+              let now = ISO8601DateFormatter().date(from: TestConstants.activityNow) else {
+            fatalError(TestConstants.checkActivityFuture)
+        }
+        calendar.timeZone = timeZone
+        let activity = CommitActivityCalculator.summarize(TestConstants.activityTimestamps, calendar: calendar)
+        check(activity.available && activity.totalCount == TestConstants.activityTimestamps.count,
+            TestConstants.checkActivityTotal)
+        check(activity.years.map(\.year) == [2026, 2024]
+            && activity.yearCount == 2
+            && activity.years.allSatisfy { $0.months.count == ControlConstants.monthCount },
+            TestConstants.checkActivityYears)
+        check(activity.years[1].months[0] == 2 && activity.years[1].months[4] == 1
+            && activity.years[0].months[11] == 1, TestConstants.checkActivityMonths)
+        check([0, 1, 4, 5, 9, 10, 14, 15, 99].map { CommitActivityCalculator.intensity(for: $0) }
+            == [0, 1, 1, 2, 2, 3, 3, 4, 4],
+            TestConstants.checkActivityIntensity)
+        check(!CommitActivityCalculator.isFuture(year: 2026, month: 9, relativeTo: now, calendar: calendar)
+            && CommitActivityCalculator.isFuture(year: 2026, month: 10, relativeTo: now, calendar: calendar)
+            && !CommitActivityCalculator.isFuture(year: 2025, month: 12, relativeTo: now, calendar: calendar),
+            TestConstants.checkActivityFuture)
+        check(!GitActivityReader.load(root, calendar: calendar).available, TestConstants.checkActivityUnavailable)
+        let liveRoot = URL(fileURLWithPath: TestConstants.liveRoot)
+        guard let snapshot = try? RepositoryReader.load(liveRoot), let project = snapshot.projects.first else {
+            fatalError(TestConstants.checkActivityDistribution)
+        }
+        let syntheticOutput = ControlConstants.gitRecordPrefix + TestConstants.activityTimestamps[0]
+            + ControlConstants.newline + project.folder.lastPathComponent + ControlConstants.slash + ControlConstants.readme
+            + ControlConstants.newline + ControlConstants.gitRecordPrefix + TestConstants.activityTimestamps[1]
+            + ControlConstants.newline + ControlConstants.readme
+        let records = GitActivityReader.records(from: syntheticOutput, projects: snapshot.projects)
+        let distributed = CommitActivityCalculator.summarize(records, calendar: calendar)
+        check(records.count == 2 && records[0].projectIDs == [project.id] && records[1].projectIDs.isEmpty
+            && distributed.years[0].projectCounts[0][project.id] == 1
+            && distributed.years[0].projectCounts[0][ControlConstants.repositoryActivityID] == 1,
+            TestConstants.checkActivityDistribution)
+        let live = GitActivityReader.load(liveRoot, projects: snapshot.projects, calendar: calendar)
+        check(live.available && live.totalCount > 0 && !live.years.isEmpty
+            && live.years.flatMap(\.projectCounts).contains { !$0.isEmpty }
+            && GitActivityReader.fingerprint(liveRoot) != ControlConstants.gitUnavailableFingerprint,
+            TestConstants.checkActivityLive)
     }
 
     /// Checks independent optional classifications, grouping, compatibility, and live register edits.

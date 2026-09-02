@@ -22,6 +22,11 @@ internal enum StoreTests {
             try TestConstants.rootReadme.write(to: folder.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
         }
         let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
+        if CommandLine.arguments.contains(TestConstants.activityOnly) {
+            await activityPublishingCheck(secondRoot, storage: storage, preferences: preferences)
+            print(TestConstants.storePassed + String(count))
+            return
+        }
         if CommandLine.arguments.contains(TestConstants.classificationOnly) {
             try await classificationRecoveryCheck(secondRoot, storage: storage, preferences: preferences)
             print(TestConstants.storePassed + String(count))
@@ -74,6 +79,19 @@ internal enum StoreTests {
         let failing = ControlStore(storage: WorkspaceStorage(file: blocked.appendingPathComponent(ControlConstants.stateFile)), preferences: preferences)
         check(!failing.save(note, for: TestConstants.project) && failing.notes(for: TestConstants.project).isEmpty, TestConstants.checkStoreFailedSave)
         print(TestConstants.storePassed + String(count))
+    }
+
+    /// Confirms that store publication preserves the complete activity supplied by the repository reader.
+    /// - Parameters: root: Disposable selected repository. storage: Isolated local state. preferences: Isolated repository preference.
+    /// - Returns: Nothing; terminates if activity is discarded or recalculated.
+    private static func activityPublishingCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async {
+        let expected = CommitActivity(years: [CommitActivityYear(year: 2026,
+            months: Array(repeating: 1, count: ControlConstants.monthCount))], totalCount: 12, available: true)
+        let result = RepositorySnapshot(root: root.resolvingSymlinksInPath().standardizedFileURL,
+            projects: [], history: [], readAt: Date(), fingerprint: [], commitActivity: expected)
+        let store = ControlStore(storage: storage, preferences: preferences, readRepository: { _ in result })
+        await store.reload(root)
+        check(store.snapshot?.commitActivity == expected, TestConstants.checkActivityStore)
     }
 
     /// Preserves project identity and notes while root-owned classification changes over stale content.

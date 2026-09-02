@@ -41,13 +41,16 @@ internal enum TestConstants {
     internal static let tagsHeader = "tEcHnOlOgIeS"
     internal static let ignoredTagsHeader = "Legacy technologies"
     internal static let classificationOnly = "--classification"
+    internal static let activityOnly = "--activity"
+    internal static let activityTimestamps = ["1705276800", "1705708800", "1714521600", "1796083200", "invalid"]
+    internal static let activityNow = "2026-09-01T00:00:00Z"
     internal static let hostedTechnologyTags = ["Next.js", "LangGraph", "Hosted AI"]
     internal static let literalTechnologyTags = ["Local AI", "RAG", "C++", "model_name-v1"]
     internal static let liveTechnologyTags = [
         "Local Assistant": ["SwiftUI", "Local AI", "RAG"],
         "Prospect Copilot": ["Next.js", "LangGraph", "Hosted AI"],
         "OpenClaw": ["AI agents", "Embeddings", "Scheduled workflows"],
-        "Project Control": ["SwiftUI", "README-driven"],
+        "Project Control": ["SwiftUI", "README-driven", "Git metadata"],
         "Knowledge Transfer": ["Markdown", "React", "Obsidian Canvas"],
         "Python Accomplishments": ["Python", "Browser automation", "Speech APIs"]
     ]
@@ -63,6 +66,15 @@ internal enum TestConstants {
     internal static let checkClassificationRefresh = "root metadata edits regroup existing path identities without a rebuild"
     internal static let checkClassificationStale = "root classification refreshes and clears while project details remain stale"
     internal static let checkLiveCategories = "all six registered projects use the approved five source-driven categories"
+    internal static let checkActivityTotal = "activity total includes every loaded timestamp record"
+    internal static let checkActivityYears = "activity uses newest-first distinct valid years with twelve months each"
+    internal static let checkActivityMonths = "valid timestamps increment their exact calendar months"
+    internal static let checkActivityIntensity = "activity intensity uses fixed absolute thresholds"
+    internal static let checkActivityFuture = "only months strictly later than the current month are future"
+    internal static let checkActivityUnavailable = "non-Git folders expose activity as unavailable"
+    internal static let checkActivityLive = "the selected Git repository exposes reachable commit timestamps and ref identity"
+    internal static let checkActivityDistribution = "changed paths map each commit once to every affected registered project"
+    internal static let checkActivityStore = "the store publishes loaded commit activity without recalculating it"
     internal static let technologyNames = [
         "Local Assistant": ["Retrieval-Augmented Generation (RAG)", "Embeddings", "Qwen3-4B Q4_K_M", "Qwen3-Embedding-0.6B Q8_0", "llama.cpp", "GGUF", "Whisper Small", "WhisperKit", "Core ML", "Optical character recognition (OCR)", "Apple Vision", "SwiftUI", "AppKit", "Swift", "Foundation", "Indexing", "CoreServices", "PDFKit", "ZIPFoundation", "SQLite", "SQLite FTS5", "sqlite-vec", "Security-scoped bookmarks", "App Sandbox", "Agent-to-Agent (A2A)", "SSH"],
         "Prospect Copilot": ["LangGraph", "LangChain", "DeepSeek deepseek-chat", "BANT", "MEDDIC", "React", "React DOM", "Next.js", "TypeScript", "react-markdown", "remark-gfm", "Node.js", "Zod", "Cheerio", "Bounded concurrency", "Composite scoring", "IndexedDB", "idb-keyval", "localStorage", "Server-sent events (SSE)", "OpenAI-compatible API", "ipaddr.js", "Server-side request forgery (SSRF) protection"],
