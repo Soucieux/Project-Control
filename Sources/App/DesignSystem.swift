@@ -30,6 +30,13 @@ internal enum ControlTheme {
     internal static let navigationMotion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.78)
     internal static let cornerRadius: CGFloat = 26
     internal static let cardRadius: CGFloat = 18
+    internal static let detailFrameInset: CGFloat = 8
+    internal static let detailFrameWidth: CGFloat = 1
+    internal static let detailBackdropBlur: CGFloat = 10
+    internal static let collapsedRailWidth: CGFloat = 72
+    internal static let expandedRailWidth: CGFloat = 250
+    internal static let railLeadingInset: CGFloat = 16
+    internal static let railIconSize: CGFloat = 40
 }
 
 /// A compact section label with semantic hierarchy, not decorative telemetry.

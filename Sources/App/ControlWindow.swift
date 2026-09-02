@@ -34,68 +34,86 @@ internal struct ControlWindow: View {
 
     private var applicationShell: some View {
         ZStack {
-            CinematicBackdrop()
-            HStack(spacing: -20) {
+            ControlTheme.rail
+            HStack(spacing: 0) {
                 navigationRail
                 contentSurface
+                    .padding(ControlTheme.detailFrameInset)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                .strokeBorder(Color.black.opacity(0.72), lineWidth: 2).allowsHitTesting(false)
+                .strokeBorder(Color.black.opacity(0.74), lineWidth: 2)
+                .allowsHitTesting(false)
         }
         .animation(reduceMotion ? nil : ControlTheme.navigationMotion, value: sidebarExpanded)
     }
 
     private var navigationRail: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             Button { sidebarExpanded.toggle() } label: {
-                HStack(spacing: 10) {
-                    railIcon(sidebarExpanded ? ControlConstants.collapseSidebarIcon : ControlConstants.expandSidebarIcon,
-                        selected: false)
+                HStack(spacing: 12) {
+                    Image(nsImage: NSApplication.shared.applicationIconImage)
+                        .resizable().interpolation(.high).scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
+                        .accessibilityHidden(true)
                     if sidebarExpanded {
                         Text(ControlConstants.appName).font(.system(size: 14, weight: .semibold))
-                            .lineLimit(1).transition(.opacity.combined(with: .move(edge: .leading)))
+                            .lineLimit(1).transition(.opacity)
+                        Spacer(minLength: 8)
+                        Image(systemName: ControlConstants.collapseSidebarIcon)
+                            .font(.system(size: 14, weight: .medium))
+                            .frame(width: 22, height: 32)
+                            .foregroundStyle(ControlTheme.railMuted)
+                            .accessibilityHidden(true)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: sidebarExpanded ? .leading : .center)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
             }.buttonStyle(.plain)
                 .help(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
                 .accessibilityLabel(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
+                .zIndex(3)
+                .frame(height: 46)
 
             if let snapshot = store.snapshot {
-                ScrollView {
+                ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(spacing: 8) {
                         repositoryRow(snapshot)
                         ForEach(Array(snapshot.categories.enumerated()), id: \.element.id) { index, category in
                             categorySection(category, icon: categoryIcon(at: index))
                         }
-                    }.padding(.vertical, 4)
-                }.scrollIndicators(.hidden)
-                Spacer(minLength: 0)
-                if sidebarExpanded {
-                    VStack(alignment: .leading, spacing: 4) {
+                    }.padding(.top, 22).padding(.bottom, 12)
+                }
+                HStack(spacing: 10) {
+                    railIcon(ControlConstants.lockIcon, selected: false)
+                    if sidebarExpanded {
+                        VStack(alignment: .leading, spacing: 4) {
                         InstrumentLabel(title: ControlConstants.localOnly).foregroundStyle(ControlTheme.railMuted)
                         Text(ControlConstants.checkCadence).font(.caption2).foregroundStyle(ControlTheme.railMuted)
                             .fixedSize(horizontal: false, vertical: true)
-                    }.padding(.horizontal, 8).transition(.opacity)
+                        }.transition(.opacity)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 12)
             } else {
                 Spacer(minLength: 0)
             }
         }
-        .padding(.horizontal, 12).padding(.bottom, 12).padding(.top, 34).padding(.trailing, 26)
-        .frame(width: sidebarExpanded ? 244 : 88)
+        .frame(width: sidebarExpanded
+            ? ControlTheme.expandedRailWidth - ControlTheme.railLeadingInset - 18
+            : ControlTheme.collapsedRailWidth - (ControlTheme.railLeadingInset * 2))
+        .padding(.leading, ControlTheme.railLeadingInset)
+        .padding(.trailing, sidebarExpanded ? 18 : ControlTheme.railLeadingInset)
+        .padding(.bottom, 18).padding(.top, 34)
         .frame(maxHeight: .infinity)
         .foregroundStyle(ControlTheme.railInk)
-        .background(ControlTheme.rail, in: RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1).allowsHitTesting(false)
-        }.zIndex(0)
+        .background(Color.clear)
+        .zIndex(0)
     }
 
     private var contentSurface: some View {
@@ -108,17 +126,22 @@ internal struct ControlWindow: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
             ZStack {
-                SceneGlass().opacity(0.54)
                 if reduceTransparency {
                     RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
                         .fill(ControlTheme.surfaceStrong.opacity(0.98))
+                } else {
+                    CinematicArtwork()
+                        .scaleEffect(1.025)
+                        .blur(radius: ControlTheme.detailBackdropBlur)
+                        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
                 }
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                .stroke(Color.white.opacity(0.52), lineWidth: 1).allowsHitTesting(false)
+                .strokeBorder(ControlTheme.rail, lineWidth: ControlTheme.detailFrameWidth)
+                .allowsHitTesting(false)
         }
         .zIndex(1)
     }
@@ -155,12 +178,12 @@ internal struct ControlWindow: View {
     /// - Parameter snapshot: Current complete repository snapshot.
     /// - Returns: A project or repository screen whose long content scrolls without resizing the window.
     private func selectedContent(_ snapshot: RepositorySnapshot) -> some View {
-        ScrollView {
+        ScrollView(.vertical, showsIndicators: false) {
             Group {
                 if let project = store.selectedProject { ProjectScreen(store: store, project: project).id(project.id) }
                 else { RepositoryScreen(store: store, snapshot: snapshot).id(snapshot.root.path) }
             }.padding(28).frame(maxWidth: 1050).frame(maxWidth: .infinity)
-        }.scrollIndicators(.hidden)
+        }
     }
 
     private var connectionPrompt: some View {
@@ -201,7 +224,7 @@ internal struct ControlWindow: View {
                         Text(ControlConstants.repositorySummary).font(.caption2).foregroundStyle(ControlTheme.railMuted)
                     }.frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
                 }
-            }.frame(maxWidth: .infinity, alignment: sidebarExpanded ? .leading : .center).contentShape(Rectangle())
+            }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
         }.buttonStyle(.plain).accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
     }
 
@@ -227,7 +250,7 @@ internal struct ControlWindow: View {
                             .font(.system(size: 9, weight: .semibold)).frame(width: 10).accessibilityHidden(true)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: sidebarExpanded ? .leading : .center).contentShape(Rectangle())
+                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityValue(collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
             if sidebarExpanded && !collapsed {
                 ForEach(Array(category.projects.enumerated()), id: \.element.id) { index, project in
@@ -262,10 +285,8 @@ internal struct ControlWindow: View {
     /// - Returns: A fixed-size rounded icon target.
     private func railIcon(_ name: String, selected: Bool) -> some View {
         Image(systemName: name).font(.system(size: 17, weight: .medium))
-            .frame(width: 40, height: 40)
-            .foregroundStyle(selected ? ControlTheme.background : ControlTheme.railInk)
-            .background(selected ? ControlTheme.signal : Color.clear,
-                in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
+            .foregroundStyle(selected ? Color.white : ControlTheme.railInk.opacity(0.82))
             .accessibilityHidden(true)
     }
 

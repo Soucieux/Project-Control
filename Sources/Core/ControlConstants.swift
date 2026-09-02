@@ -200,7 +200,7 @@ internal enum ControlConstants {
     internal static let lockIcon = "lock"
     internal static let unlockIcon = "lock.open"
     internal static let collapseSidebarIcon = "rectangle.leftthird.inset.filled"
-    internal static let expandSidebarIcon = "rectangle.leftthird.inset"
+    internal static let expandSidebarIcon = "chevron.right"
     internal static let repositoryIcon = "square.grid.2x2"
     internal static let categoryIcons = ["brain.head.profile", "key", "chart.xyaxis.line", "books.vertical", "briefcase"]
     internal static let noteCountFormat = "%d / %d"

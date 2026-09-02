@@ -27,25 +27,6 @@ private final class TransparentWindowBridge: NSView {
     }
 }
 
-/// A native in-window blur that visibly samples the cinematic scene beneath the content plane.
-internal struct SceneGlass: NSViewRepresentable {
-    /// Creates an active visual-effect surface that samples the application's own scenic backdrop.
-    /// - Parameter context: SwiftUI representable context.
-    /// - Returns: A noninteractive native material view.
-    internal func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = .underWindowBackground
-        view.blendingMode = .withinWindow
-        view.state = .active
-        return view
-    }
-
-    /// Keeps the native material active across SwiftUI updates.
-    /// - Parameters: nsView: Existing material view. context: SwiftUI representable context.
-    /// - Returns: Nothing; reapplies the stable visual-effect state.
-    internal func updateNSView(_ nsView: NSVisualEffectView, context: Context) { nsView.state = .active }
-}
-
 /// A restrained full-window scene whose light, clouds, and texture remain legible through glass.
 internal struct CinematicBackdrop: View {
     internal var body: some View {
@@ -128,10 +109,8 @@ internal struct CinematicBackdrop: View {
     }
 }
 
-/// A non-authenticating privacy cover inspired by the approved landscape interlude.
-internal struct LockedArtwork: View {
-    internal let unlock: () -> Void
-
+/// Shared light artwork used by both the active detail pane and the privacy cover.
+internal struct CinematicArtwork: View {
     internal var body: some View {
         GeometryReader { proxy in
             ZStack {
@@ -139,15 +118,7 @@ internal struct LockedArtwork: View {
                 fortress(in: proxy.size)
                 shore(in: proxy.size)
                 dotField
-                Button(action: unlock) {
-                    Label(ControlConstants.unlockDisplay, systemImage: ControlConstants.unlockIcon)
-                        .font(.system(size: 15, weight: .semibold)).padding(.horizontal, 22).padding(.vertical, 12)
-                }.buttonStyle(.plain).foregroundStyle(ControlTheme.railInk)
-                    .background(ControlTheme.rail.opacity(0.86), in: Capsule())
-                    .overlay { Capsule().stroke(Color.white.opacity(0.23), lineWidth: 1) }
             }
-            .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
-            .overlay { RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous).strokeBorder(Color.black.opacity(0.38), lineWidth: 2) }
         }
     }
 
@@ -190,5 +161,27 @@ internal struct LockedArtwork: View {
                 y += spacing
             }
         }.accessibilityHidden(true)
+    }
+}
+
+/// A non-authenticating privacy cover built from the same artwork as the normal detail pane.
+internal struct LockedArtwork: View {
+    internal let unlock: () -> Void
+
+    internal var body: some View {
+        ZStack {
+            CinematicArtwork()
+            Button(action: unlock) {
+                Label(ControlConstants.unlockDisplay, systemImage: ControlConstants.unlockIcon)
+                    .font(.system(size: 15, weight: .semibold)).padding(.horizontal, 22).padding(.vertical, 12)
+            }.buttonStyle(.plain).foregroundStyle(ControlTheme.railInk)
+                .background(ControlTheme.rail.opacity(0.86), in: Capsule())
+                .overlay { Capsule().stroke(Color.white.opacity(0.23), lineWidth: 1) }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
+                .strokeBorder(Color.black.opacity(0.38), lineWidth: 2)
+        }
     }
 }
