@@ -4,8 +4,28 @@ import SwiftUI
 internal struct ReadmeContent: View {
     internal let blocks: [ReadmeBlock]
     internal let empty: String
+    private var isTextOnly: Bool {
+        blocks.allSatisfy { block in block.kind != .heading && block.kind != .table }
+    }
 
     internal var body: some View {
+        Group {
+            if isTextOnly {
+                renderedBlocks.padding(20)
+                    .background(ControlTheme.surface.opacity(0.54), in:
+                        RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous)
+                            .stroke(ControlTheme.line, lineWidth: 1)
+                            .allowsHitTesting(false)
+                    }
+            } else {
+                renderedBlocks
+            }
+        }
+    }
+
+    private var renderedBlocks: some View {
         LazyVStack(alignment: .leading, spacing: 16) {
             if blocks.isEmpty { Text(empty).font(.callout).foregroundStyle(ControlTheme.muted) }
             ForEach(blocks) { block in

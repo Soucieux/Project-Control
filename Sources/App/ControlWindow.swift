@@ -9,6 +9,12 @@ internal struct ControlWindow: View {
     @State private var displayLocked = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    private var bundleVersionLabel: String? {
+        guard let version = Bundle.main.object(forInfoDictionaryKey: ControlConstants.marketingVersionKey) as? String,
+            let build = Bundle.main.object(forInfoDictionaryKey: ControlConstants.bundleVersionKey) as? String
+        else { return nil }
+        return String(format: ControlConstants.bundleVersionFormat, version, build)
+    }
 
     internal var body: some View {
         ZStack {
@@ -17,11 +23,11 @@ internal struct ControlWindow: View {
             if displayLocked {
                 LockedArtwork { setLocked(false) }
                     .ignoresSafeArea()
-                    .transition(.opacity.combined(with: .scale(scale: 0.985)))
+                    .transition(.opacity)
             } else {
                 applicationShell
                     .ignoresSafeArea()
-                    .transition(.opacity.combined(with: .scale(scale: 0.99)))
+                    .transition(.opacity)
             }
         }
         .foregroundStyle(ControlTheme.ink).tint(ControlTheme.mint)
@@ -42,12 +48,6 @@ internal struct ControlWindow: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                .strokeBorder(Color.black.opacity(0.74), lineWidth: 2)
-                .allowsHitTesting(false)
-        }
         .animation(reduceMotion ? nil : ControlTheme.navigationMotion, value: sidebarExpanded)
     }
 
@@ -88,14 +88,51 @@ internal struct ControlWindow: View {
                         }
                     }.padding(.top, 22).padding(.bottom, 12)
                 }
-                HStack(spacing: 10) {
-                    railIcon(ControlConstants.lockIcon, selected: false)
+                VStack(spacing: 5) {
+                    Rectangle().fill(ControlTheme.railMuted.opacity(0.20)).frame(height: 1)
+                        .padding(.bottom, 7).accessibilityHidden(true)
+                    Button { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) } label: {
+                        footerActionLabel(icon: ControlConstants.repositoryReadIcon,
+                            title: ControlConstants.repositoryRead)
+                    }.buttonStyle(.plain).help(ControlConstants.read).accessibilityLabel(ControlConstants.read)
+                    Menu {
+                        Button(ControlConstants.changeRepository) { store.chooseRepository() }
+                        Button(ControlConstants.refresh) {
+                            Task { await store.reload(snapshot.root) }
+                        }.disabled(store.loading)
+                    } label: {
+                        Color.clear.frame(maxWidth: .infinity).frame(height: ControlTheme.railIconSize)
+                            .contentShape(Rectangle())
+                    }.menuStyle(.borderlessButton).menuIndicator(.hidden)
+                        .tint(ControlTheme.railInk)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .leading) {
+                            footerActionLabel(icon: ControlConstants.repositoryActionsIcon,
+                                title: ControlConstants.repositoryMore)
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
+                        }
+                        .help(ControlConstants.repositoryActions).accessibilityLabel(ControlConstants.repositoryActions)
+                    Button { setLocked(true) } label: {
+                        footerActionLabel(icon: ControlConstants.lockIcon, title: ControlConstants.lock)
+                    }.buttonStyle(.plain).help(ControlConstants.lockDisplay)
+                        .accessibilityLabel(ControlConstants.lockDisplay)
                     if sidebarExpanded {
+                        Rectangle().fill(ControlTheme.railMuted.opacity(0.20)).frame(height: 1)
+                            .padding(.vertical, 6).accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 4) {
-                        InstrumentLabel(title: ControlConstants.localOnly).foregroundStyle(ControlTheme.railMuted)
-                        Text(ControlConstants.checkCadence).font(.caption2).foregroundStyle(ControlTheme.railMuted)
-                            .fixedSize(horizontal: false, vertical: true)
-                        }.transition(.opacity)
+                            Text(ControlConstants.localWorkspace)
+                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .tracking(1.2).foregroundStyle(ControlTheme.railMuted)
+                            Text(ControlConstants.readmeSyncCadence).font(.caption2)
+                                .foregroundStyle(ControlTheme.railMuted)
+                                .fixedSize(horizontal: false, vertical: true)
+                            if let bundleVersionLabel {
+                                Text(bundleVersionLabel).font(.caption2.monospaced())
+                                    .foregroundStyle(ControlTheme.signal.opacity(0.72)).padding(.top, 2)
+                            }
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, ControlTheme.footerMetadataInset).transition(.opacity)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -127,19 +164,21 @@ internal struct ControlWindow: View {
         .background {
             ZStack {
                 if reduceTransparency {
-                    RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius, style: .continuous)
                         .fill(ControlTheme.surfaceStrong.opacity(0.98))
                 } else {
                     CinematicArtwork()
                         .scaleEffect(1.025)
                         .blur(radius: ControlTheme.detailBackdropBlur)
-                        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
+                        .overlay { CinematicHalftone().opacity(ControlTheme.detailHalftoneOpacity) }
+                        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius,
+                            style: .continuous))
                 }
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius, style: .continuous)
                 .strokeBorder(ControlTheme.rail, lineWidth: ControlTheme.detailFrameWidth)
                 .allowsHitTesting(false)
         }
@@ -157,18 +196,6 @@ internal struct ControlWindow: View {
                 Text(root.lastPathComponent).font(.caption).foregroundStyle(ControlTheme.muted)
                     .lineLimit(1).truncationMode(.middle).help(root.lastPathComponent).layoutPriority(0)
             }
-            Button { setLocked(true) } label: {
-                Image(systemName: ControlConstants.lockIcon).frame(width: 34, height: 34).contentShape(Rectangle())
-            }.buttonStyle(.plain).help(ControlConstants.lockDisplay).accessibilityLabel(ControlConstants.lockDisplay)
-            Menu {
-                Button(ControlConstants.changeRepository) { store.chooseRepository() }
-                Button(ControlConstants.refresh) {
-                    if let root = store.snapshot?.root { Task { await store.reload(root) } }
-                }.disabled(store.snapshot == nil || store.loading)
-            } label: {
-                Image(systemName: ControlConstants.menuIcon).frame(width: 34, height: 34).contentShape(Rectangle())
-            }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                .help(ControlConstants.repositoryActions).accessibilityLabel(ControlConstants.repositoryActions)
         }
         .padding(.horizontal, 24).frame(height: 66)
         .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
@@ -288,6 +315,22 @@ internal struct ControlWindow: View {
             .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
             .foregroundStyle(selected ? Color.white : ControlTheme.railInk.opacity(0.82))
             .accessibilityHidden(true)
+    }
+
+    /// Builds one stable footer row so buttons and menus share the same icon and label axis.
+    /// - Parameters:
+    ///   - icon: SF Symbol name rendered in the fixed rail icon column.
+    ///   - title: Visible action label shown only while navigation is expanded.
+    /// - Returns: A full-width footer label with consistent spacing and alignment.
+    private func footerActionLabel(icon: String, title: String) -> some View {
+        HStack(spacing: 10) {
+            railIcon(icon, selected: false)
+            if sidebarExpanded {
+                Text(title).font(.system(size: 12, weight: .medium))
+                    .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundStyle(ControlTheme.railInk).contentShape(Rectangle())
     }
 
     /// Uses stable position markers without inferring a category's technology or capability.

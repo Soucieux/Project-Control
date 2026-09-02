@@ -117,7 +117,7 @@ internal struct CinematicArtwork: View {
                 CinematicBackdrop()
                 fortress(in: proxy.size)
                 shore(in: proxy.size)
-                dotField
+                CinematicHalftone()
             }
         }
     }
@@ -147,20 +147,79 @@ internal struct CinematicArtwork: View {
             .accessibilityHidden(true)
     }
 
-    private var dotField: some View {
+}
+
+/// Draws the lower-third dot field shared by the clear lock artwork and blurred detail background.
+internal struct CinematicHalftone: View {
+    internal var body: some View {
         Canvas { context, size in
-            let spacing: CGFloat = 14
-            var y: CGFloat = spacing
+            let spacing: CGFloat = 7
+            var y: CGFloat = size.height * 0.50
             while y < size.height {
                 var x: CGFloat = spacing
                 while x < size.width {
-                    let diameter: CGFloat = Int((x + y) / spacing).isMultiple(of: 7) ? 2.1 : 1.25
-                    context.fill(Path(ellipseIn: CGRect(x: x, y: y, width: diameter, height: diameter)), with: .color(Color.white.opacity(0.38)))
+                    let wave = sin((x / max(size.width, 1)) * .pi * 4) * size.height * 0.035
+                    let start = size.height * 0.54 + wave
+                    let depth = min(max((y - start) / max(size.height - start, 1), 0), 1)
+                    if depth > 0 {
+                        let phase = Int((x + y) / spacing)
+                        let diameter = 0.95 + (depth * 1.65) + (phase.isMultiple(of: 13) ? 0.55 : 0)
+                        let opacity = 0.12 + (depth * 0.30)
+                        context.fill(
+                            Path(ellipseIn: CGRect(x: x, y: y, width: diameter, height: diameter)),
+                            with: .color(ControlTheme.sceneWater.opacity(opacity))
+                        )
+                    }
                     x += spacing
                 }
                 y += spacing
             }
-        }.accessibilityHidden(true)
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// Adds the denser full-frame dot-matrix texture reserved for the clear privacy artwork.
+internal struct CinematicLockTexture: View {
+    internal var body: some View {
+        Canvas { context, size in
+            let spacing: CGFloat = 7
+            var row = 0
+            var y: CGFloat = spacing
+            while y < size.height {
+                var column = 0
+                var x: CGFloat = spacing
+                while x < size.width {
+                    let phase = (column * 3) + (row * 5)
+                    if !phase.isMultiple(of: 17) {
+                        let horizontalPosition = x / max(size.width, 1)
+                        let verticalPosition = y / max(size.height, 1)
+                        let architecture = verticalPosition > 0.28 && verticalPosition < 0.72
+                            && horizontalPosition > 0.22 && horizontalPosition < 0.78
+                        let shoreline = verticalPosition >= 0.70
+                        let diameter: CGFloat = phase.isMultiple(of: 13) ? 2.1 : 1.35
+                        let color = architecture || shoreline
+                            ? Color.white.opacity(0.30)
+                            : ControlTheme.sceneWater.opacity(0.24)
+                        let bounds = CGRect(x: x, y: y, width: diameter, height: diameter)
+                        if phase.isMultiple(of: 19) {
+                            context.fill(
+                                Path(roundedRect: CGRect(x: x, y: y, width: diameter * 2.4,
+                                    height: diameter), cornerRadius: diameter / 2),
+                                with: .color(color)
+                            )
+                        } else {
+                            context.fill(Path(ellipseIn: bounds), with: .color(color))
+                        }
+                    }
+                    column += 1
+                    x += spacing
+                }
+                row += 1
+                y += spacing
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -171,17 +230,13 @@ internal struct LockedArtwork: View {
     internal var body: some View {
         ZStack {
             CinematicArtwork()
+            CinematicLockTexture()
             Button(action: unlock) {
                 Label(ControlConstants.unlockDisplay, systemImage: ControlConstants.unlockIcon)
                     .font(.system(size: 15, weight: .semibold)).padding(.horizontal, 22).padding(.vertical, 12)
             }.buttonStyle(.plain).foregroundStyle(ControlTheme.railInk)
                 .background(ControlTheme.rail.opacity(0.86), in: Capsule())
                 .overlay { Capsule().stroke(Color.white.opacity(0.23), lineWidth: 1) }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: ControlTheme.cornerRadius, style: .continuous)
-                .strokeBorder(Color.black.opacity(0.38), lineWidth: 2)
         }
     }
 }

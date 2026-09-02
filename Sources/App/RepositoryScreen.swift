@@ -24,9 +24,6 @@ internal struct RepositoryScreen: View {
                         .tracking(-1).fixedSize(horizontal: false, vertical: true)
                 }
             }
-            Button { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) } label: {
-                Label(ControlConstants.read, systemImage: ControlConstants.readIcon)
-            }.buttonStyle(.bordered).controlSize(.large)
             if let warning = store.syncFailure {
                 Text(ControlConstants.staleContent + ControlConstants.space + warning)
                     .font(.callout).foregroundStyle(ControlTheme.amber)
