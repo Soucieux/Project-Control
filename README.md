@@ -8,34 +8,20 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current local release is **v2.4 (build 15)**. It removes the competing SwiftUI mask around the
-complete shell so the native macOS window alone owns the outer corner shape. The black chassis still
-covers the full application, while the light-artwork detail panel uses a thin three-point inset and
-an independently tuned 18-point radius. Its four rendered corners visually follow the native window
-curve, retaining one narrow black perimeter without the light wedges exposed by the former masks.
-Lock and unlock now crossfade edge-to-edge without scaling either layer, and the native window owns
-the lock artwork's outer corners as well.
+The current source and signed local release are **v2.5 (build 16)**. Each project detail screen now
+uses one compact glass card above its tabs instead of separate identity, action, and Document Health
+cards. The icon, project name, and version are top-aligned beside the notes gauge. **Open folder**,
+**Read README**, **Open App**, its optional application menu, and the detection message share a lower
+row with document availability and the explicit **Runtime not checked** status. The card uses a
+16-point content inset and adapts its action/status grouping to the available width. An eight-point
+gap brings the tabs closer to their content. Existing warning messages, below-tab content styling,
+notes, history, repository activity, navigation, artwork, and lock behavior are unchanged.
 
-Below the tabs, a README view containing only paragraphs or bullets now places that untitled prose
-inside the same rounded translucent content plane used by workflow diagrams. Existing structured
-presentation remains unchanged: a source heading stays above its table or content box, native tables
-keep their own surfaces, Workflows keeps its title-above-diagram layout, and the identity/actions above
-the tabs receive no new wrapping. A denser sage halftone now rises from the bottom of the shared local
-artwork; the active detail surface repeats it as a crisp lower overlay above the background blur, while
-the clear lock artwork adds a denser full-frame field of dots and short matrix marks over the same
-lower pattern. The repository README,
-repository actions, and Lock are arranged as consistently styled pinned footer rows below a hierarchy
-separator, using book, adjustment, and lock symbols with longer balanced **Open README file**,
-**Repository menu**, and **Lock application** labels. A second separator introduces the compact local
-workspace, README-sync cadence, and live bundle version. That metadata begins on the visible icon
-column rather than the raw rail edge. The footer icons retain the compact rail axis, and the header no
-longer duplicates lock or menu controls. The v2.3 Commit activity behavior
-and read-only Git boundary remain unchanged. All 332 core checks and 39 store checks passed, followed
-by optimized native compilation, strict signing, exact v2.4/build-15 metadata, arm64/icon checks, and
-live inspection of repository/project Overviews, Architecture, Workflows, expanded/collapsed rails,
-lock artwork, halftone density, and all corrected curves. The complete code review found no actionable
-source findings. Formal verification repeated a clean optimized rebuild, package identity checks, and
-live expanded/collapsed, Overview, Workflows, and lock-state inspection.
+Complete native type-checking, a cache-free optimized build, strict signature and bundle-identity
+checks, and live regular/minimum-window inspection passed. The subsequent authorized code review
+found no actionable issues; verification repeated a cache-free optimized build, strict package checks,
+and live narrow-window header inspection. The initial delivery was uncommitted; this checkpoint
+records the reviewed source and documentation before the next implementation.
 
 ## Quick start
 
@@ -53,15 +39,16 @@ open "Project Control.app"
 2. Use the brand row at the top of the rail to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Commit activity**, and **Last read** timestamp. The pinned rail footer opens the repository README, provides repository actions, and locks the display; its status block shows the installed version/build. Commit activity reads local Git timestamps, changed paths solely for project mapping, and ref identities; hover a populated month for the project distribution. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon—including the footer actions—shares one centerline.
 3. Open **Work notes → Add note**. Save a title, optional context, and status: **Next**, **In progress**, or **Done**. The ring counts completed notes, not overall project completion.
 4. **Overview** shows the README's overview or opening description. Untitled paragraph-and-bullet content below the tabs uses one rounded translucent surface; source headings remain outside their existing table or content box. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables use native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow nodes and arrows show only documented connections. **Project history** stays with its project; repository content no longer occupies the footer.
-5. **Open folder** and **Read README** open the item outside the app. **Open App** detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
+5. The project identity card also contains **Open folder**, **Read README**, **Open App**, and compact **Document Health** information. Its action/status row adapts at narrower widths. Document Health reports folder/README availability, not runtime health. Open folder and Read README open the item outside the app. Open App detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
 6. Use **Lock** in the rail footer to temporarily replace all project content with the local artwork view. It requires no password, changes no files, has no footer strip, and restores the interface from the centered **Unlock** button.
 
 `Command-O` chooses a repository; `Command-R` refreshes it. `Command-N` adds a note while Work notes is visible. The app remembers the last valid repository.
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The signed **Project Control.app** beside this README is v2.4/build 15. The replaced v2.3/build-14
-bundle is preserved under `build/previous.bIh8aG`; older documented recovery bundles remain unchanged.
+The signed **Project Control.app** beside this README is v2.5/build 16. The replaced v2.4/build-15
+bundle is preserved under `build/previous.6HZ7jk`; v2.3/build 14 remains under
+`build/previous.bIh8aG`, and older documented recovery bundles remain unchanged.
 
 ## Sidebar classification
 
@@ -236,6 +223,27 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.5 delivery evidence
+
+The v2.5/build-16 source combines project identity, actions, and Document Health in one pre-tab card.
+The identity is top-aligned with the notes gauge; the action controls, application-detection message,
+document availability, and runtime disclaimer form a compact lower grouping. The card alone uses a
+16-point inset, leaving other glass-card styling unchanged. The action/status row drops its title-column
+offset or stacks when needed, and the tab-to-content gap is eight points. No action, launch-selection,
+warning, note, README-parsing, or repository-data behavior changes.
+
+Complete native type-checking passed, followed by a cache-free optimized build and strict signed-bundle
+checks. Source and bundle metadata both identify v2.5/build 16; the executable is arm64 and the bundled
+icon is present. Live app inspection covered Local Assistant and the longer Python Accomplishments
+title at regular and minimum window sizes, confirming visible actions, detection text, integrated health,
+notes gauge, and unclipped tab/content layout. Core/store logic was unchanged, so those suites were not
+rerun. The subsequent authorized review found no actionable issues. Verification repeated a cache-free
+optimized build, strict signature/metadata/arm64/icon checks, and live narrow-window Local Assistant and
+Python Accomplishments header inspection. The initial delivery preceded that review and was uncommitted.
+The prior v2.4/build-15 bundle remains
+recoverable under `build/previous.6HZ7jk`; superseded same-version candidates and generated intermediates
+were removed after the final package checks.
 
 ### v2.4 delivery evidence
 
@@ -479,6 +487,7 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| v2.5 / build 16 | 2026-09-02 | Combined project identity, actions, and Document Health in one compact pre-tab glass card. Top-aligned the icon/name/version beside the notes gauge; grouped folder, README, app, optional app-menu, detection, document availability, and runtime-status information below. Reduced this card's content inset to 16 points and its internal row gap to 14 points; adaptive action/status layouts preserve narrow-window readability. Reduced the tab-to-content gap to eight points. Existing warnings, below-tab content styling, notes, history, repository activity, navigation, artwork, and lock behavior are unchanged. Passed complete native type-checking, a cache-free optimized build, strict signing, exact v2.5/build-16 metadata, arm64/icon checks, and live regular/minimum-window checks with Local Assistant and Python Accomplishments. Core/store suites were unchanged and not rerun. The subsequent authorized review found no actionable issues; verification repeated a cache-free optimized build, strict package checks, and live narrow-window header inspection. Preserved v2.4/build 15 under `build/previous.6HZ7jk`; removed superseded same-version candidates and generated intermediates. | Source `52cbaf7`; this documentation checkpoint; signed project-root app |
 | Documentation policy · no new app build | 2026-09-02 | Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here, and added the required linked project declaration. Application source, metadata, signed bundle, and v2.4/build 15 are unchanged. | This documentation commit |
 | v2.4 / build 15 | 2026-09-02 | Removed the competing whole-shell SwiftUI clip and outline so the native macOS window owns the outer corners without light wedges. Kept the full black chassis and three-point detail reveal, then visually tuned the detail layer to an 18-point radius so all four rendered curves follow the native window. Removed the lock artwork's custom outer mask and changed lock/unlock to an edge-to-edge opacity transition without shell scaling. Wrapped only untitled below-tab paragraph/bullet README views in the established rounded translucent plane; heading-led content, tables, Workflows, history, notes, and content above the tabs remain unchanged. Added a lower-third sage halftone to the shared active/lock artwork, repeated it crisply above the normal detail blur, and added a denser full-frame dot-and-short-mark matrix only to the clear lock view. Moved repository README, repository actions, and Lock into consistently styled full-width pinned footer rows with aligned book, adjustment, and lock symbols and longer balanced Open README file, Repository menu, and Lock application labels. The menu's visible row now uses the same fixed leading layout as the plain buttons instead of the borderless menu's intrinsic alignment. Compact workspace/sync status and the live bundle version follow below on the visible icon-column inset; duplicate header/detail controls remain removed and the compact icon axis is retained. Passed 332 core checks, 39 store checks, optimized compilation, strict signing, exact v2.4/build-15 metadata, arm64/icon checks, and live repository/project Overview, Architecture, Workflows, expanded/collapsed footer, lock-artwork, halftone, and corner inspection. The complete code review found no actionable source findings. Formal verification repeated a clean optimized rebuild, strict package-identity checks, and live expanded/collapsed, Overview, Workflows, and lock-state inspection. Preserved v2.3/build 14 under `build/previous.bIh8aG`. | Source `014523d`; this project documentation checkpoint; signed project-root app |
 | v2.3 / build 14 | 2026-09-01 | Added repository Commit activity with newest-first years, twelve responsive month cells, fixed absolute intensities, concealed future values, complete unique-commit totals, and per-project hover distributions with real project icons when available. Read-only Git access now includes changed paths solely to map registered top-level folders; messages, authors, and file contents remain unread. Reworked the shell into a full-window rounded black chassis plus an inset four-corner light-artwork detail layer, reused the same artwork clearly for the lock screen and blurred behind normal content, removed rail/detail overlap and visible scrollbars, adopted the reference-style brand control, and kept every rail icon on one fixed animation axis. Passed 8 focused core checks, 1 store check, complete native type-checking, optimized compilation, strict signing, exact v2.3/build-14 metadata checks, arm64/icon checks, and live expanded/collapsed/lock inspection. Optional code review and formal verification did not run. Preserved v2.2/build 13 under `build/previous.IqYCW4`. | Activity `bb0689e`; shell `a01102b`; this documentation checkpoint; signed project-root app |
