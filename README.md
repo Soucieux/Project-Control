@@ -3,25 +3,38 @@
 <!-- project-control:section=overview -->
 ## Overview
 
-Project Control is a native macOS management center for this repository. Understand projects, track structured work notes, follow documented changes, and open a folder or chosen application without viewing or editing source code inside the app.
+Project Control is a native macOS management center for this repository. Understand projects, save plain-text work notes, follow documented changes, and open a folder or chosen application without viewing or editing source code inside the app.
 
 <!-- project-control:section=release -->
 ## Current release
 
-The current source and signed local release are **v2.5 (build 16)**. Each project detail screen now
-uses one compact glass card above its tabs instead of separate identity, action, and Document Health
-cards. The icon, project name, and version are top-aligned beside the notes gauge. **Open folder**,
-**Read README**, **Open App**, its optional application menu, and the detection message share a lower
-row with document availability and the explicit **Runtime not checked** status. The card uses a
-16-point content inset and adapts its action/status grouping to the available width. An eight-point
-gap brings the tabs closer to their content. Existing warning messages, below-tab content styling,
-notes, history, repository activity, navigation, artwork, and lock behavior are unchanged.
+The current source and signed local app are **v2.6 (build 26)**. The compact project header groups identity and actions with
+Document Health and a simple **Notes available / No notes** summary; it no longer shows progress or
+note counters. The 16-point card inset and eight-point tab/content gap remain. During the pending
+v2.6 delivery checks on September 3, the minimum window width was raised to 1,120 points so actions, Document
+Health, and Notes retain one horizontal row with the sidebar expanded. The detection caption can wrap.
+The same delivery correction keeps sidebar content at its expanded layout width behind the changing
+rail boundary, retains eager category layout, and fades newly revealed project rows instead of sliding
+them from the top. Existing icon columns, footer actions, category behavior, and Reduce Motion remain.
 
-Complete native type-checking, a cache-free optimized build, strict signature and bundle-identity
-checks, and live regular/minimum-window inspection passed. The subsequent authorized code review
-found no actionable issues; verification repeated a cache-free optimized build, strict package checks,
-and live narrow-window header inspection. The initial delivery was uncommitted; this checkpoint
-records the reviewed source and documentation before the next implementation.
+**Work notes** has an integrated Add note toolbar and an inline, single-text-field editor with Save
+and Cancel. There are no title, context, or status fields. Existing title and context text are combined
+with a blank line, retaining note identities; files are not rewritten merely by loading them. Edits,
+deletion, atomic saves, and read-only recovery for malformed storage remain supported.
+
+Every prose/list group below the tabs now uses the established translucent content surface, even when
+the same tab also contains headings or tables. Standalone headings, already surfaced tables, workflow
+diagrams, and history rows keep their existing presentation. Empty states and workflow guidance are
+also surfaced. Packaging now rejects mismatched version/build pairs under the repository policy.
+
+The authorized code review found no production-code correctness, security, performance, or
+maintainability defect. It corrected a malformed-note fixture that could previously pass for the wrong
+reason and gave the 1,120-point minimum one named source of truth. Verification passed 40 focused
+note/presentation assertions, nine version checks, 20 affected core checks, five affected store checks,
+complete native compilation, a cache-free optimized build, and strict signature, metadata, arm64, and
+icon checks. Earlier live inspection confirmed the minimum-width header and collapsed sidebar endpoint.
+The Mac remained locked for the corrected expansion-path and remaining editor interaction checks.
+Implementation is committed in `bfa6c70` and `262e934`; this documentation checkpoint records the result.
 
 ## Quick start
 
@@ -37,18 +50,18 @@ open "Project Control.app"
 
 1. Choose **Choose repository…** and select the `Professional Quality` folder, not this subfolder.
 2. Use the brand row at the top of the rail to expand or collapse navigation. Select the repository parent for its README **Overview**, **Repository history**, **Commit activity**, and **Last read** timestamp. The pinned rail footer opens the repository README, provides repository actions, and locks the display; its status block shows the installed version/build. Commit activity reads local Git timestamps, changed paths solely for project mapping, and ref identities; hover a populated month for the project distribution. Its project hierarchy comes from the root README's **Projects** table; each project's `README.md` supplies its details when available. Full padded rows are selectable, and every collapsed icon—including the footer actions—shares one centerline.
-3. Open **Work notes → Add note**. Save a title, optional context, and status: **Next**, **In progress**, or **Done**. The ring counts completed notes, not overall project completion.
-4. **Overview** shows the README's overview or opening description. Untitled paragraph-and-bullet content below the tabs uses one rounded translucent surface; source headings remain outside their existing table or content box. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables use native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow nodes and arrows show only documented connections. **Project history** stays with its project; repository content no longer occupies the footer.
-5. The project identity card also contains **Open folder**, **Read README**, **Open App**, and compact **Document Health** information. Its action/status row adapts at narrower widths. Document Health reports folder/README availability, not runtime health. Open folder and Read README open the item outside the app. Open App detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
+3. Open **Work notes → Add note**. Write a note directly in the tab, then choose **Save note** or **Cancel**. Notes accept up to 4,000 characters and cannot be blank. Use a saved note's menu to edit or delete it. The header indicates only whether notes exist, not progress or a count.
+4. **Overview** shows the README's overview or opening description. Paragraph-and-bullet groups below the tabs use rounded translucent surfaces; standalone headings stay outside them. **Architecture**, **Models**, and **Workflows** have separate tabs. Tables keep native columns, wrapping cells, and source headers; wider tables scroll horizontally. Workflow titles stay above their existing diagrams. **Project history** stays with its project.
+5. The project identity card also contains **Open folder**, **Read README**, **Open App**, and compact **Document Health** information. The 1,120-point minimum window width keeps Document Health and Notes beside the actions, including with expanded navigation; the status groups do not move below the buttons. Document Health reports folder/README availability, not runtime health. Open folder and Read README open the item outside the app. Open App detects a valid `.app` directly in the project folder, preferring the project-name match, then the folder-name match, then a sole candidate. Multiple unmatched apps appear as choices. If none is available, Open App lets you locate one, opens it, and remembers its path when local storage is writable.
 6. Use **Lock** in the rail footer to temporarily replace all project content with the local artwork view. It requires no password, changes no files, has no footer strip, and restores the interface from the centered **Unlock** button.
 
-`Command-O` chooses a repository; `Command-R` refreshes it. `Command-N` adds a note while Work notes is visible. The app remembers the last valid repository.
+`Command-O` chooses a repository; `Command-R` refreshes it. `Command-N` starts a note while Work notes is visible; `Command-Return` saves a valid draft and Escape cancels it. Switching tabs retains the draft for the selected project. The app remembers the last valid repository.
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The signed **Project Control.app** beside this README is v2.5/build 16. The replaced v2.4/build-15
-bundle is preserved under `build/previous.6HZ7jk`; v2.3/build 14 remains under
-`build/previous.bIh8aG`, and older documented recovery bundles remain unchanged.
+The signed **Project Control.app** beside this README is v2.6/build 26. The replaced v2.5/build-16
+bundle is preserved under `build/previous.g6aJIt`; v2.4/build 15 remains under
+`build/previous.6HZ7jk`, v2.3/build 14 under `build/previous.bIh8aG`, and older documented recoveries remain unchanged.
 
 ## Sidebar classification
 
@@ -56,7 +69,7 @@ The repository's [README content contract](../README.md#readme-content-contract-
 owns the first three labelled items in every **Professional scope** cell: **Category**,
 **Technical scope**, and **Technologies**. Categories appear in first-appearance order, with projects
 retaining their register order. They are collapsible and show counts. Each project row retains its
-icon and note progress. Technical scope is a quiet text line; each documented technology or approach
+icon and note availability. Technical scope is a quiet text line; each documented technology or approach
 is a separate content-sized tag, wrapping as needed.
 The current groups are **AI Applications**, **Agent Workspaces**, **Project Management**,
 **Knowledge & Learning**, and **Utility Collections**. Names and memberships are not hard-coded;
@@ -91,7 +104,7 @@ legacy headings, and recovery. Keep markers with their owning headings when reor
 README saved → background content check → mapped section parsing → native screen update
 Repository Projects table → registered project READMEs → project navigation and content
 Local Git refs → timestamps plus project-folder paths → monthly totals and hover distributions
-Local work notes → completed-note count and progress ring
+Local work notes → notes available / no notes summary
 ```
 
 ### Synchronization implementation
@@ -143,6 +156,11 @@ the snapshot read time, not an assertion that stale project content or runtime h
 ## Local data and launch safety
 
 Notes and application choices are saved atomically in the standard per-user Application Support folder, under `Project Control/workspace.json`, outside the repository. Entries are keyed by canonical project path; moving or renaming a repository does not automatically migrate notes. Keep the old file if recovery is needed.
+
+v2.6 reads legacy note IDs, titles, and context without writing the file. Nonempty title and context
+are joined with a blank line; status is intentionally retired. The next explicit save writes the new
+ID/text format atomically. Older application builds cannot read that new format, so retain a workspace
+backup before returning to a pre-v2.6 app. Loading malformed notes never resets the file.
 
 No README is edited. Automatic app discovery scans only the project folder's immediate visible `.app` children, not nested build/recovery folders. Bundle metadata and an executable entry point must be present and contained in the bundle; automatic candidates cannot escape the project through symlinks. A valid remembered manual location is the fallback when automatic detection is ambiguous or unavailable. Launching uses macOS's application-opening service only after Open App or an explicit app choice, without a shell or arguments. Runtime monitoring and arbitrary script launch are not implemented. Malformed local data disables note editing and preserves the file rather than silently resetting it; restore a known-good copy and relaunch. Opening an app does not require writable note storage, although a manual location cannot then be remembered.
 
@@ -223,6 +241,40 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+### v2.6 delivery evidence
+
+The header replaces the 112-point progress ring with content-sized Notes availability beside Document
+Health. Identity uses a 48-point icon and 32-point name, with a 16-point outer inset. A 1,120-point
+minimum window width keeps the actions and summaries in one row; detection captions can wrap without
+moving the summaries below the controls. The tab-to-content gap remains eight points. Work notes owns its Add note toolbar,
+inline text-only editor, Save/Cancel, and saved-note edit/delete controls. The draft stays in the selected
+project view across tab changes, and a failed save does not discard it. Note IDs and all legacy title/context
+text are retained on read; only an explicit mutation writes the new format. Source headings and bold-only
+titles remain outside the grouped prose surfaces; tables, workflow diagrams, and history rows retain
+their existing surfaces. Empty states and workflow guidance now receive the shared content surface.
+
+Passed 40 focused note/presentation assertions, including legacy migration without a read-time write,
+round trips, limits, save/edit/delete and failure preservation, mixed heading/prose/table order, bold-only
+titles, and prose coverage across all six registered projects. Nine disposable-metadata checks cover
+valid pairs, rollover, and malformed/mismatched values. Twenty classification/parser checks and five
+classification/store checks passed for the affected README and state paths. Complete native compilation
+and a cache-free optimized build passed. The signed project-root app matches the source plist at
+v2.6/build 26, contains the exact generated icon, and has an arm64 executable with a valid strict ad-hoc
+signature. v2.5/build 16 remains recoverable under `build/previous.g6aJIt`; prior v2.6 candidates remain
+under ignored `build/` recovery directories because their deletion was not authorized. Full core/store
+suites were not rerun.
+
+On September 3, live checks of an initial candidate confirmed prose wrapping, compact headers, an inline
+single-field editor, disabled empty Save, and enabled Save for a multiline draft. No saved notes were
+changed. Live inspection after the width correction confirmed the 1,120-point minimum, the single-row
+header, and the collapsed sidebar endpoint. The final review found no production-code issue. It fixed
+the malformed-note regression fixture so the failure is attributable to note content rather than a
+missing top-level field, and centralized the minimum-window value. Formal verification then repeated
+the affected tests, complete compilation, cache-free optimized packaging, and strict package checks.
+Native icon packaging required its normal macOS access outside the command sandbox; the unchanged rule
+then succeeded. The Mac was locked before the corrected expansion animation and remaining editor
+interactions could be reinspected. Source is committed in `bfa6c70` and `262e934`.
 
 ### v2.5 delivery evidence
 
@@ -428,7 +480,7 @@ make test
 make app
 ```
 
-`make test-core` covers README topic ownership, structured tables and literal identifiers, overview formatting, explicit diagram branches/merges, source-code exclusion, histories, release/build parsing, missing documents, refresh fingerprints, commit totals/months/intensities/future states, app discovery/ambiguity/symlink boundaries, note persistence, and corrupt data. `make test-store` checks queued repository changes, parent/child selection across refreshes, commit-activity publication, note mutations, save failures, and automatic/manual app resolution using isolated storage/preferences; it never launches applications or reads the user's workspace. `make test` runs both focused targets. Disposable app fixtures are never executed and are removed afterward. Read-only smoke checks also cover the live repository register, Git timestamp/ref access, and Local Assistant's model tables, five request routes, and RAG diagram. No other subproject's suite runs.
+`make test-core` covers README topic ownership, structured tables and literal identifiers, overview formatting, explicit diagram branches/merges, source-code exclusion, histories, release/build parsing, missing documents, refresh fingerprints, commit totals/months/intensities/future states, app discovery/ambiguity/symlink boundaries, note persistence, and corrupt data. `make test-store` checks queued repository changes, parent/child selection across refreshes, commit-activity publication, note mutations, save failures, and automatic/manual app resolution using isolated storage/preferences; it never launches applications or reads the user's workspace. `make test-notes` focuses on legacy-note migration, plain-text validation, atomic save/edit/delete and failures, and ordered prose grouping across all six registered projects. `make test-version` checks valid numbering pairs, rollover, and mismatches using disposable metadata. `make test` runs all four targets. Disposable app fixtures are never executed and are removed afterward. Read-only smoke checks also cover the live repository register, Git timestamp/ref access, and Local Assistant's model tables, five request routes, and RAG diagram. No other subproject's suite runs.
 
 For v0.2, focused packaging checks confirmed all ten icon sizes and their stored source pixels, matching source/bundled metadata and icon files, valid signatures, unchanged v0.1 recovery files, and launch from the root-level v0.2 app. Eight PNG icon representations round-tripped exactly. macOS `iconutil` changes translucent RGB values when exporting the 16/32-pixel ARGB representations, so those were checked against the packed channel data instead. This does not substitute for actual Dock inspection. Icon packaging required running the native tool outside the agent sandbox; no app permission or privacy setting was changed.
 
@@ -469,7 +521,8 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 - Size detail icons consistently with the repository reference and align their center with the project-name line, not the combined title/version stack. Check real and fallback icons with short and wrapped names.
 - Keep Open App beside Read README. Discover project-root apps first; use manual location only as the fallback, and never launch during scanning.
 - Keep README Overview content in Overview, with separate Architecture, Models, Workflows, Work notes, and Project history tabs.
-- Wrap a below-tab README view made only of paragraphs or bullets in the established rounded translucent plane. Do not invent a heading. Preserve heading-above-box sections, Workflow diagrams, tables, history rows, work-note rows, and every area above the tabs without adding another wrapper.
+- Wrap every consecutive below-tab prose/bullet group in the established translucent plane, including groups adjacent to headings or tables. Wrap empty states and explanatory guidance too. Keep standalone source headings and bold-only titles outside the boxes; never invent headings. Preserve already surfaced tables, Workflow diagrams, and history rows without nested wrappers. Areas above the tabs keep their existing treatment.
+- Keep identity/actions and compact Document Health/Notes summaries together above the tabs. Notes report availability only, without progress rings or counters. Keep Add note in the Work notes panel toolbar, with one inline text editor and Save/Cancel; do not request a separate title, context, or status. Preserve IDs and text when reading legacy notes.
 - Render README tables as native headers and cells, never as a raw or duplicated Markdown paragraph. Preserve model identifiers and paths. Keep regressions for leading blank lines, adjacent prose, escaped pipes, and underscore-containing identifiers.
 - Keep every documented architecture-table row visible, including models, embeddings, RAG, orchestration, retrieval, and storage. Models is a secondary view, not a reason to remove documented technologies or concepts. Check coverage for every registered project and never label an absent framework as installed.
 - Follow the repository README's single content contract: category-grouped tables, one named technology/concept per row, plain-language use descriptions, stable section markers, and explicit exclusions. Do not bundle languages, frameworks, models, or protocols into a responsibility row.
@@ -487,6 +540,9 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| v2.6 / build 26 sidebar delivery correction | 2026-09-03 | Kept sidebar content at its expanded layout width while the outer rail reveals it, replaced lazy category layout with stable eager layout, and removed the top-slide transition from project rows. Existing category/footer icons retain their leading axis and animate from their current layout; new project rows fade in. Sidebar destinations, category disclosure, final expanded/collapsed contents, and Reduce Motion behavior are unchanged. The optimized build, strict package checks, minimum-width header, and collapsed sidebar inspection passed. Formal verification repeated complete compilation and strict packaging. The Mac locked before the corrected expansion path and remaining editor interactions could be checked. | Source `262e934`; signed project-root app; live expansion/editor checks pending |
+| v2.6 / build 26 delivery correction | 2026-09-03 | Raised the minimum window width from 980 to 1,120 points and removed the header's stacked action/status layout after the user identified it during live delivery checks. Document Health and Notes stay beside the buttons; the app-detection caption can wrap. The review centralized the minimum-window value and found no production issue. Native compilation, a cache-free optimized rebuild, strict signing, exact metadata, and arm64/icon checks passed. Live checks confirmed the minimum width and single-row header before the final equivalent build. | Source `bfa6c70`; signed project-root app; expansion/editor recheck pending |
+| v2.6 / build 26 | 2026-09-02 | Implemented v2.6/build 26: replaced the notes gauge with availability status, tightened the project header, integrated Add note and a plain-text inline editor, retained legacy note text and identities, and wrapped each below-tab prose group and empty state while preserving existing headings, tables, and diagrams. Enforced the corrected version/build mapping before packaging. Review found no production issue and corrected a misleading malformed-note fixture. Formal verification passed 40 note/presentation, nine numbering, 20 affected core, and five affected store checks, plus complete compilation, cache-free optimized packaging, and strict signature/metadata/arm64/icon checks. Signed app is v2.6/build 26; v2.5/build 16 is recoverable under `build/previous.g6aJIt`. | Source `bfa6c70`; this project documentation checkpoint; signed project-root app |
 | v2.5 / build 16 | 2026-09-02 | Combined project identity, actions, and Document Health in one compact pre-tab glass card. Top-aligned the icon/name/version beside the notes gauge; grouped folder, README, app, optional app-menu, detection, document availability, and runtime-status information below. Reduced this card's content inset to 16 points and its internal row gap to 14 points; adaptive action/status layouts preserve narrow-window readability. Reduced the tab-to-content gap to eight points. Existing warnings, below-tab content styling, notes, history, repository activity, navigation, artwork, and lock behavior are unchanged. Passed complete native type-checking, a cache-free optimized build, strict signing, exact v2.5/build-16 metadata, arm64/icon checks, and live regular/minimum-window checks with Local Assistant and Python Accomplishments. Core/store suites were unchanged and not rerun. The subsequent authorized review found no actionable issues; verification repeated a cache-free optimized build, strict package checks, and live narrow-window header inspection. Preserved v2.4/build 15 under `build/previous.6HZ7jk`; removed superseded same-version candidates and generated intermediates. | Source `52cbaf7`; this documentation checkpoint; signed project-root app |
 | Documentation policy · no new app build | 2026-09-02 | Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here, and added the required linked project declaration. Application source, metadata, signed bundle, and v2.4/build 15 are unchanged. | This documentation commit |
 | v2.4 / build 15 | 2026-09-02 | Removed the competing whole-shell SwiftUI clip and outline so the native macOS window owns the outer corners without light wedges. Kept the full black chassis and three-point detail reveal, then visually tuned the detail layer to an 18-point radius so all four rendered curves follow the native window. Removed the lock artwork's custom outer mask and changed lock/unlock to an edge-to-edge opacity transition without shell scaling. Wrapped only untitled below-tab paragraph/bullet README views in the established rounded translucent plane; heading-led content, tables, Workflows, history, notes, and content above the tabs remain unchanged. Added a lower-third sage halftone to the shared active/lock artwork, repeated it crisply above the normal detail blur, and added a denser full-frame dot-and-short-mark matrix only to the clear lock view. Moved repository README, repository actions, and Lock into consistently styled full-width pinned footer rows with aligned book, adjustment, and lock symbols and longer balanced Open README file, Repository menu, and Lock application labels. The menu's visible row now uses the same fixed leading layout as the plain buttons instead of the borderless menu's intrinsic alignment. Compact workspace/sync status and the live bundle version follow below on the visible icon-column inset; duplicate header/detail controls remain removed and the compact icon axis is retained. Passed 332 core checks, 39 store checks, optimized compilation, strict signing, exact v2.4/build-15 metadata, arm64/icon checks, and live repository/project Overview, Architecture, Workflows, expanded/collapsed footer, lock-artwork, halftone, and corner inspection. The complete code review found no actionable source findings. Formal verification repeated a clean optimized rebuild, strict package-identity checks, and live expanded/collapsed, Overview, Workflows, and lock-state inspection. Preserved v2.3/build 14 under `build/previous.bIh8aG`. | Source `014523d`; this project documentation checkpoint; signed project-root app |
