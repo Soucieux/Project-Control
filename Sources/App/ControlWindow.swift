@@ -369,7 +369,9 @@ internal struct HistoryList: View {
     internal let entries: [HistoryEntry]
     internal var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if entries.isEmpty { Text(ControlConstants.noHistory).foregroundStyle(ControlTheme.muted) }
+            if entries.isEmpty {
+                ContentSurface { Text(ControlConstants.noHistory).foregroundStyle(ControlTheme.muted) }
+            }
             ForEach(entries) { entry in
                 DisclosureGroup {
                     Text(entry.detail).font(.callout).lineSpacing(4).textSelection(.enabled)

@@ -63,10 +63,10 @@ internal enum StoreTests {
         try await initialRecoveryCheck(root, storage: storage, preferences: preferences)
         try await pollingRaceCheck(root, storage: storage, preferences: preferences)
         try applicationChecks(secondRoot, storage: storage, preferences: preferences)
-        let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .next)
+        let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
         check(try store.save(note, for: TestConstants.project) && storage.load().notes[TestConstants.project] == [note], TestConstants.checkStoreSave)
         var edited = note
-        edited.status = .done
+        edited.text = TestConstants.detail
         check(store.save(edited, for: TestConstants.project) && store.notes(for: TestConstants.project) == [edited], TestConstants.checkStoreEdit)
         store.delete(edited, for: TestConstants.project)
         check(try storage.load().notes[TestConstants.project] == [], TestConstants.checkStoreDelete)
@@ -108,7 +108,7 @@ internal enum StoreTests {
         guard let project = store.snapshot?.projects.first else { fatalError(TestConstants.checkClassification) }
         store.selection = project.id
         let existingNotes = store.notes(for: project.id)
-        let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .inProgress)
+        let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
         check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
         try TestConstants.invalidMappings[0].write(to: projectReadme, atomically: true, encoding: .utf8)
         try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.managementCategory, with: TestConstants.renamedCategory)
@@ -138,7 +138,7 @@ internal enum StoreTests {
         await store.reload(root)
         guard let project = store.snapshot?.projects.first else { fatalError(TestConstants.checkMappedRoot) }
         store.selection = project.id
-        let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .inProgress)
+        let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
         check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
         try TestConstants.invalidMappings[0].write(to: projectReadme, atomically: true, encoding: .utf8)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.repositoryOverview, with: TestConstants.updatedRepositoryOverview)

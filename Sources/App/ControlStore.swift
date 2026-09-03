@@ -135,6 +135,7 @@ internal final class ControlStore: ObservableObject {
     /// - Parameters: note: Proposed note. project: Canonical project identifier.
     /// - Returns: Whether the local atomic save succeeded.
     internal func save(_ note: WorkNote, for project: String) -> Bool {
+        guard note.isValid else { error = ControlConstants.noteLimit; return false }
         var next = state
         var notes = notes(for: project)
         if let index = notes.firstIndex(where: { $0.id == note.id }) { notes[index] = note }
@@ -143,7 +144,7 @@ internal final class ControlStore: ObservableObject {
         return persist(next)
     }
 
-    /// Removes a user-confirmed note and recalculates progress from the remaining notes.
+    /// Removes a user-confirmed note without changing the project or README.
     /// - Parameters: note: Confirmed target. project: Owning project identifier.
     /// - Returns: Nothing; failures leave the original note intact.
     internal func delete(_ note: WorkNote, for project: String) {

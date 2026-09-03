@@ -4,46 +4,42 @@ import SwiftUI
 internal struct ReadmeContent: View {
     internal let blocks: [ReadmeBlock]
     internal let empty: String
-    private var isTextOnly: Bool {
-        blocks.allSatisfy { block in block.kind != .heading && block.kind != .table }
-    }
-
     internal var body: some View {
-        Group {
-            if isTextOnly {
-                renderedBlocks.padding(20)
-                    .background(ControlTheme.surface.opacity(0.54), in:
-                        RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous)
-                            .stroke(ControlTheme.line, lineWidth: 1)
-                            .allowsHitTesting(false)
-                    }
-            } else {
-                renderedBlocks
-            }
-        }
-    }
-
-    private var renderedBlocks: some View {
         LazyVStack(alignment: .leading, spacing: 16) {
-            if blocks.isEmpty { Text(empty).font(.callout).foregroundStyle(ControlTheme.muted) }
-            ForEach(blocks) { block in
-                switch block.kind {
-                case .heading:
-                    Text(block.text).font(.headline).padding(.top, 8).accessibilityAddTraits(.isHeader)
-                case .paragraph:
-                    Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
-                case .bullet:
-                    HStack(alignment: .top, spacing: 12) {
-                        Circle().fill(ControlTheme.signal).frame(width: 4, height: 4).padding(.top, 8).accessibilityHidden(true)
-                        Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
+            if blocks.isEmpty {
+                ContentSurface { Text(empty).font(.callout).foregroundStyle(ControlTheme.muted) }
+            }
+            ForEach(Array(ReadmeBlock.contentGroups(blocks).enumerated()), id: \.offset) { _, group in
+                if group.first?.kind == .paragraph || group.first?.kind == .bullet {
+                    ContentSurface {
+                        VStack(alignment: .leading, spacing: 16) {
+                            ForEach(group) { block in blockContent(block) }
+                        }
                     }
-                case .table:
-                    if let table = block.table { ReadmeTableView(table: table) }
+                } else {
+                    ForEach(group) { block in blockContent(block) }
                 }
             }
         }.textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Renders one source block while its enclosing group owns prose backgrounds.
+    /// - Parameter block: Heading, prose, bullet, or table from the README parser.
+    /// - Returns: Selectable content with the existing typography and table layout.
+    @ViewBuilder private func blockContent(_ block: ReadmeBlock) -> some View {
+        switch block.kind {
+        case .heading:
+            Text(block.text).font(.headline).padding(.top, 8).accessibilityAddTraits(.isHeader)
+        case .paragraph:
+            Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
+        case .bullet:
+            HStack(alignment: .top, spacing: 12) {
+                Circle().fill(ControlTheme.signal).frame(width: 4, height: 4).padding(.top, 8).accessibilityHidden(true)
+                Text(block.text).font(.system(size: 14)).lineSpacing(5).foregroundStyle(ControlTheme.muted)
+            }
+        case .table:
+            if let table = block.table { ReadmeTableView(table: table) }
+        }
     }
 }
 

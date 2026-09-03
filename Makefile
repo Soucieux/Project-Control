@@ -10,12 +10,23 @@ ICON_FILE := $(BUILD)/ProjectControl.icns
 ICON_POINTS := 16 32 128 256 512
 CORE := $(wildcard Sources/Core/*.swift)
 UI := $(wildcard Sources/App/*.swift)
-TEST_SUPPORT := Tests/TestConstants.swift Tests/TestFixtures.swift
+TEST_SUPPORT := Tests/TestConstants.swift Tests/TestFixtures.swift Tests/NotesTestConstants.swift
 TEST_ARGS ?=
 ARCH := $(shell uname -m)
 FLAGS := -swift-version 5 -parse-as-library -target $(ARCH)-apple-macos14.0 -module-cache-path $(BUILD)/ModuleCache
 
-.PHONY: icons app test test-core test-store run
+.PHONY: icons app check-version test test-core test-store test-notes test-version run
+
+check-version:
+	/bin/bash Scripts/check-version.sh
+
+test-version:
+	/bin/bash Tests/VersionChecks.sh
+
+test-notes:
+	@mkdir -p "$(BUILD)"
+	$(SWIFT) $(FLAGS) -framework AppKit -framework SwiftUI $(CORE) Sources/App/ControlStore.swift $(TEST_SUPPORT) Tests/NotesTests.swift -o "$(BUILD)/NotesTests"
+	"$(BUILD)/NotesTests"
 
 icons:
 	@mkdir -p "$(ICON_SET)"
@@ -26,7 +37,7 @@ icons:
 	done
 	/usr/bin/iconutil -c icns "$(ICON_SET)" -o "$(ICON_FILE)"
 
-app: icons
+app: check-version icons
 	@mkdir -p "$(APP)/Contents/MacOS" "$(APP)/Contents/Resources"
 	$(SWIFT) $(FLAGS) -O -framework AppKit -framework SwiftUI $(CORE) $(UI) -o "$(APP)/Contents/MacOS/ProjectControl"
 	cp Resources/Info.plist "$(APP)/Contents/Info.plist"
@@ -42,7 +53,7 @@ app: icons
 		fi; \
 	else mv "$(APP)" "$(FINAL_APP)"; fi
 
-test: test-core test-store
+test: test-core test-store test-notes test-version
 
 test-core:
 	@mkdir -p "$(BUILD)"

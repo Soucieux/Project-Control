@@ -39,6 +39,7 @@ internal enum ControlTheme {
     internal static let railLeadingInset: CGFloat = 16
     internal static let railIconSize: CGFloat = 40
     internal static let footerMetadataInset: CGFloat = 11
+    internal static let minimumWindowWidth: CGFloat = 1120
 }
 
 /// A compact section label with semantic hierarchy, not decorative telemetry.
@@ -76,25 +77,22 @@ internal struct GlassCard<Content: View>: View {
     }
 }
 
-/// Progress reports completed user notes; zero notes is intentionally not a percentage.
-internal struct NoteGauge: View {
-    internal let notes: [WorkNote]
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private var completed: Int { notes.filter { $0.status == .done }.count }
-    private var fraction: Double { notes.isEmpty ? 0 : Double(completed) / Double(notes.count) }
+/// The existing workflow-style surface, also used for plain text below the tabs.
+internal struct ContentSurface<Content: View>: View {
+    private let content: Content
+
+    /// Captures content without adding an interaction or scroll container.
+    /// - Parameter content: Text, controls, or a grouped set of note rows.
+    /// - Returns: A surface retaining the supplied content.
+    internal init(@ViewBuilder content: () -> Content) { self.content = content() }
+
     internal var body: some View {
-        ZStack {
-            Circle().stroke(ControlTheme.line, style: StrokeStyle(lineWidth: 3, dash: [2, 5]))
-            Circle().trim(from: 0, to: fraction).stroke(ControlTheme.mint, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                .rotationEffect(.degrees(-90)).animation(reduceMotion ? nil : .easeOut(duration: 0.48), value: fraction)
-            VStack(spacing: 4) {
-                Text(notes.isEmpty ? ControlConstants.noProgress : String(format: ControlConstants.noteCountFormat, completed, notes.count))
-                    .font(.system(size: notes.isEmpty ? 15 : 23, weight: .light, design: .rounded))
-                if !notes.isEmpty { Text(ControlConstants.completedNotes).font(.system(size: 10)).foregroundStyle(ControlTheme.muted) }
+        content.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+            .background(ControlTheme.surface.opacity(0.54), in:
+                RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous)
+                    .stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false)
             }
-        }.frame(width: 112, height: 112)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(ControlConstants.completedNotes)
-            .accessibilityValue(notes.isEmpty ? ControlConstants.noProgress : String(format: ControlConstants.noteCountFormat, completed, notes.count))
     }
 }

@@ -276,7 +276,11 @@ internal enum ReadmeParser {
     /// - Returns: Nothing; appends nonempty readable prose.
     private static func appendBlock(_ lines: inout [String], kind: ReadmeBlock.Kind, to blocks: inout [ReadmeBlock]) {
         let text = plain(lines.joined(separator: ControlConstants.space))
-        if !text.isEmpty { blocks.append(ReadmeBlock(kind: kind, text: text)) }
+        if !text.isEmpty {
+            let standaloneTitle = kind == .paragraph && lines.count == 1
+                && match(lines[0].trimmingCharacters(in: .whitespaces), ControlConstants.boldHeadingPattern) != nil
+            blocks.append(ReadmeBlock(kind: standaloneTitle ? .heading : kind, text: text))
+        }
         lines.removeAll()
     }
 

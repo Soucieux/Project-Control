@@ -20,6 +20,22 @@ internal struct ReadmeBlock: Identifiable {
     internal let kind: Kind
     internal let text: String
     internal var table: ReadmeTable? = nil
+
+    /// Groups adjacent prose without enclosing standalone headings or already surfaced tables.
+    /// - Parameter blocks: Display blocks in their original README order.
+    /// - Returns: Nonempty groups, with each heading and table occupying its own group.
+    internal static func contentGroups(_ blocks: [ReadmeBlock]) -> [[ReadmeBlock]] {
+        var groups: [[ReadmeBlock]] = []
+        for block in blocks {
+            if (block.kind == .paragraph || block.kind == .bullet),
+               let previous = groups.last?.last, previous.kind == .paragraph || previous.kind == .bullet {
+                groups[groups.count - 1].append(block)
+            } else {
+                groups.append([block])
+            }
+        }
+        return groups
+    }
 }
 
 /// Source column headings and data rows, kept separate from Markdown delimiters.
@@ -170,25 +186,46 @@ internal struct RepositorySnapshot {
     }
 }
 
-/// Stable Codable cases; human-readable labels remain centralized.
-internal enum WorkStatus: Int, Codable, CaseIterable, Identifiable {
-    case next, inProgress, done
-    internal var id: Int { rawValue }
-    internal var label: String {
-        switch self {
-        case .next: ControlConstants.next
-        case .inProgress: ControlConstants.inProgress
-        case .done: ControlConstants.done
+/// A plain-text note; legacy title and context remain readable without status tracking.
+internal struct WorkNote: Codable, Identifiable, Equatable {
+    internal let id: UUID
+    internal var text: String
+    internal var isValid: Bool {
+        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && text.count <= ControlConstants.maxNoteLength
+    }
+    private enum CodingKeys: String, CodingKey { case id, text, title, detail }
+
+    /// Creates a plain note while allowing edits to retain the saved identity.
+    /// - Parameters: id: Existing identity, or a new one for an unsaved note. text: Complete note content.
+    /// - Returns: A plain-text work note with the supplied identity.
+    internal init(id: UUID = UUID(), text: String) { self.id = id; self.text = text }
+
+    /// Reads current notes or joins legacy title/context without modifying the saved file.
+    /// - Parameter decoder: Local workspace decoder.
+    /// - Returns: A current-format note containing all retained legacy text when applicable.
+    /// - Throws: A decoding error for malformed or incomplete note data.
+    internal init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(UUID.self, forKey: .id)
+        if values.contains(.text) {
+            text = try values.decode(String.self, forKey: .text)
+        } else {
+            let title = try values.decode(String.self, forKey: .title)
+            let detail = try values.decode(String.self, forKey: .detail)
+            text = [title, detail].filter { !$0.isEmpty }.joined(separator: ControlConstants.newline + ControlConstants.newline)
         }
     }
-}
 
-/// A user-maintained work item, independent of generated README summaries.
-internal struct WorkNote: Codable, Identifiable, Equatable {
-    internal var id = UUID()
-    internal var title: String
-    internal var detail: String
-    internal var status: WorkStatus
+    /// Stores only the stable identity and complete plain-text content on the next authorized save.
+    /// - Parameter encoder: Atomic workspace-save encoder.
+    /// - Returns: Nothing; supplies the note's fields to the encoder.
+    /// - Throws: An encoding error when the encoder cannot represent the note.
+    internal func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(id, forKey: .id)
+        try values.encode(text, forKey: .text)
+    }
 }
 
 /// Local settings and notes keyed by canonical project path, not display name.

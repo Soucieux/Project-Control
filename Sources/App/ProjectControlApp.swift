@@ -14,7 +14,7 @@ internal struct ProjectControlApp: App {
         Window(ControlConstants.appName, id: ControlConstants.bundleID) {
             ControlWindow(store: store)
                 .preferredColorScheme(.light)
-                .frame(minWidth: 980, minHeight: 620)
+                .frame(minWidth: ControlTheme.minimumWindowWidth, minHeight: 620)
                 .task { await store.observe() }
         }
         .defaultSize(width: 1320, height: 760)

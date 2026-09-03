@@ -439,7 +439,7 @@ internal enum CoreTests {
         let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
         check(try storage.load().notes.isEmpty, TestConstants.checkEmpty)
         var state = WorkspaceState()
-        let note = WorkNote(title: TestConstants.title, detail: TestConstants.detail, status: .done)
+        let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
         state.notes[TestConstants.project] = [note]
         try storage.save(state)
         check(try storage.load().notes[TestConstants.project] == [note], TestConstants.checkNotes)
