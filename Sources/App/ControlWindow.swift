@@ -81,7 +81,7 @@ internal struct ControlWindow: View {
 
             if let snapshot = store.snapshot {
                 ScrollView(.vertical, showsIndicators: false) {
-                    LazyVStack(spacing: 8) {
+                    VStack(spacing: 8) {
                         repositoryRow(snapshot)
                         ForEach(Array(snapshot.categories.enumerated()), id: \.element.id) { index, category in
                             categorySection(category, icon: categoryIcon(at: index))
@@ -141,13 +141,14 @@ internal struct ControlWindow: View {
                 Spacer(minLength: 0)
             }
         }
-        .frame(width: sidebarExpanded
-            ? ControlTheme.expandedRailWidth - ControlTheme.railLeadingInset - 18
-            : ControlTheme.collapsedRailWidth - (ControlTheme.railLeadingInset * 2))
+        .frame(width: ControlTheme.expandedRailWidth - ControlTheme.railLeadingInset - 18)
         .padding(.leading, ControlTheme.railLeadingInset)
-        .padding(.trailing, sidebarExpanded ? 18 : ControlTheme.railLeadingInset)
+        .padding(.trailing, 18)
         .padding(.bottom, 18).padding(.top, 34)
-        .frame(maxHeight: .infinity)
+        .frame(width: sidebarExpanded ? ControlTheme.expandedRailWidth : ControlTheme.collapsedRailWidth,
+            alignment: .leading)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .contentShape(Rectangle()).clipped()
         .foregroundStyle(ControlTheme.railInk)
         .background(Color.clear)
         .zIndex(0)
@@ -281,7 +282,7 @@ internal struct ControlWindow: View {
             }.buttonStyle(.plain).accessibilityValue(collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
             if sidebarExpanded && !collapsed {
                 ForEach(Array(category.projects.enumerated()), id: \.element.id) { index, project in
-                    projectRow(project).transition(.opacity.combined(with: .move(edge: .top)))
+                    projectRow(project).transition(.opacity)
                         .animation(reduceMotion ? nil : ControlTheme.motion.delay(Double(index) * 0.045), value: collapsed)
                 }
             }
