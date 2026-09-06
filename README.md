@@ -107,6 +107,7 @@ Local Git refs → timestamps plus project-folder paths → monthly totals and h
 Local work notes → notes available / no notes summary
 ```
 
+<!-- project-control:section=ignore -->
 ### Synchronization implementation
 
 RepositoryReader reads only bounded repository/project READMEs, read-only Git timestamps/ref
@@ -124,6 +125,7 @@ root register/read keeps the last good repository snapshot with a warning. Repai
 next check, including a failed initial restoration; Refresh now forces a read. Last read reports
 the snapshot read time, not an assertion that stale project content or runtime health is current.
 
+<!-- project-control:section=ignore -->
 ### Extraction rules and limits
 
 - Section markers are allowlisted, inert metadata. Marked documents are opt-in; unmarked

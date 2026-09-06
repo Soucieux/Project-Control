@@ -73,6 +73,8 @@ internal enum CoreTests {
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
         check(live.projects.count == 6, TestConstants.checkLive)
         liveTechnologyChecks(live)
+        check(live.projects.first { $0.name == ControlConstants.appName }?.workflows.count == 4,
+            "Project Control shows four documented routes without turning parser guidance into a workflow")
         check(live.categories.map(\.name) == TestConstants.liveCategories
             && live.categories.map { $0.projects.count } == [2, 1, 1, 1, 1], TestConstants.checkLiveCategories)
         check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 6, TestConstants.checkLiveFlows)

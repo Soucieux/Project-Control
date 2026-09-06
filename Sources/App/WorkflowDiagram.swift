@@ -12,33 +12,39 @@ internal struct WorkflowDiagram: View {
     }
 
     internal var body: some View {
-        ScrollView(.horizontal) {
-            VStack(spacing: 44) {
-                ForEach(layers, id: \.self) { layer in
-                    HStack(alignment: .center, spacing: 24) {
-                        ForEach(route.nodes.filter { $0.layer == layer }) { node in
-                            Text(node.label).font(.system(size: 13)).lineSpacing(4)
-                                .multilineTextAlignment(.center).foregroundStyle(ControlTheme.ink)
-                                .frame(width: 224).fixedSize(horizontal: false, vertical: true).padding(14)
-                                .background(ControlTheme.surfaceStrong.opacity(0.72), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(ControlTheme.mint.opacity(0.5), lineWidth: 1))
-                                .anchorPreference(key: WorkflowBounds.self, value: .bounds) { [node.id: $0] }
-                        }
-                    }
-                }
-            }.padding(20)
-                .backgroundPreferenceValue(WorkflowBounds.self) { anchors in
-                    GeometryReader { proxy in
-                        connections(anchors, proxy: proxy)
-                            .stroke(ControlTheme.mint.opacity(0.8), style: StrokeStyle(lineWidth: 1.4, lineJoin: .round))
-                    }.allowsHitTesting(false).accessibilityHidden(true)
-                }
-        }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
+        ViewThatFits(in: .horizontal) {
+            graph.fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, alignment: .center)
+            ScrollView(.horizontal) { graph }.scrollIndicators(.hidden)
+        }.fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .center)
             .background(ControlTheme.surface.opacity(0.54), in: RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous).stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(route.label).accessibilityValue(accessibleConnections)
+    }
+
+    private var graph: some View {
+        VStack(spacing: 44) {
+            ForEach(layers, id: \.self) { layer in
+                HStack(alignment: .center, spacing: 24) {
+                    ForEach(route.nodes.filter { $0.layer == layer }) { node in
+                        Text(node.label).font(.system(size: 13)).lineSpacing(4)
+                            .multilineTextAlignment(.center).foregroundStyle(ControlTheme.ink)
+                            .frame(maxWidth: 224).fixedSize(horizontal: false, vertical: true).padding(14)
+                            .background(ControlTheme.surfaceStrong.opacity(0.72), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(ControlTheme.mint.opacity(0.5), lineWidth: 1))
+                            .anchorPreference(key: WorkflowBounds.self, value: .bounds) { [node.id: $0] }
+                    }
+                }
+            }
+        }.padding(20)
+            .backgroundPreferenceValue(WorkflowBounds.self) { anchors in
+                GeometryReader { proxy in
+                    connections(anchors, proxy: proxy)
+                        .stroke(ControlTheme.mint.opacity(0.8), style: StrokeStyle(lineWidth: 1.4, lineJoin: .round))
+                }.allowsHitTesting(false).accessibilityHidden(true)
+            }
     }
 
     /// Draws directional edges between measured nodes without guessing any additional relationship.
