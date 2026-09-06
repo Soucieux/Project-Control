@@ -8,7 +8,43 @@ Project Control is a native macOS management center for this repository. Underst
 <!-- project-control:section=release -->
 ## Current release
 
-The current source and signed local app are **v2.6 (build 26)**. The compact project header groups identity and actions with
+The current source and signed local app are **v2.7 (build 27)**. The audit source corrections are committed locally; source and documentation were
+uncommitted at initial delivery.
+
+Sidebar rows again show README-derived technology tags and notes availability. Collapsed navigation
+has accessible names and category counts. Activity cells support native button activation, describe
+all five intensity thresholds, use correct singular/plural count labels, and refresh future-month
+visibility each minute. Workflow nodes fit their content, narrow diagrams are centered, and parser
+guidance no longer appears as a route.
+
+Git activity preserves unusual filename bytes and attributes merge changes against the first parent.
+Lazy fetching and transports are disabled. Register tables retain their own headers and blank-column
+precedence. Automatic app discovery rechecks the project boundary, duplicate note identities
+preserve storage and disable editing, and version validation avoids integer overflow. Native
+regressions, callable documentation, and private implementation boundaries were strengthened.
+
+The documented native tests passed 339 core, 40 store, 41 note/presentation, and 12 version checks.
+The final optimized app compiled, passed strict signing and exact source-metadata/icon checks, and
+launched from the project root. The user subsequently authorized removal of all build-folder
+outputs, including the previously preserved v2.6/build-26 recovery.
+
+On September 6, explicitly authorized cleanup removed the entire `build/` folder and stale Finder
+metadata: 231 obsolete generated files (179.7 MB), including compiler caches, test executables,
+icon intermediates, eleven older-version recovery bundles, and one superseded v2.7 candidate.
+The signed v2.7 app at the project root retains its exact audited bytes and valid strict signature.
+No build-folder recovery remains. The older binaries were deleted locally; generated intermediates
+can be rebuilt. Source code, editable icon masters, and audit evidence were preserved. Supplemental
+checks validated the SVG references, PNG decoding, and all ten packaged icon sizes; the source and
+packaged artwork were also visually inspected.
+
+Live inspection confirmed wrapping tags at the minimum width, named collapsed navigation, centered
+workflows, horizontal access to all four branches in a disposable wide-graph fixture, activity
+distributions and threshold descriptions, and empty/multiline note-editor states with Escape
+cancellation. The test draft was not saved and the original repository selection was restored.
+Native button accessibility activation passed; Tab focus traversal was not confirmed under the
+current macOS keyboard settings.
+
+The **v2.6 (build 26) baseline** established the following behavior and prior delivery evidence. The compact project header groups identity and actions with
 Document Health and a simple **Notes available / No notes** summary; it no longer shows progress or
 note counters. The 16-point card inset and eight-point tab/content gap remain. During the pending
 v2.6 delivery checks on September 3, the minimum window width was raised to 1,120 points so actions, Document
@@ -59,9 +95,9 @@ open "Project Control.app"
 
 Project rows and detail titles use the preferred top-level app's macOS icon. Local Assistant and Project Control currently have matching app bundles. Projects with no unambiguous app use a neutral project symbol; no remote logo is fetched and no companion app is arbitrarily chosen for branding.
 
-The signed **Project Control.app** beside this README is v2.6/build 26. The replaced v2.5/build-16
-bundle is preserved under `build/previous.g6aJIt`; v2.4/build 15 remains under
-`build/previous.6HZ7jk`, v2.3/build 14 under `build/previous.bIh8aG`, and older documented recoveries remain unchanged.
+The signed **Project Control.app** beside this README is v2.7/build 27 and is the only retained
+application bundle in this project. The entire `build/` folder was removed; a future build recreates
+it. The September 6 cleanup and asset checks are recorded in [Current release](#current-release).
 
 ## Sidebar classification
 
@@ -112,7 +148,11 @@ Local work notes → notes available / no notes summary
 
 RepositoryReader reads only bounded repository/project READMEs, read-only Git timestamps/ref
 identities, and app identity metadata. GitActivityReader invokes `/usr/bin/git` directly without a
-shell, using fixed `log --all --format=%ct` and `show-ref --head --hash` arguments.
+shell, using fixed `log --all --no-renames --name-only -z --diff-merges=first-parent --format=%x00%ct`
+and `show-ref --head --hash` arguments. NUL framing preserves unusual path characters without
+confusing filenames with commit boundaries. Merge paths describe the result relative to the first parent.
+Git runs with lazy fetching disabled and an empty allowed-protocol list, so missing partial-clone objects
+produce unavailable activity without starting a transport. The current-month display refreshes each minute.
 A background check runs approximately every two seconds while the app view is active. It compares
 fresh metadata, Git refs, and CryptoKit SHA-256 content digests, so same-size README edits and ref
 changes are detected. It captures identities before parsing so a concurrent edit triggers a later
@@ -162,9 +202,9 @@ Notes and application choices are saved atomically in the standard per-user Appl
 v2.6 reads legacy note IDs, titles, and context without writing the file. Nonempty title and context
 are joined with a blank line; status is intentionally retired. The next explicit save writes the new
 ID/text format atomically. Older application builds cannot read that new format, so retain a workspace
-backup before returning to a pre-v2.6 app. Loading malformed notes never resets the file.
+backup before returning to a pre-v2.6 app. Loading malformed notes, including duplicate note identities within one project, never resets the file.
 
-No README is edited. Automatic app discovery scans only the project folder's immediate visible `.app` children, not nested build/recovery folders. Bundle metadata and an executable entry point must be present and contained in the bundle; automatic candidates cannot escape the project through symlinks. A valid remembered manual location is the fallback when automatic detection is ambiguous or unavailable. Launching uses macOS's application-opening service only after Open App or an explicit app choice, without a shell or arguments. Runtime monitoring and arbitrary script launch are not implemented. Malformed local data disables note editing and preserves the file rather than silently resetting it; restore a known-good copy and relaunch. Opening an app does not require writable note storage, although a manual location cannot then be remembered.
+No README is edited. Automatic app discovery scans only the project folder's immediate visible `.app` children, not nested build/recovery folders. Bundle metadata and an executable entry point must be present and contained in the bundle; automatic candidates cannot escape the project through symlinks. The current canonical project identity is rechecked before automatic scanning, icon lookup, and launching, including after a folder alias is retargeted. A valid remembered manual location is the fallback when automatic detection is ambiguous or unavailable. Launching uses macOS's application-opening service only after Open App or an explicit app choice, without a shell or arguments. Runtime monitoring and arbitrary script launch are not implemented. Malformed local data disables note editing and preserves the file rather than silently resetting it; restore a known-good copy and relaunch. Opening an app does not require writable note storage, although a manual location cannot then be remembered.
 
 The development app is not sandboxed or notarized. Its scanner is restricted to selected-repository
 READMEs, Git commit timestamps/changed paths/ref identities, app-bundle identity metadata, and filesystem metadata;
@@ -243,6 +283,10 @@ or runtime network dependency.
 The 33 rejected visual studies and screenshots were removed from the working project and preserved in macOS Trash, in the folder named `Project Control - retired designs 2026-08-30`. All 33 file checksums matched after the move. Their obsolete conversation-preview links were removed; the three selected-reference links remain intact.
 
 ## Development and focused checks
+
+The version-specific evidence below describes each delivery at that time. Older recovery locations
+mentioned in those records were retired during the September 6 cleanup; the current retained bundle
+inventory is recorded in [Current release](#current-release).
 
 ### v2.6 delivery evidence
 
@@ -515,10 +559,10 @@ Generated staging files and recovery copies stay under ignored `build/`; the fin
 - Pin repository README, repository actions, and Lock as three identically styled, full-width leading footer rows below a separator from the scrolling hierarchy. Use the book, horizontal-adjustment, and lock symbols with longer balanced Open README file, Repository menu, and Lock application labels; retain the full action names in help and accessibility text. Render the menu's visible row through the same fixed leading footer layout as the plain buttons rather than accepting the borderless menu's intrinsic alignment. Add a second separator before compact workspace/sync status and the live bundle version, and align that metadata with the visible icon column instead of the raw rail edge. In compact mode, hide labels/status/version and center every action icon on the same axis as navigation icons.
 - The footer lock control hides the complete rail and content surface without authentication, black footer, or status row. Show only the shared local artwork and place Unlock at the geometric center of the application. Enter and leave this state with an edge-to-edge opacity transition only: do not scale the shell or artwork, add a custom outer lock mask, or expose a temporary top gap. Respect Reduce Transparency.
 - Keep a dedicated, accessible repository-actions menu without a redundant disclosure indicator. It belongs in the rail footer, not the detail header, and its label must use the same typography, color, spacing, and full-row target as the neighboring footer actions.
-- Group projects by the explicit Category column, with counts and keyboard-focusable full-row disclosure buttons. Keep scope and tags separate, following the root [Project Control tag policy](../AGENTS.md#project-control) and [README contract](../README.md#readme-content-contract-for-project-control). Preserve source order, project identity, selection, and notes; check wrapping tags at the minimum supported width.
+- Group projects by explicit root-register Category metadata, with counts and keyboard-focusable full-row disclosure buttons. Keep scope and tags separate, following the root [Project Control tag policy](../AGENTS.md#project-control) and [README contract](../README.md#readme-content-contract-for-project-control). Preserve source order, project identity, selection, and notes; check wrapping tags at the minimum supported width.
 - Keep the project register search-free; the full padded row is the selection target and remains a native keyboard-focusable button.
 - Keep a selectable repository parent above its indented projects. Repository Overview, Repository history, Commit activity, and Last read belong on that parent's screen. The repository README action belongs in the pinned rail footer and must not be duplicated on the detail screen.
-- Keep Commit activity on the repository parent only. Show newest years first, one year label and twelve equal month cells, fixed absolute intensity thresholds, concealed future values, an accessible five-level legend, the complete loaded commit total, and distinct valid-year count. At widths up to 940 points, use the compact metrics without horizontal clipping. Hovering a populated cell shows each affected registered project's icon, name, and participation count; disclose that multi-project totals can overlap.
+- Keep Commit activity on the repository parent only. Show newest years first, one year label and twelve equal month cells, fixed absolute intensity thresholds, concealed future values, an accessible five-level legend, the complete loaded commit total, and distinct valid-year count. At widths up to 940 points, use the compact metrics without horizontal clipping. Hovering or activating a populated cell shows each affected registered project's icon, name, and participation count; disclose that multi-project totals can overlap. Make populated cells native keyboard-accessible buttons and describe all five intensity thresholds to assistive technologies.
 - Show the same project icon in its sidebar row and detail header when an unambiguous project-root app exists; otherwise use a neutral symbol.
 - Size detail icons consistently with the repository reference and align their center with the project-name line, not the combined title/version stack. Check real and fallback icons with short and wrapped names.
 - Keep Open App beside Read README. Discover project-root apps first; use manual location only as the fallback, and never launch during scanning.
@@ -542,6 +586,8 @@ reconciliation is not a new app build and does not rerun the historical verifica
 
 | Version | Date | Updates | Git evidence |
 |---|---|---|---|
+| Maintenance | 2026-09-06 | Removed the entire build folder and stale Finder metadata: 231 obsolete generated files (179.7 MB), including compiler/test/icon intermediates, eleven older-version recoveries, and one superseded v2.7 candidate. Preserved the exact signed v2.7/build-27 app at the project root, source, editable icon masters, and audit evidence; no build-folder recovery remains. SVG references, PNG decoding, all ten packaged icon sizes, and source/packaged artwork inspection passed. Updated both current recovery records while preserving historical delivery evidence. No application code, version, build, or behavior changed. | User-authorized complete build-folder cleanup; package and asset checks passed; this documentation checkpoint; initially delivered uncommitted |
+| v2.7 / build 27 | 2026-09-05 | Restores source-derived sidebar tags and notes availability; names collapsed navigation while retaining category counts; exposes activity distributions through native buttons and describes intensity thresholds with correct singular/plural count labels; refreshes future-month visibility each minute; centers content-sized workflow nodes; excludes parser guidance from displayed routes; preserves unusual Git filename bytes and merge attribution while disabling lazy fetch and transports; retains per-table register headers and blank-column precedence; rechecks automatic app boundaries; rejects duplicate note identities without rewriting storage; prevents version arithmetic overflow; and strengthens native regression coverage and private implementation boundaries. | Source: `0e7bd25`, `d826029`, `4dacb60`, `01030c2`, `ffb1804`, `f7d769a`, `7966c13`, `b26a07c`, `c44dc8d`, `535f42f`; initially delivered uncommitted; 432 native checks and optimized packaging passed; signed project-root app; live checks and their limits recorded above |
 | v2.6 / build 26 sidebar delivery correction | 2026-09-03 | Kept sidebar content at its expanded layout width while the outer rail reveals it, replaced lazy category layout with stable eager layout, and removed the top-slide transition from project rows. Existing category/footer icons retain their leading axis and animate from their current layout; new project rows fade in. Sidebar destinations, category disclosure, final expanded/collapsed contents, and Reduce Motion behavior are unchanged. The optimized build, strict package checks, minimum-width header, and collapsed sidebar inspection passed. Formal verification repeated complete compilation and strict packaging. The Mac locked before the corrected expansion path and remaining editor interactions could be checked. | Source `262e934`; signed project-root app; live expansion/editor checks pending |
 | v2.6 / build 26 delivery correction | 2026-09-03 | Raised the minimum window width from 980 to 1,120 points and removed the header's stacked action/status layout after the user identified it during live delivery checks. Document Health and Notes stay beside the buttons; the app-detection caption can wrap. The review centralized the minimum-window value and found no production issue. Native compilation, a cache-free optimized rebuild, strict signing, exact metadata, and arm64/icon checks passed. Live checks confirmed the minimum width and single-row header before the final equivalent build. | Source `bfa6c70`; signed project-root app; expansion/editor recheck pending |
 | v2.6 / build 26 | 2026-09-02 | Implemented v2.6/build 26: replaced the notes gauge with availability status, tightened the project header, integrated Add note and a plain-text inline editor, retained legacy note text and identities, and wrapped each below-tab prose group and empty state while preserving existing headings, tables, and diagrams. Enforced the corrected version/build mapping before packaging. Review found no production issue and corrected a misleading malformed-note fixture. Formal verification passed 40 note/presentation, nine numbering, 20 affected core, and five affected store checks, plus complete compilation, cache-free optimized packaging, and strict signature/metadata/arm64/icon checks. Signed app is v2.6/build 26; v2.5/build 16 is recoverable under `build/previous.g6aJIt`. | Source `bfa6c70`; this project documentation checkpoint; signed project-root app |
