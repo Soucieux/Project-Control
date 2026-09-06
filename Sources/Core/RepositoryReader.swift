@@ -125,7 +125,7 @@ internal enum RepositoryReader {
             readmeAvailable: document != nil,
             overview: ReadmeParser.overview(sections, fallback: introduction.isEmpty ? ControlConstants.noIntroduction : introduction),
             models: ReadmeParser.models(sections),
-            applications: ApplicationLocator.candidates(in: folder).filter(ApplicationLocator.isApplication), sourceWarning: warning)
+            applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning)
     }
 
     /// Captures bounded README digests and metadata so unchanged files need not be parsed.
@@ -142,7 +142,7 @@ internal enum RepositoryReader {
     /// - Returns: Pre-read identities, including incomplete bundles so repairs can be detected.
     private static func projectFingerprint(_ folder: URL, within root: URL) -> [String] {
         [identity(folder), documentIdentity(folder.appendingPathComponent(ControlConstants.readme), within: root)]
-            + ApplicationLocator.candidates(in: folder).flatMap { application in
+            + ApplicationLocator.candidates(in: folder, within: root).flatMap { application in
                 [identity(application), String(ApplicationLocator.isApplication(application)),
                     identity(application.appendingPathComponent(ControlConstants.appContents)
                     .appendingPathComponent(ControlConstants.appInfo))]

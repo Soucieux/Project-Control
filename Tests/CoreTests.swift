@@ -420,7 +420,7 @@ internal enum CoreTests {
         let outside = try TestFixtures.application(in: root, name: TestConstants.external)
         let link = project.appendingPathComponent(TestConstants.linkedApp)
         try FileManager.default.createSymbolicLink(at: link, withDestinationURL: outside)
-        check(!ApplicationLocator.candidates(in: project).contains(outside), TestConstants.checkAppEscape)
+        check(!ApplicationLocator.candidates(in: project, within: repository).contains(outside), TestConstants.checkAppEscape)
         let info = incomplete.appendingPathComponent(ControlConstants.appContents).appendingPathComponent(ControlConstants.appInfo)
         try FileManager.default.removeItem(at: info)
         try FileManager.default.createSymbolicLink(at: info, withDestinationURL: outside.appendingPathComponent(ControlConstants.appContents).appendingPathComponent(ControlConstants.appInfo))
@@ -477,6 +477,13 @@ internal enum CoreTests {
             version: nil, architecture: [], workflows: [], history: [], folderAvailable: true, readmeAvailable: false)
         let aliasSnapshot = RepositorySnapshot(root: repository, projects: [aliasRecord], history: [], readAt: Date(), fingerprint: [])
         let before = RepositoryReader.fingerprint(aliasSnapshot)
+        let outsideFolder = outside.deletingLastPathComponent().appendingPathComponent("ExternalApps")
+        let outsideApplication = try TestFixtures.application(in: outsideFolder, name: "Unexpected")
+        try FileManager.default.removeItem(at: alias)
+        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: outsideFolder)
+        check(ApplicationLocator.candidates(in: alias, within: repository).isEmpty
+            && !ApplicationLocator.isCurrentCandidate(outsideApplication, for: aliasRecord),
+            "retargeted project aliases cannot scan or validate external automatic apps")
         try FileManager.default.removeItem(at: alias)
         try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: outside)
         check(RepositoryReader.fingerprint(aliasSnapshot) != before, TestConstants.checkAliasChange)

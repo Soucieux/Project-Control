@@ -8,7 +8,9 @@ internal struct ProjectIcon: View {
 
     internal var body: some View {
         Group {
-            if let application = ApplicationLocator.preferred(project.applications, project: project.name, folder: project.folder) {
+            if let application = ApplicationLocator.preferred(project.applications.filter {
+                ApplicationLocator.isCurrentCandidate($0, for: project)
+            }, project: project.name, folder: project.folder) {
                 Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
                     .resizable().interpolation(.high).scaledToFit()
             } else {

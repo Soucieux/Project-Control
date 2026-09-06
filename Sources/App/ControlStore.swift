@@ -198,7 +198,7 @@ internal final class ControlStore: ObservableObject {
     /// - Parameters: project: Owning project. candidates: Optional fresh discovery results for click-time validation.
     /// - Returns: An unambiguous application, or nil when selection or manual location is needed.
     internal func application(for project: ProjectRecord, candidates: [URL]? = nil) -> URL? {
-        let available = (candidates ?? project.applications).filter(ApplicationLocator.isApplication)
+        let available = (candidates ?? project.applications).filter { ApplicationLocator.isCurrentCandidate($0, for: project) }
         if let automatic = ApplicationLocator.preferred(available, project: project.name, folder: project.folder) { return automatic }
         if let path = state.applications[project.id] {
             let saved = URL(fileURLWithPath: path)
@@ -211,7 +211,12 @@ internal final class ControlStore: ObservableObject {
     /// - Parameters: project: Owning project. selectedApp: Explicit choice from detected candidates or a native picker.
     /// - Returns: Nothing; missing apps offer location, and launch/save errors remain visible.
     internal func launch(_ project: ProjectRecord, selectedApp: URL? = nil) {
-        let candidates = ApplicationLocator.candidates(in: project.folder).filter(ApplicationLocator.isApplication)
+        guard let root = snapshot?.root,
+              project.folder.resolvingSymlinksInPath().standardizedFileURL.path == project.id,
+              RepositoryReader.contains(project.folder, in: root) else {
+            error = ControlConstants.unsafeProject; return
+        }
+        let candidates = ApplicationLocator.candidates(in: project.folder, within: root).filter(ApplicationLocator.isApplication)
         guard let url = selectedApp ?? application(for: project, candidates: candidates) else {
             chooseApplication(for: project)
             return

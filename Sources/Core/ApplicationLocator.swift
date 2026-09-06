@@ -3,9 +3,10 @@ import Foundation
 /// Discovers only top-level app bundles; no scripts, recursive build scans, or launch side effects.
 internal enum ApplicationLocator {
     /// Finds visible app-shaped directories contained within the selected project.
-    /// - Parameter folder: Project folder from the repository register.
+    /// - Parameters: folder: Project folder from the register. root: Selected repository boundary.
     /// - Returns: Sorted, canonical candidates, including incomplete bundles for refresh tracking.
-    internal static func candidates(in folder: URL) -> [URL] {
+    internal static func candidates(in folder: URL, within root: URL) -> [URL] {
+        guard RepositoryReader.contains(folder, in: root) else { return [] }
         let entries = (try? FileManager.default.contentsOfDirectory(at: folder,
             includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])) ?? []
         let paths = entries.filter {
@@ -14,6 +15,15 @@ internal enum ApplicationLocator {
                 && (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
         }.map { $0.resolvingSymlinksInPath().standardizedFileURL }
         return Array(Set(paths)).sorted { $0.path < $1.path }
+    }
+
+    /// Rechecks an automatic candidate against the project identity captured in the snapshot.
+    /// - Parameters: url: Previously discovered bundle. project: Registered project with its canonical identity.
+    /// - Returns: True only while the folder and bundle remain within that original project.
+    internal static func isCurrentCandidate(_ url: URL, for project: ProjectRecord) -> Bool {
+        project.folder.resolvingSymlinksInPath().standardizedFileURL.path == project.id
+            && url.resolvingSymlinksInPath().standardizedFileURL.path.hasPrefix(project.id + ControlConstants.slash)
+            && isApplication(url)
     }
 
     /// Checks bundle identity and executable metadata without reading or executing code.
