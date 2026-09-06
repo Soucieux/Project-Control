@@ -135,6 +135,10 @@ internal enum GitActivityReader {
         let pipe = Pipe()
         process.executableURL = URL(fileURLWithPath: ControlConstants.gitExecutable)
         process.arguments = [ControlConstants.gitCurrentDirectory, root.path] + arguments
+        var environment = ProcessInfo.processInfo.environment
+        environment[ControlConstants.gitNoLazyFetchEnvironment] = ControlConstants.gitEnvironmentEnabled
+        environment[ControlConstants.gitAllowedProtocolsEnvironment] = ControlConstants.empty
+        process.environment = environment
         process.standardOutput = pipe
         process.standardError = FileHandle.nullDevice
         do { try process.run() }
