@@ -368,7 +368,7 @@ internal struct ControlWindow: View {
 }
 
 /// A wrapping informational badge; its appearance does not imply a clickable action or health state.
-internal struct ClassificationBadge: View {
+private struct ClassificationBadge: View {
     internal let title: String
     internal let value: String
 

@@ -212,7 +212,7 @@ internal struct ProjectScreen: View {
 }
 
 /// An inline, single-field composer; unsuccessful saves keep the draft visible.
-internal struct NoteEditor: View {
+private struct NoteEditor: View {
     @Binding internal var note: WorkNote
     internal let onSave: (WorkNote) -> Bool
     internal let onClose: () -> Void

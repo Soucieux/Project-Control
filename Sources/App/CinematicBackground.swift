@@ -28,7 +28,7 @@ private final class TransparentWindowBridge: NSView {
 }
 
 /// A restrained full-window scene whose light, clouds, and texture remain legible through glass.
-internal struct CinematicBackdrop: View {
+private struct CinematicBackdrop: View {
     internal var body: some View {
         GeometryReader { proxy in
             ZStack {
@@ -180,7 +180,7 @@ internal struct CinematicHalftone: View {
 }
 
 /// Adds the denser full-frame dot-matrix texture reserved for the clear privacy artwork.
-internal struct CinematicLockTexture: View {
+private struct CinematicLockTexture: View {
     internal var body: some View {
         Canvas { context, size in
             let spacing: CGFloat = 7

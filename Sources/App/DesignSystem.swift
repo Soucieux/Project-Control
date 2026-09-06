@@ -59,6 +59,7 @@ internal struct GlassCard<Content: View>: View {
     /// Stores the card content without introducing a second interaction layer.
     /// - Parameter contentPadding: Inset between the card edge and its readable content.
     /// - Parameter content: Readable native content placed on the translucent surface.
+    /// - Returns: A card retaining the supplied content and inset.
     internal init(contentPadding: CGFloat = 22, @ViewBuilder content: () -> Content) {
         self.contentPadding = contentPadding
         self.content = content()

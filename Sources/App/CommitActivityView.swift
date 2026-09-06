@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Responsive dimensions preserve the supplied desktop and compact table proportions.
-internal struct CommitActivityMetrics {
+private struct CommitActivityMetrics {
     internal let yearWidth: CGFloat
     internal let gap: CGFloat
     internal let monthFont: CGFloat
@@ -17,7 +17,7 @@ internal struct CommitActivityMetrics {
 }
 
 /// Calculates one fixed year column and twelve equal monthly columns from the live available width.
-internal struct CommitActivityGridLayout: Layout {
+private struct CommitActivityGridLayout: Layout {
     internal let metrics: CommitActivityMetrics
 
     /// Reports the exact table height after deriving monthly width and the 1.15:1 cell ratio.
