@@ -58,6 +58,7 @@ internal enum StoreTests {
         check(preferences.string(forKey: ControlConstants.folderPreference) == secondRoot.resolvingSymlinksInPath().path, TestConstants.checkStorePreference)
         try await refreshCheck(secondRoot, storage: storage, preferences: preferences)
         await navigationChecks(secondRoot, storage: storage, preferences: preferences)
+        await activityPublishingCheck(secondRoot, storage: storage, preferences: preferences)
         try await sourceRecoveryChecks(secondRoot, storage: storage, preferences: preferences)
         try await classificationRecoveryCheck(secondRoot, storage: storage, preferences: preferences)
         try await initialRecoveryCheck(root, storage: storage, preferences: preferences)

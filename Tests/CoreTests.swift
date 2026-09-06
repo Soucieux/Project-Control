@@ -12,7 +12,7 @@ internal enum CoreTests {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
         if CommandLine.arguments.contains(TestConstants.activityOnly) {
-            commitActivityChecks(root)
+            try commitActivityChecks(root)
             print(TestConstants.passed + String(count))
             return
         }
@@ -66,7 +66,7 @@ internal enum CoreTests {
         parserChecks()
         tableChecks()
         architectureHistoryChecks()
-        commitActivityChecks(root)
+        try commitActivityChecks(root)
         try mappingChecks(root)
         try classificationChecks(root)
         try aliasChecks(repository, project: project, outside: outside)
@@ -108,13 +108,16 @@ internal enum CoreTests {
     /// Checks unfiltered totals, valid-month grouping, fixed intensity, future handling, and live Git loading.
     /// - Parameter root: Disposable non-Git directory used to exercise the unavailable state.
     /// - Returns: Nothing; terminates on an activity calculation or read-boundary regression.
-    private static func commitActivityChecks(_ root: URL) {
+    private static func commitActivityChecks(_ root: URL) throws {
         var calendar = Calendar(identifier: .gregorian)
         guard let timeZone = TimeZone(secondsFromGMT: 0),
               let now = ISO8601DateFormatter().date(from: TestConstants.activityNow) else {
             fatalError(TestConstants.checkActivityFuture)
         }
         calendar.timeZone = timeZone
+        let nonfinite = CommitActivityCalculator.summarize(["nan", "inf", "-inf"], calendar: calendar)
+        check(nonfinite.totalCount == 3 && nonfinite.years.isEmpty,
+            "nonfinite timestamps remain in the total without creating calendar buckets")
         let activity = CommitActivityCalculator.summarize(TestConstants.activityTimestamps, calendar: calendar)
         check(activity.available && activity.totalCount == TestConstants.activityTimestamps.count,
             TestConstants.checkActivityTotal)
@@ -137,20 +140,70 @@ internal enum CoreTests {
             fatalError(TestConstants.checkActivityDistribution)
         }
         let syntheticOutput = ControlConstants.gitRecordPrefix + TestConstants.activityTimestamps[0]
-            + ControlConstants.newline + project.folder.lastPathComponent + ControlConstants.slash + ControlConstants.readme
-            + ControlConstants.newline + ControlConstants.gitRecordPrefix + TestConstants.activityTimestamps[1]
-            + ControlConstants.newline + ControlConstants.readme
-        let records = GitActivityReader.records(from: syntheticOutput, projects: snapshot.projects)
+            + ControlConstants.gitRecordPrefix + ControlConstants.newline + project.folder.lastPathComponent
+            + ControlConstants.slash + ControlConstants.readme + ControlConstants.gitRecordPrefix
+            + ControlConstants.gitRecordPrefix + TestConstants.activityTimestamps[1]
+            + ControlConstants.gitRecordPrefix + ControlConstants.newline + ControlConstants.readme
+            + ControlConstants.gitRecordPrefix
+        let records = GitActivityReader.records(from: Data(syntheticOutput.utf8), projects: snapshot.projects)
         let distributed = CommitActivityCalculator.summarize(records, calendar: calendar)
         check(records.count == 2 && records[0].projectIDs == [project.id] && records[1].projectIDs.isEmpty
             && distributed.years[0].projectCounts[0][project.id] == 1
             && distributed.years[0].projectCounts[0][ControlConstants.repositoryActivityID] == 1,
             TestConstants.checkActivityDistribution)
+        let unusualFolder = "資料\t\n\""
+        let unusualProject = ProjectRecord(id: unusualFolder, name: unusualFolder,
+            folder: URL(fileURLWithPath: "/fixture/" + unusualFolder), readme: project.readme,
+            introduction: ControlConstants.empty, version: nil, architecture: [], workflows: [], history: [],
+            folderAvailable: true, readmeAvailable: true)
+        var unusualBytes = Data(("\0" + TestConstants.activityTimestamps[0] + "\0\n"
+            + unusualFolder + "/line\n\u{001E}123\0" + unusualFolder + "/").utf8)
+        unusualBytes.append(0xFF)
+        unusualBytes.append(contentsOf: Data("\0\0invalid\0".utf8))
+        let unusualRecords = GitActivityReader.records(from: unusualBytes, projects: [unusualProject])
+        check(unusualRecords.count == 2 && unusualRecords[0].projectIDs == [unusualProject.id]
+            && unusualRecords[1].projectIDs.isEmpty,
+            "NUL framing preserves Unicode, tabs, newlines, record markers, and invalid child-name bytes")
+        try gitActivityFixtureChecks(root, calendar: calendar)
         let live = GitActivityReader.load(liveRoot, projects: snapshot.projects, calendar: calendar)
         check(live.available && live.totalCount > 0 && !live.years.isEmpty
             && live.years.flatMap(\.projectCounts).contains { !$0.isEmpty }
             && GitActivityReader.fingerprint(liveRoot) != ControlConstants.gitUnavailableFingerprint,
             TestConstants.checkActivityLive)
+    }
+
+    /// Exercises real Git framing, Unicode paths, merge attribution, and commits without changed paths.
+    /// - Parameters: root: Disposable fixture parent. calendar: Fixed UTC calendar for deterministic counts.
+    /// - Returns: Nothing; throws on fixture setup failure or terminates on a read regression.
+    private static func gitActivityFixtureChecks(_ root: URL, calendar: Calendar) throws {
+        let repository = root.appendingPathComponent("GitActivity")
+        let folder = repository.appendingPathComponent("資料\t\n\"")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let readme = repository.appendingPathComponent(ControlConstants.readme)
+        try "base".write(to: readme, atomically: true, encoding: .utf8)
+        try TestFixtures.git(["init", "--initial-branch=fixture-main"], in: repository)
+        try TestFixtures.git(["add", "."], in: repository)
+        try TestFixtures.git(["commit", "-m", "base"], in: repository)
+        try TestFixtures.git(["checkout", "-b", "fixture-topic"], in: repository)
+        try "topic".write(to: folder.appendingPathComponent("line\n\u{001E}123"),
+            atomically: true, encoding: .utf8)
+        try TestFixtures.git(["add", "."], in: repository)
+        try TestFixtures.git(["commit", "-m", "topic"], in: repository)
+        try TestFixtures.git(["checkout", "fixture-main"], in: repository)
+        try "main".write(to: readme, atomically: true, encoding: .utf8)
+        try TestFixtures.git(["add", "."], in: repository)
+        try TestFixtures.git(["commit", "-m", "main"], in: repository)
+        try TestFixtures.git(["merge", "--no-ff", "fixture-topic", "-m", "merge"], in: repository)
+        try TestFixtures.git(["commit", "--allow-empty", "-m", "empty"], in: repository)
+        let project = ProjectRecord(id: folder.path, name: folder.lastPathComponent,
+            folder: folder, readme: folder.appendingPathComponent(ControlConstants.readme),
+            introduction: ControlConstants.empty, version: nil, architecture: [], workflows: [], history: [],
+            folderAvailable: true, readmeAvailable: false)
+        let activity = GitActivityReader.load(repository, projects: [project], calendar: calendar)
+        check(activity.available && activity.totalCount == 5 && activity.years.count == 1
+            && activity.years[0].months[0] == 5 && activity.years[0].projectCounts[0][project.id] == 2
+            && activity.years[0].projectCounts[0][ControlConstants.repositoryActivityID] == 3,
+            "real Git preserves all five commits and attributes unusual paths in topic and merge commits")
     }
 
     /// Checks independent optional classifications, grouping, compatibility, and live register edits.

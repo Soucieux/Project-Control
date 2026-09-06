@@ -29,4 +29,26 @@ internal enum TestFixtures {
         try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
         return application.resolvingSymlinksInPath().standardizedFileURL
     }
+
+    /// Runs a fixed Git fixture operation with isolated configuration, identity, hooks, and dates.
+    /// - Parameters: arguments: Test-owned Git arguments. folder: Disposable fixture directory.
+    /// - Returns: Nothing; throws when fixture creation fails.
+    internal static func git(_ arguments: [String], in folder: URL) throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: ControlConstants.gitExecutable)
+        process.arguments = ["-C", folder.path, "-c", "core.hooksPath=/dev/null",
+            "-c", "commit.gpgSign=false", "-c", "user.name=Fixture",
+            "-c", "user.email=fixture@example.invalid"] + arguments
+        process.environment = ["PATH": "/usr/bin:/bin", "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_AUTHOR_DATE": "2024-01-15T12:00:00Z",
+            "GIT_COMMITTER_DATE": "2024-01-15T12:00:00Z"]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try process.run()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            throw ControlFailure(message: "Disposable Git activity fixture could not be created.")
+        }
+    }
+
 }

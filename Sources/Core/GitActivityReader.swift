@@ -2,9 +2,9 @@ import Foundation
 import CryptoKit
 
 /// One completed read-only Git invocation with no shell or repository code execution.
-internal struct GitCommandOutput {
-    internal let status: Int32
-    internal let text: String
+private struct GitCommandOutput {
+    fileprivate let status: Int32
+    fileprivate let data: Data
 }
 
 /// Converts complete timestamp lists into fixed calendar-month activity buckets.
@@ -23,7 +23,7 @@ internal enum CommitActivityCalculator {
         var buckets: [Int: [Int]] = [:]
         var projectBuckets: [Int: [[String: Int]]] = [:]
         for record in records {
-            guard let seconds = TimeInterval(record.timestamp) else { continue }
+            guard let seconds = TimeInterval(record.timestamp), seconds.isFinite else { continue }
             let components = calendar.dateComponents([.year, .month], from: Date(timeIntervalSince1970: seconds))
             guard let year = components.year, year > 0,
                   let month = components.month, (1...ControlConstants.monthCount).contains(month) else { continue }
@@ -74,29 +74,42 @@ internal enum GitActivityReader {
     internal static func load(_ root: URL, projects: [ProjectRecord] = [],
                               calendar: Calendar = .autoupdatingCurrent) -> CommitActivity {
         guard let result = output(root, arguments: [ControlConstants.gitLog, ControlConstants.gitAll,
-            ControlConstants.gitNoRenames, ControlConstants.gitNameOnly,
-            ControlConstants.gitTimestampRecordFormat]), result.status == 0 else { return .unavailable }
-        return CommitActivityCalculator.summarize(records(from: result.text, projects: projects), calendar: calendar)
+            ControlConstants.gitNoRenames, ControlConstants.gitNameOnly, ControlConstants.gitNullTerminated,
+            ControlConstants.gitMergeFirstParent, ControlConstants.gitTimestampRecordFormat]),
+              result.status == 0 else { return .unavailable }
+        return CommitActivityCalculator.summarize(records(from: result.data, projects: projects), calendar: calendar)
     }
 
-    /// Parses timestamp boundaries and maps changed paths to registered top-level project identities.
-    /// - Parameters: text: Fixed-format system-Git output. projects: Registered projects eligible for path mapping.
-    /// - Returns: One timestamp and deduplicated affected-project set for every complete Git record.
-    internal static func records(from text: String, projects: [ProjectRecord]) -> [GitCommitMetadata] {
+    /// Parses NUL-framed records without treating quoted or multiline filenames as commit metadata.
+    /// - Parameters: data: Fixed-format system-Git bytes. projects: Registered folders eligible for path mapping.
+    /// - Returns: One timestamp and deduplicated affected-project set for each complete Git record.
+    internal static func records(from data: Data, projects: [ProjectRecord]) -> [GitCommitMetadata] {
         let identities = Dictionary(uniqueKeysWithValues: projects.map { ($0.folder.lastPathComponent, $0.id) })
         var records: [GitCommitMetadata] = []
         var timestamp: String?
         var projectIDs: Set<String> = []
-        for line in text.components(separatedBy: .newlines) {
-            if line.hasPrefix(ControlConstants.gitRecordPrefix) {
+        var expectsTimestamp = false
+        var firstPath = false
+        for field in data.split(separator: 0, omittingEmptySubsequences: false) {
+            if field.isEmpty {
                 if let timestamp { records.append(GitCommitMetadata(timestamp: timestamp, projectIDs: projectIDs)) }
-                timestamp = String(line.dropFirst(ControlConstants.gitRecordPrefix.count))
+                timestamp = nil
                 projectIDs = []
+                expectsTimestamp = true
                 continue
             }
+            if expectsTimestamp {
+                timestamp = String(data: field, encoding: .utf8)
+                expectsTimestamp = false
+                firstPath = true
+                continue
+            }
+            let path = firstPath && field.first == 10 ? field.dropFirst() : field[...]
+            firstPath = false
             guard timestamp != nil,
-                  let folder = line.split(separator: Character(ControlConstants.slash), maxSplits: 1).first,
-                  let identity = identities[String(folder)] else { continue }
+                  let folder = path.split(separator: 47, maxSplits: 1).first,
+                  let name = String(data: folder, encoding: .utf8),
+                  let identity = identities[name] else { continue }
             projectIDs.insert(identity)
         }
         if let timestamp { records.append(GitCommitMetadata(timestamp: timestamp, projectIDs: projectIDs)) }
@@ -111,12 +124,12 @@ internal enum GitActivityReader {
             ControlConstants.gitHead, ControlConstants.gitHashOnly]), result.status == 0 else {
             return ControlConstants.gitUnavailableFingerprint
         }
-        return Data(SHA256.hash(data: Data(result.text.utf8))).base64EncodedString()
+        return Data(SHA256.hash(data: result.data)).base64EncodedString()
     }
 
     /// Executes one fixed system-Git request directly, never through a shell.
     /// - Parameters: root: Repository passed as Git's working-directory argument. arguments: Trusted constant Git arguments.
-    /// - Returns: Exit status and UTF-8 standard output, or nil when the executable cannot start or output cannot decode.
+    /// - Returns: Exit status and standard-output bytes, or nil when the executable cannot start.
     private static func output(_ root: URL, arguments: [String]) -> GitCommandOutput? {
         let process = Process()
         let pipe = Pipe()
@@ -128,7 +141,6 @@ internal enum GitActivityReader {
         catch { return nil }
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
-        guard let text = String(data: data, encoding: .utf8) else { return nil }
-        return GitCommandOutput(status: process.terminationStatus, text: text)
+        return GitCommandOutput(status: process.terminationStatus, data: data)
     }
 }
