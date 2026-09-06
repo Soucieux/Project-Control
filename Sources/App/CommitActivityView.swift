@@ -149,7 +149,7 @@ internal struct CommitActivityView: View {
             }
             Text(ControlConstants.more)
         }.font(.system(size: 13, weight: .medium)).foregroundStyle(ControlTheme.muted)
-            .accessibilityElement(children: .combine)
+            .accessibilityElement(children: .ignore).accessibilityLabel(ControlConstants.activityLegend)
     }
 
     /// Builds thirteen responsive grid columns for one year label and twelve months.
@@ -187,13 +187,15 @@ internal struct CommitActivityView: View {
         let intensity = CommitActivityCalculator.intensity(for: count)
         let showsCount = count > 0 && !future
         let identity = CommitActivityCell(year: year, month: month)
-        return ZStack {
-            RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
-                .fill(future ? ControlTheme.activityFuture : ControlTheme.activityLevels[intensity])
-            Text(showsCount ? String(count) : ControlConstants.empty)
-                .font(.system(size: metrics.countFont, weight: .bold))
-                .foregroundStyle(intensity >= 3 ? Color.white : ControlTheme.ink)
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        return Button { hoveredCell = identity } label: {
+            ZStack {
+                RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
+                    .fill(future ? ControlTheme.activityFuture : ControlTheme.activityLevels[intensity])
+                Text(showsCount ? String(count) : ControlConstants.empty)
+                    .font(.system(size: metrics.countFont, weight: .bold))
+                    .foregroundStyle(intensity >= 3 ? Color.white : ControlTheme.ink)
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        }.buttonStyle(.plain).disabled(!showsCount)
             .overlay {
                 RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
                     .stroke(Color.white.opacity(future ? 0.10 : 0.26), lineWidth: 1)
@@ -235,7 +237,7 @@ internal struct CommitActivityView: View {
                 Text(String(format: ControlConstants.commitDistributionTitleFormat,
                     ControlConstants.commitActivityMonthNames[monthIndex], year))
                     .font(.system(size: 15, weight: .semibold))
-                Text(String(format: ControlConstants.commitCountFormat, count))
+                Text(commitCountLabel(count))
                     .font(.caption).foregroundStyle(ControlTheme.muted)
             }
             Divider().overlay(ControlTheme.line)
@@ -274,6 +276,13 @@ internal struct CommitActivityView: View {
         project(for: identity)?.name ?? ControlConstants.repositoryLevel
     }
 
+    /// Formats one commit count with the correct singular or plural label.
+    /// - Parameter count: Displayed monthly commit count.
+    /// - Returns: Readable count shared by the popover and accessibility description.
+    private func commitCountLabel(_ count: Int) -> String {
+        String(format: count == 1 ? ControlConstants.singleCommitCountFormat : ControlConstants.commitCountFormat, count)
+    }
+
     /// Describes hidden, empty, and populated cells without relying on colour.
     /// - Parameters: year: Calendar year. monthIndex: Zero-based month. count: Loaded commits. future: Whether the value is concealed.
     /// - Returns: Full month, year, and state for assistive technologies.
@@ -281,7 +290,7 @@ internal struct CommitActivityView: View {
         let month = ControlConstants.commitActivityMonthNames[monthIndex]
         return future
             ? String(format: ControlConstants.futureMonthAccessibilityFormat, month, year)
-            : String(format: ControlConstants.commitMonthAccessibilityFormat, month, year, count)
+            : String(format: ControlConstants.commitMonthAccessibilityFormat, month, year, commitCountLabel(count))
     }
 
     private var footer: some View {
@@ -311,7 +320,9 @@ internal struct CommitActivityView: View {
     private func summary(font: CGFloat) -> some View {
         HStack(spacing: 4) {
             Text(String(activity.totalCount)).fontWeight(.bold).foregroundStyle(ControlTheme.mint)
-            Text(String(format: ControlConstants.commitActivitySummaryRemainderFormat, activity.yearCount))
+            Text(String(format: ControlConstants.commitActivitySummaryRemainderFormat,
+                activity.totalCount == 1 ? ControlConstants.commitSingular : ControlConstants.commitPlural,
+                activity.yearCount, activity.yearCount == 1 ? ControlConstants.yearSingular : ControlConstants.yearPlural))
                 .foregroundStyle(ControlTheme.muted)
         }.font(.system(size: font))
     }

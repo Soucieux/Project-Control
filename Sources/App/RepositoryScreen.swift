@@ -47,8 +47,11 @@ internal struct RepositoryScreen: View {
                 switch tab {
                 case .overview: ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview)
                 case .history: HistoryList(entries: snapshot.history)
-                case .activity: CommitActivityView(activity: snapshot.commitActivity,
-                    projects: snapshot.projects, now: Date())
+                case .activity:
+                    TimelineView(.everyMinute) { context in
+                        CommitActivityView(activity: snapshot.commitActivity,
+                            projects: snapshot.projects, now: context.date)
+                    }
                 }
             }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
         }
