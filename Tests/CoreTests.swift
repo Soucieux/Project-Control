@@ -255,6 +255,24 @@ internal enum CoreTests {
         let legacy = try RepositoryReader.load(repository)
         check(legacy.projects[0].classification == ProjectClassification()
             && legacy.categories[0].name == ControlConstants.uncategorized, TestConstants.checkClassificationUnknown)
+        let multipleTables = """
+        ## Projects
+        | Project | Scope | Category | Technologies |
+        |---|---|---|---|
+        | [First](First/) | First. | One | Swift |
+
+        | Project | Scope | Technologies | Category |
+        |---|---|---|---|
+        | [Second](Second/) | Second. | Python | Two |
+        | [Short](Short/) | <strong>Category:</strong> Must not override the present column |
+        """
+        try multipleTables.write(to: readme, atomically: true, encoding: .utf8)
+        let tables = try RepositoryReader.load(repository)
+        check(tables.projects[1].classification.category == "Two"
+            && tables.projects[1].classification.technologies == ["Python"],
+            "each register table retains its own column order")
+        check(tables.projects[2].classification == ProjectClassification(),
+            "a missing legacy cell stays blank rather than falling back to conflicting scope labels")
     }
 
     /// Checks the real register's positive tags without inspecting project code or runtime state.

@@ -41,14 +41,17 @@ internal enum RepositoryReader {
         let explicitlyMapped = sections.contains { $0.mapping != nil }
         let register = ReadmeParser.topicSections(sections, topic: .projects).filter {
             $0.mapping == .projects || (!explicitlyMapped && $0.title.lowercased() == ControlConstants.projectsHeading)
+        }.flatMap { section in
+            section.lines.split { !$0.trimmingCharacters(in: .whitespaces).hasPrefix(ControlConstants.pipe) }
+                .map(Array.init)
         }
-        guard !register.isEmpty, register.allSatisfy({ ReadmeParser.tableHeaders($0.lines).count >= 2 }) else {
+        guard !register.isEmpty, register.allSatisfy({ ReadmeParser.tableHeaders($0).count >= 2 }) else {
             throw ControlFailure(message: ControlConstants.invalidRepository)
         }
         var seen: Set<String> = []
-        let projects = try register.flatMap { section -> [ProjectRecord] in
-            let headers = ReadmeParser.tableHeaders(section.lines).map { ReadmeParser.plain($0).lowercased() }
-            return try ReadmeParser.table(section.lines).compactMap { row -> ProjectRecord? in
+        let projects = try register.flatMap { lines -> [ProjectRecord] in
+            let headers = ReadmeParser.tableHeaders(lines).map { ReadmeParser.plain($0).lowercased() }
+            return try ReadmeParser.table(lines).compactMap { row -> ProjectRecord? in
                 guard row.count >= 2,
                       let name = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 1),
                       let link = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 2),
@@ -82,7 +85,8 @@ internal enum RepositoryReader {
     /// - Parameters: key: Normalized metadata name. headers: Normalized source headings. row: Source cells. scope: Raw scope cell.
     /// - Returns: Inert display text, or nil for an explicit blank, missing label, or blank labelled value.
     private static func registerValue(_ key: String, headers: [String], row: [String], scope: String) -> String? {
-        if let index = headers.firstIndex(of: key), row.indices.contains(index) {
+        if let index = headers.firstIndex(of: key) {
+            guard row.indices.contains(index) else { return nil }
             let value = ReadmeParser.plain(row[index]).trimmingCharacters(in: .whitespacesAndNewlines)
             return value.isEmpty ? nil : value
         }
