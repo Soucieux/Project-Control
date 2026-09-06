@@ -28,4 +28,7 @@ check_pair 2.10 30 fail
 check_pair 2.6 026 fail
 check_pair 02.6 26 fail
 check_pair 2.6.1 26 fail
-echo 'Version checks passed: 9'
+check_pair 0.0 0 pass
+check_pair 922337203685477580.8 9223372036854775808 pass
+check_pair 922337203685477580.8 -9223372036854775808 fail
+echo 'Version checks passed: 12'
