@@ -253,7 +253,8 @@ internal struct ControlWindow: View {
                     }.frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
                 }
             }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-        }.buttonStyle(.plain).accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
+        }.buttonStyle(.plain).accessibilityLabel(snapshot.root.lastPathComponent)
+            .accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
     }
 
     /// Animates every child row when its README-driven category opens or closes.
@@ -279,7 +280,10 @@ internal struct ControlWindow: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-            }.buttonStyle(.plain).accessibilityValue(collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
+            }.buttonStyle(.plain).accessibilityLabel(category.name + ControlConstants.joined
+                + String(category.projects.count))
+                .accessibilityValue(sidebarExpanded ? (collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
+                    : (category.projects.first?.name ?? ControlConstants.empty))
             if sidebarExpanded && !collapsed {
                 ForEach(Array(category.projects.enumerated()), id: \.element.id) { index, project in
                     projectRow(project).transition(.opacity)
@@ -297,9 +301,23 @@ internal struct ControlWindow: View {
             HStack(alignment: .center, spacing: 10) {
                 ProjectIcon(project: project, size: 26).frame(width: 36, height: 36)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(project.name).font(.system(size: 12, weight: .medium)).lineLimit(2)
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(project.name).font(.system(size: 12, weight: .medium)).lineLimit(2)
+                        if !store.notes(for: project.id).isEmpty {
+                            Image(systemName: ControlConstants.noteIcon).font(.caption2)
+                                .foregroundStyle(ControlTheme.railMuted)
+                                .accessibilityLabel(ControlConstants.notesAvailable)
+                        }
+                    }
                     if let scope = project.classification.technicalScope {
                         Text(scope).font(.caption2).foregroundStyle(ControlTheme.railMuted).lineLimit(1)
+                    }
+                    if !project.classification.technologies.isEmpty {
+                        TechnologyTagLayout {
+                            ForEach(project.classification.technologies, id: \.self) { technology in
+                                ClassificationBadge(title: ControlConstants.technology, value: technology)
+                            }
+                        }
                     }
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }.padding(.vertical, 5).padding(.horizontal, 4).contentShape(Rectangle())
@@ -355,11 +373,11 @@ internal struct ClassificationBadge: View {
     internal let value: String
 
     internal var body: some View {
-        Text(value).font(.system(size: 10, weight: .medium)).foregroundStyle(ControlTheme.ink.opacity(0.72))
+        Text(value).font(.system(size: 10, weight: .medium)).foregroundStyle(ControlTheme.railInk)
             .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 8).padding(.vertical, 4)
-            .background(Color.white.opacity(0.38), in: Capsule())
-            .overlay { Capsule().stroke(ControlTheme.line, lineWidth: 0.7) }
+            .background(Color.white.opacity(0.08), in: Capsule())
+            .overlay { Capsule().stroke(ControlTheme.railMuted.opacity(0.35), lineWidth: 0.7) }
             .help(title + ControlConstants.colon + ControlConstants.space + value)
             .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityValue(value)
     }
