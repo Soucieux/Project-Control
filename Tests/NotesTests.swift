@@ -24,7 +24,7 @@ internal enum NotesTests {
         check(try JSONDecoder().decode(WorkNote.self, from: JSONEncoder().encode(note)) == note, NotesTestConstants.noteLabel)
         let encoded = try JSONSerialization.jsonObject(with: JSONEncoder().encode(note)) as? [String: Any]
         check(encoded?.count == 2, NotesTestConstants.noteLabel)
-        check(WorkNote(text: String(repeating: TestConstants.title, count: 1)).isValid, NotesTestConstants.noteLabel)
+        check(WorkNote(text: TestConstants.title).isValid, NotesTestConstants.noteLabel)
         check(!WorkNote(text: ControlConstants.space + ControlConstants.newline).isValid, NotesTestConstants.noteLabel)
         let maximum = String(repeating: ControlConstants.pipe, count: ControlConstants.maxNoteLength)
         check(WorkNote(text: maximum).isValid && !WorkNote(text: maximum + ControlConstants.pipe).isValid, NotesTestConstants.noteLabel)
@@ -43,6 +43,15 @@ internal enum NotesTests {
         try TestConstants.corrupt.write(to: blocked, atomically: true, encoding: .utf8)
         let failing = ControlStore(storage: WorkspaceStorage(file: blocked.appendingPathComponent(ControlConstants.stateFile)), preferences: preferences)
         check(!failing.save(note, for: NotesTestConstants.projectID) && failing.notes(for: NotesTestConstants.projectID).isEmpty, NotesTestConstants.storeLabel)
+        var duplicates = WorkspaceState()
+        duplicates.notes[NotesTestConstants.projectID] = [note, note]
+        let duplicateBytes = try JSONEncoder().encode(duplicates)
+        try duplicateBytes.write(to: storage.file)
+        let duplicateStore = ControlStore(storage: storage, preferences: preferences)
+        let duplicateSaveRejected = !duplicateStore.save(note, for: NotesTestConstants.projectID)
+        let retainedDuplicateBytes = try Data(contentsOf: storage.file)
+        check(!duplicateStore.storageReady && duplicateSaveRejected && retainedDuplicateBytes == duplicateBytes,
+            "duplicate note identities preserve the file and disable editing")
         try NotesTestConstants.malformed.write(to: storage.file, atomically: true, encoding: .utf8)
         let locked = ControlStore(storage: storage, preferences: preferences)
         check(!locked.storageReady && !locked.save(note, for: NotesTestConstants.projectID), NotesTestConstants.storeLabel)

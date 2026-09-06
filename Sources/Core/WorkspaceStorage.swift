@@ -8,7 +8,11 @@ internal struct WorkspaceStorage {
     /// - Returns: The decoded state, or an error preserving the existing file.
     internal func load() throws -> WorkspaceState {
         guard FileManager.default.fileExists(atPath: file.path) else { return WorkspaceState() }
-        return try JSONDecoder().decode(WorkspaceState.self, from: Data(contentsOf: file))
+        let state = try JSONDecoder().decode(WorkspaceState.self, from: Data(contentsOf: file))
+        guard state.notes.values.allSatisfy({ Set($0.map(\.id)).count == $0.count }) else {
+            throw ControlFailure(message: ControlConstants.stateFailure)
+        }
+        return state
     }
 
     /// Saves a full state atomically before the interface adopts a mutation.
