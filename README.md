@@ -382,7 +382,8 @@ For source changes, follow the [repository instructions](../AGENTS.md#project-co
 <!-- project-control:section=history -->
 ## Change history
 
-**Change-history numbering:** Version and build numbers. Follow the repository [version and build-number policy](../AGENTS.md#version-and-build-number-policy).
+**Change-history numbering:** This project uses marketing versions and integer build numbers.
+Follow the repository-wide [version and build-number policy](../AGENTS.md#version-and-build-number-policy).
 
 One record per change; complete details and evidence are below. Older work dates and Git checkpoints remain labelled when they differ.
 
@@ -390,8 +391,8 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
-| README organization | 2026-09-06 | <ul><li><strong>Structure:</strong> User guide first; one history table.</li><li><strong>Rules:</strong> Scoped contributor guidance under AGENTS.</li></ul> | [Full record](#readme-organization) |
-| Documentation readability | 2026-09-06 | <ul><li><strong>Change:</strong> Reorganized long paragraphs and table cells without dropping details.</li></ul> | [Full record](#change-1) |
+| Documentation | 2026-09-06 | <ul><li><strong>Structure:</strong> User guide first; one history table.</li><li><strong>Rules:</strong> Scoped contributor guidance under AGENTS.</li></ul> | [Full record](#readme-organization) |
+| Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Reorganized long paragraphs and table cells without dropping details.</li></ul> | [Full record](#change-1) |
 | Documentation | 2026-09-06 | <ul><li><strong>Change:</strong> Moved complete project descriptions, register details, and repository-origin history into this README.</li></ul> | [Full record](#change-2) |
 | Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Removed the entire build folder and stale Finder metadata.</li></ul> | [Full record](#change-3) |
 | v2.7 / build 27 | 2026-09-05 | <ul><li><strong>Change:</strong> Restores source-derived sidebar tags and notes availability.</li></ul> | [Full record](#change-4) |
