@@ -49,7 +49,7 @@ internal enum TestConstants {
     internal static let liveTechnologyTags = [
         "Local Assistant": ["SwiftUI", "Local AI", "RAG"],
         "Prospect Copilot": ["Next.js", "LangGraph", "Hosted AI"],
-        "OpenClaw": ["AI agents", "Embeddings", "Scheduled workflows"],
+        "OpenClaw": ["AI agents", "SQLite", "Ollama", "Scheduled workflows"],
         "Project Control": ["SwiftUI", "README-driven", "Git metadata"],
         "Knowledge Transfer": ["Markdown", "React", "Obsidian Canvas"],
         "Python Accomplishments": ["Python", "Browser automation", "Speech APIs"]
@@ -78,7 +78,7 @@ internal enum TestConstants {
     internal static let technologyNames = [
         "Local Assistant": ["Retrieval-Augmented Generation (RAG)", "Embeddings", "Qwen3-4B Q4_K_M", "Qwen3-Embedding-0.6B Q8_0", "llama.cpp", "GGUF", "Whisper Small", "WhisperKit", "Core ML", "Optical character recognition (OCR)", "Apple Vision", "SwiftUI", "AppKit", "Swift", "Foundation", "Indexing", "CoreServices", "PDFKit", "ZIPFoundation", "SQLite", "SQLite FTS5", "sqlite-vec", "Security-scoped bookmarks", "App Sandbox", "Agent-to-Agent (A2A)", "SSH"],
         "Prospect Copilot": ["LangGraph", "LangChain", "DeepSeek deepseek-chat", "BANT", "MEDDIC", "React", "React DOM", "Next.js", "TypeScript", "react-markdown", "remark-gfm", "Node.js", "Zod", "Cheerio", "Bounded concurrency", "Composite scoring", "IndexedDB", "idb-keyval", "localStorage", "Server-sent events (SSE)", "OpenAI-compatible API", "ipaddr.js", "Server-side request forgery (SSRF) protection"],
-        "OpenClaw": ["OpenClaw runtime", "Embeddings", "Ollama", "nomic-embed-text:latest", "Python", "Bash", "cron", "Markdown", "ChromaDB", "Tencent CloudBase", "iCloud Calendar", "Agent-to-Agent (A2A)", "Feishu", "Reusable skills"],
+        "OpenClaw": ["OpenClaw runtime", "Embeddings", "Ollama", "nomic-embed-text", "Python", "Bash", "cron", "Markdown", "Builtin SQLite memory", "Tencent CloudBase", "iCloud Calendar", "Agent-to-Agent (A2A)", "Feishu", "Reusable skills"],
         "Python Accomplishments": ["Amazon Polly", "IBM Watson Speech to Text", "Tkinter", "Python", "Selenium", "Beautiful Soup", "Playwright", "tenacity", "openpyxl", "python-docx", "pathlib", "natsort", "CSV", "boto3", "ibm-watson", "ibm-cloud-sdk-core", "SMTP", "python-dotenv", "pip", "PyInstaller"],
         "Knowledge Transfer": ["React", "React DOM", "TypeScript", "react-markdown", "remark-gfm", "rehype-raw", "rehype-sanitize", "prism-react-renderer", "Three.js", "React Router", "mdast-util-from-markdown", "mdast-util-to-string", "Text search", "Source-derived graph", "Markdown", "Obsidian Canvas", "JSON", "Vite", "JavaScript", "Node.js", "HTML", "Vitest"],
         "Project Control": ["SwiftUI", "AppKit", "Swift", "Swift concurrency", "Foundation", "Directed graphs", "Markdown", "JSON", "UserDefaults", "CryptoKit", "Uniform Type Identifiers", "Canonical path validation"]
@@ -561,7 +561,7 @@ internal enum TestConstants {
     internal static let architectureCoverage = [
         "Local Assistant": ["Native Swift", "Qwen3-4B", "Qwen3-Embedding", "llama.cpp", "RAG", "IndexingService", "SQLite", "FTS5", "sqlite-vec", "WhisperKit", "Connector"],
         "Prospect Copilot": ["Next.js", "LangGraph", "LangChain", "DeepSeek", "scoring", "IndexedDB"],
-        "OpenClaw": ["OpenClaw runtime", "Ollama", "ChromaDB", "CloudBase", "iCloud", "A2A"],
+        "OpenClaw": ["OpenClaw runtime", "Ollama", "Builtin SQLite memory", "CloudBase", "iCloud", "A2A"],
         "Knowledge Transfer": ["Markdown", "Canvas", "React", "TypeScript", "Vite", "Three.js", "Search"],
         "Python Accomplishments": ["Python", "Polly", "Watson", "Tkinter", "Playwright", "Selenium", "PyInstaller"],
         "Project Control": ["SwiftUI", "ControlStore", "RepositoryReader", "ReadmeParser", "WorkspaceStorage", "History"]
