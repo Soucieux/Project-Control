@@ -76,26 +76,26 @@ open "Project Control.app"
 
 | Technology or concept | Use in this project |
 |---|---|
-| SwiftUI | <ul><li><strong>Use:</strong> Builds the black chassis, shared-artwork detail layer, animated hierarchy rail, artwork lock, project screens, work-note editor, History, responsive commit-activity grid, native tables, and restrained motion.</li><li><strong>Behavior:</strong> ReadmeContent and RepositoryScreen render the selected source content.</li></ul> |
-| AppKit | <ul><li><strong>Use:</strong> Provides macOS icons, application/window integration, file pickers, and explicit open actions</li><li><strong>Behavior:</strong> ProjectIcon keeps app and fallback artwork consistent.</li></ul> |
+| SwiftUI | Builds the black chassis, shared-artwork detail layer, animated hierarchy rail, artwork lock, project screens, work-note editor, History, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
+| AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon keeps app and fallback artwork consistent. |
 
 ### Backend & Application Logic
 
 | Technology or concept | Use in this project |
 |---|---|
-| Swift | <ul><li><strong>Use:</strong> Native application language.</li><li><strong>Behavior:</strong> ControlStore owns selection and background reloads</li><li><strong>Detail:</strong> RepositoryReader reads bounded source documents and activity snapshots</li><li><strong>Limit:</strong> ReadmeParser handles sections, tables, and history.</li></ul> |
-| Swift concurrency | <ul><li><strong>Use:</strong> Runs README reads and change detection off the interface thread</li><li><strong>Behavior:</strong> updates the observable store on the main actor.</li></ul> |
-| Foundation | <ul><li><strong>Use:</strong> Provides bounded file reads, canonical paths, Git process execution, calendar grouping, dates, regular expressions, and structured-data encoding.</li></ul> |
-| Directed graphs | <ul><li><strong>Use:</strong> WorkflowParser and WorkflowDiagram render documented nodes, arrows, branches, and merges without inventing relationships.</li></ul> |
+| Swift | Native application language. ControlStore owns selection and background reloads. RepositoryReader reads bounded source documents and activity snapshots. ReadmeParser handles sections, tables, and history. |
+| Swift concurrency | Runs README reads and change detection off the interface thread; updates the observable store on the main actor. |
+| Foundation | Provides bounded file reads, canonical paths, Git process execution, calendar grouping, dates, regular expressions, and structured-data encoding. |
+| Directed graphs | WorkflowParser and WorkflowDiagram render documented nodes, arrows, branches, and merges without inventing relationships. |
 
 ### Data & Storage
 
 | Technology or concept | Use in this project |
 |---|---|
-| Markdown | <ul><li><strong>Use:</strong> Repository/project README files are the content baseline.</li><li><strong>Behavior:</strong> Stable section markers select the app-visible subset.</li></ul> |
-| Git metadata | <ul><li><strong>Use:</strong> Complete local reachable-commit timestamps supply monthly activity</li><li><strong>Behavior:</strong> changed paths map commits to registered projects for hover details</li><li><strong>Detail:</strong> ref object identities trigger refresh without reading messages, authors, or file contents.</li></ul> |
-| JSON | <ul><li><strong>Use:</strong> WorkspaceStorage atomically saves local work notes and app choices outside the repository</li><li><strong>Behavior:</strong> malformed data is never reset automatically.</li></ul> |
-| UserDefaults | <ul><li><strong>Use:</strong> Remembers the last successfully selected repository separately from work-note storage.</li></ul> |
+| Markdown | Repository/project README files are the content baseline. Stable section markers select the app-visible subset. |
+| Git metadata | Complete local reachable-commit timestamps supply monthly activity; changed paths map commits to registered projects for hover details; ref object identities trigger refresh without reading messages, authors, or file contents. |
+| JSON | WorkspaceStorage atomically saves local work notes and app choices outside the repository; malformed data is never reset automatically. |
+| UserDefaults | Remembers the last successfully selected repository separately from work-note storage. |
 
 ### Integrations & Security
 
@@ -103,7 +103,7 @@ open "Project Control.app"
 |---|---|
 | CryptoKit | Computes bounded README and Git-ref content digests for refresh detection. |
 | Uniform Type Identifiers | Constrains the native application picker to application bundles. |
-| Canonical path validation | <ul><li><strong>Use:</strong> Keeps README reads inside the selected repository.</li><li><strong>Behavior:</strong> ApplicationLocator validates top-level app identity</li><li><strong>Detail:</strong> discovery never launches apps.</li></ul> |
+| Canonical path validation | Keeps README reads inside the selected repository. ApplicationLocator validates top-level app identity; discovery never launches apps. |
 
 No LLM, embedding service, RAG index, network client, or automatic project execution is included. The app displays documented facts rather than inspecting project code.
 
@@ -382,8 +382,6 @@ For source changes, follow the [repository instructions](../AGENTS.md#project-co
 <!-- project-control:section=history -->
 ## Change history
 
-
-
 **Change-history numbering:** Version and build numbers. Follow the repository [version and build-number policy](../AGENTS.md#version-and-build-number-policy).
 
 One record per change; complete details and evidence are below. Older work dates and Git checkpoints remain labelled when they differ.
@@ -427,8 +425,6 @@ One record per change; complete details and evidence are below. Older work dates
 
 <a id="readme-organization"></a>
 
-
-
 ### README organization — 2026-09-06
 
 - **Structure:** Put purpose, capabilities, setup, architecture, and workflows before history.
@@ -438,8 +434,6 @@ One record per change; complete details and evidence are below. Older work dates
 
 <a id="change-1"></a>
 <a id="readability-maintenance"></a>
-
-
 
 ### Documentation readability
 
@@ -456,8 +450,6 @@ Local documentation changes; initially delivered uncommitted and recorded in thi
 [Back to change history](#change-history)
 
 <a id="change-2"></a>
-
-
 
 ### Documentation
 
@@ -477,8 +469,6 @@ Local documentation update; uncommitted
 <a id="readme-detail-1"></a>
 <a id="readme-detail-22"></a>
 <a id="repository-record-1"></a>
-
-
 
 ### Maintenance
 
@@ -504,22 +494,21 @@ User-authorized complete build-folder cleanup; package and asset checks passed; 
 <a id="readme-detail-23"></a>
 <a id="repository-record-2"></a>
 
-
-
 ### v2.7 / build 27
 
 - **Recorded date:** 2026-09-05.
 
-- refreshes future-month visibility each minute
-- centers content-sized workflow nodes
-- excludes parser guidance from displayed routes
-- preserves unusual Git filename bytes and merge attribution while disabling lazy fetch and transports;
+This release:
 
-- retains per-table register headers and blank-column precedence
-- rechecks automatic app boundaries
-- rejects duplicate note identities without rewriting storage
-- prevents version arithmetic overflow
-- and strengthens native regression coverage and private implementation boundaries.
+- refreshes future-month visibility each minute;
+- centers content-sized workflow nodes;
+- excludes parser guidance from displayed routes;
+- preserves unusual Git filename bytes and merge attribution while disabling lazy fetch and transports;
+- retains per-table register headers and blank-column precedence;
+- rechecks automatic app boundaries;
+- rejects duplicate note identities without rewriting storage;
+- prevents version arithmetic overflow; and
+- strengthens native regression coverage and private implementation boundaries.
 
 - Exhaustive-pass source v2.7/build 27.
 - Restores source-derived sidebar tags and notes availability; names collapsed navigation while retaining category counts; exposes activity distributions through native buttons and describes intensity thresholds with correct singular/plural count labels;
@@ -547,9 +536,7 @@ Project Control is a native macOS management center that summarizes the reposito
 - The final optimized app compiled, passed strict signing and exact source-metadata/icon checks, and launched from the project root.
 - The user subsequently authorized removal of all build-folder outputs, including the previously preserved v2.6/build-26 recovery.
 
-The signed v2.7 app at the project root retains its exact audited bytes and valid strict signature. No build-folder recovery remains. The older binaries were deleted locally;
-
-- generated intermediates can be rebuilt.
+The signed v2.7 app at the project root retains its exact audited bytes and valid strict signature. No build-folder recovery remains. The older binaries were deleted locally; generated intermediates can be rebuilt.
 - Source code, editable icon masters, and audit evidence were preserved.
 - Supplemental checks validated the SVG references, PNG decoding, and all ten packaged icon sizes; the source and packaged artwork were also visually inspected.
 
@@ -562,24 +549,12 @@ Historical delivery notes below retain their original evidence; all build-folder
 
 **Evidence and delivery status**
 
-- Source: `0e7bd25`, `d826029`, `4dacb60`, `01030c2`, `ffb1804`, `f7d769a`, `7966c13`, `b26a07c`, `c44dc8d`, `535f42f`
-- initially delivered uncommitted
-- 432 native checks and optimized packaging passed
-- signed project-root app
-- live checks and their limits recorded above
-
-- Source: `0e7bd25`, `d826029`, `4dacb60`, `01030c2`, `ffb1804`, `f7d769a`, `7966c13`, `b26a07c`, `c44dc8d`, `535f42f`
-- initially delivered uncommitted
-- 432 native checks and optimized packaging passed
-- signed local app
-- live checks and limits recorded in Project details
+Source `0e7bd25`, `d826029`, `4dacb60`, `01030c2`, `ffb1804`, `f7d769a`, `7966c13`, `b26a07c`, `c44dc8d`, `535f42f`; initially delivered uncommitted; 432 native checks and optimized packaging passed; signed project-root app; live checks and their limits recorded above and in Project details
 
 [Back to change history](#change-history)
 
 <a id="change-5"></a>
 <a id="repository-record-3"></a>
-
-
 
 ### Maintenance
 
@@ -607,8 +582,6 @@ Local cleanup; this history reconciliation
 <a id="readme-detail-3"></a>
 <a id="repository-record-4"></a>
 
-
-
 ### Maintenance
 
 - **Recorded date:** 2026-09-03.
@@ -634,8 +607,6 @@ Source `262e934`; project record `71d43d3`; signed project-root app; live expans
 <a id="readme-detail-25"></a>
 <a id="readme-detail-4"></a>
 <a id="repository-record-5"></a>
-
-
 
 ### Maintenance
 
@@ -666,8 +637,6 @@ Source `bfa6c70`; project record `71d43d3`; signed project-root app
 <a id="readme-detail-5"></a>
 <a id="repository-record-6"></a>
 <a id="v26-delivery-evidence"></a>
-
-
 
 ### v2.6 / build 26
 
@@ -731,9 +700,7 @@ It fixed the malformed-note regression fixture so the failure is attributable to
 
 - On September 6, explicitly authorized cleanup removed the entire `build/` folder and stale Finder metadata: 231 obsolete generated files (179.7 MB), including compiler caches, test executables, icon intermediates, eleven older-version recovery bundles, and one superseded v2.7 candidate.
 
-The signed v2.7 app at the project root retains its exact audited bytes and valid strict signature. No build-folder recovery remains. The older binaries were deleted locally;
-
-- generated intermediates can be rebuilt.
+The signed v2.7 app at the project root retains its exact audited bytes and valid strict signature. No build-folder recovery remains. The older binaries were deleted locally; generated intermediates can be rebuilt.
 - Source code, editable icon masters, and audit evidence were preserved.
 - Supplemental checks validated the SVG references, PNG decoding, and all ten packaged icon sizes; the source and packaged artwork were also visually inspected.
 
@@ -837,8 +804,6 @@ Source `bfa6c70`; navigation `262e934`; project record `71d43d3`; signed project
 <a id="repository-record-7"></a>
 <a id="v25-delivery-evidence"></a>
 
-
-
 ### v2.5 / build 16
 
 - **Recorded date:** 2026-09-02.
@@ -886,8 +851,6 @@ Source `52cbaf7`; this documentation checkpoint; signed project-root app
 
 <a id="change-10"></a>
 
-
-
 ### Documentation
 
 - **Recorded date:** 2026-09-02.
@@ -906,8 +869,6 @@ This documentation commit
 <a id="readme-detail-7"></a>
 <a id="repository-record-8"></a>
 <a id="v24-delivery-evidence"></a>
-
-
 
 ### v2.4 / build 15
 
@@ -936,7 +897,7 @@ This documentation commit
 
 - Delivered v2.4/build 15 with native-owned outer corners, a three-point black detail reveal, and an independently tuned 18-point detail radius whose four rendered curves visually follow the window.
 
-- preserved heading-led content, tables, Workflows, history, notes, and above-tab presentation.
+- Preserved heading-led content, tables, Workflows, history, notes, and above-tab presentation.
 - Added a lower sage halftone to shared active/lock artwork, repeated it crisply above the normal detail blur, and added a denser full-frame dot-and-short-mark matrix only to the clear lock view.
 
 - Moved repository README, repository actions, and Lock into matching full-width pinned footer rows with one fixed icon axis and longer balanced Open README file, Repository menu, and Lock application labels.
@@ -947,8 +908,7 @@ This documentation commit
 - duplicate detail controls remain removed and compact icons remain centered.
 - Passed 332 core checks, 39 store checks, optimized compilation, strict signing, exact v2.4/build-15 metadata, arm64/icon checks, and live Overview, Architecture, Workflows, expanded/collapsed footer, lock-artwork, halftone, and corner inspection.
 
-- The v2.4/build-15 source removes only the artificial whole-shell SwiftUI clip and outline
-- the native window owns the outside corners while the full black chassis and independently rounded detail surface remain.
+- The v2.4/build-15 source removes only the artificial whole-shell SwiftUI clip and outline; the native window owns the outside corners while the full black chassis and independently rounded detail surface remain.
 
 The three-point reveal and visually tuned 18-point detail radius align all four rendered detail corners with the native window instead of deriving the radius from an assumed outer value.
 
@@ -984,8 +944,6 @@ Source `014523d`; project documentation `ceb9c78`; this root checkpoint; signed 
 <a id="repository-record-9"></a>
 <a id="v23-delivery-evidence"></a>
 
-
-
 ### v2.3 / build 14
 
 - **Recorded date:** 2026-09-01.
@@ -1011,9 +969,7 @@ Source `014523d`; project documentation `ceb9c78`; this root checkpoint; signed 
 - The v2.3/build-14 source adds the read-only repository Commit activity tab and its project-aware hover distributions.
 - The completed visual correction uses one rounded black chassis as the full window base, exposes that chassis as the left rail and detail perimeter, and places one rounded light-artwork detail panel above it.
 
-The active detail view blurs the same artwork that the lock view shows clearly. The expanded brand row and collapsed 40-point icon column share one leading axis;
-
-- top navigation, scrolling project groups, and the pinned local-only status remain structurally separate.
+The active detail view blurs the same artwork that the lock view shows clearly. The expanded brand row and collapsed 40-point icon column share one leading axis; top navigation, scrolling project groups, and the pinned local-only status remain structurally separate.
 - Reduce Motion suppresses transitions, while Reduce Transparency retains the solid detail fallback.
 
 - Eight focused activity core checks, one store check, native type-checking, optimized compilation, strict signing, metadata, executable, icon, and live expanded/collapsed/lock checks passed.
@@ -1050,8 +1006,6 @@ Activity `bb0689e`; shell `a01102b`; project documentation `78bbbab`; this root 
 <a id="readme-detail-9"></a>
 <a id="repository-record-10"></a>
 <a id="v22-delivery-evidence"></a>
-
-
 
 ### v2.2 / build 13
 
@@ -1112,8 +1066,6 @@ Source `ad84aa7`; project delivery record and this root documentation checkpoint
 <a id="readme-detail-31"></a>
 <a id="repository-record-11"></a>
 <a id="v21-delivery-evidence"></a>
-
-
 
 ### v2.1 / build 12
 
@@ -1200,8 +1152,6 @@ Source `8c7981c`; project source record `0c57d69`; root source record `9738555`;
 <a id="repository-record-12"></a>
 <a id="v20-source-checkpoint"></a>
 
-
-
 ### v2.0 / build 11
 
 - **Recorded date:** 2026-09-01.
@@ -1242,8 +1192,7 @@ Source `8c7981c`; project source record `0c57d69`; root source record `9738555`;
 - `0e07484` provides the transparent-window and behind-window correction.
 - After the source and dual-README checkpoints were committed, a clean optimized build passed strict signing, source/bundle metadata equality, and separate-instance launch.
 
-- Offscreen repository/project renders confirmed the outlined shell, rounded hierarchy, real app icons, fixed-height content, and centered lock control
-- behind-window sampling itself requires the live window.
+- Offscreen repository/project renders confirmed the outlined shell, rounded hierarchy, real app icons, fixed-height content, and centered lock control; behind-window sampling itself requires the live window.
 
 - ScreenCaptureKit remained denied, so final live interaction is not claimed.
 - Optional code review and formal verification have not run.
@@ -1262,8 +1211,6 @@ Initial source `32f2df4`; desktop glass `0e07484`; project records `2f44ecd`, `9
 <a id="readme-detail-33"></a>
 <a id="repository-record-13"></a>
 <a id="v10-delivery-evidence"></a>
-
-
 
 ### v1.0 / build 10
 
@@ -1299,9 +1246,7 @@ Initial source `32f2df4`; desktop glass `0e07484`; project records `2f44ecd`, `9
 - The parser, sidebar, scoped tag policy, and root register are updated in source.
 - Passed **19 focused parser/register checks**, **5 store checks**, native type-checking, and **24 native tag-layout cases** at 64-, 148-, and 320-point widths, including empty and long labels.
 
-Offscreen views at 900×660 and 1160×840 and a six-project tag panel were inspected. An isolated render needed normal macOS icon-service access outside the agent sandbox;
-
-- it captured only its own never-shown views, not desktop pixels.
+Offscreen views at 900×660 and 1160×840 and a six-project tag panel were inspected. An isolated render needed normal macOS icon-service access outside the agent sandbox; it captured only its own never-shown views, not desktop pixels.
 - No screen-recording permission was changed or retried.
 - These checks do not establish live scrolling, keyboard interaction, or installed-app behavior.
 
@@ -1336,8 +1281,6 @@ make test-core test-store TEST_ARGS=--classification
 <a id="readme-detail-34"></a>
 <a id="repository-record-14"></a>
 <a id="v09-delivery-evidence"></a>
-
-
 
 ### v0.9 / build 9
 
@@ -1404,8 +1347,6 @@ Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; n
 <a id="change-18"></a>
 <a id="repository-record-15"></a>
 
-
-
 ### Documentation
 
 - **Recorded date:** 2026-08-31.
@@ -1428,8 +1369,6 @@ Prior release references below; no separate app build
 <a id="readme-detail-35"></a>
 <a id="repository-record-16"></a>
 <a id="v08-delivery-evidence"></a>
-
-
 
 ### v0.8 / build 8
 
@@ -1582,8 +1521,6 @@ The entire `Project Control/build/` folder, including every recovery bundle and 
 <a id="readme-detail-15"></a>
 <a id="repository-record-17"></a>
 
-
-
 ### Documentation
 
 - **Recorded date:** 2026-08-31.
@@ -1611,8 +1548,6 @@ Historical work record
 <a id="readme-detail-16"></a>
 <a id="readme-detail-36"></a>
 <a id="repository-record-18"></a>
-
-
 
 ### v0.7 / build 7
 
@@ -1665,8 +1600,6 @@ v0.5 was retired to Trash, though a final Trash inventory was denied by macOS an
 <a id="readme-detail-37"></a>
 <a id="repository-record-19"></a>
 
-
-
 ### v0.6 / build 6
 
 - **Recorded date:** 2026-08-30.
@@ -1711,8 +1644,6 @@ Retrospective build record in `0a17adc`
 <a id="change-23"></a>
 <a id="readme-detail-38"></a>
 <a id="repository-record-20"></a>
-
-
 
 ### v0.5 / build 5
 
@@ -1760,8 +1691,6 @@ Retrospective build record in `0a17adc`
 <a id="readme-detail-39"></a>
 <a id="repository-record-21"></a>
 
-
-
 ### v0.4 / build 4
 
 - **Recorded date:** 2026-08-30.
@@ -1805,8 +1734,6 @@ Retrospective build record in `9f086e9`
 <a id="readme-detail-40"></a>
 <a id="repository-record-22"></a>
 
-
-
 ### v0.3 / build 3
 
 - **Recorded date:** 2026-08-30.
@@ -1849,8 +1776,6 @@ Retrospective build record in `9f086e9`
 <a id="readme-detail-20"></a>
 <a id="repository-record-23"></a>
 
-
-
 ### v0.2 / build 2
 
 - **Recorded date:** 2026-08-30.
@@ -1880,8 +1805,6 @@ Retrospective build record in `6c8dd32`
 <a id="change-27"></a>
 <a id="readme-detail-41"></a>
 <a id="repository-record-24"></a>
-
-
 
 ### Maintenance
 
@@ -1913,8 +1836,6 @@ Retrospective build record in `6c8dd32`
 <a id="readme-detail-21"></a>
 <a id="readme-detail-42"></a>
 <a id="repository-record-25"></a>
-
-
 
 ### v0.1 / build 1
 
