@@ -4,7 +4,9 @@ import CryptoKit
 /// Loads bounded READMEs, Git timestamps and paths, and app identity metadata; never reads source files or executes repository code.
 internal enum RepositoryReader {
     /// Reads a bounded regular file as UTF-8, rejecting symlink destinations outside the root.
-    /// - Parameters: url: README path. root: Allowed repository boundary.
+    /// - Parameters:
+    ///   - url: README path.
+    ///   - root: Allowed repository boundary.
     /// - Returns: The README text, or throws without touching source files.
     internal static func read(_ url: URL, within root: URL) throws -> String {
         guard contains(url, in: root) else { throw ControlFailure(message: ControlConstants.unsafeProject) }
@@ -22,7 +24,9 @@ internal enum RepositoryReader {
     }
 
     /// Checks canonical containment including symlink resolution.
-    /// - Parameters: url: Candidate path. root: Repository root.
+    /// - Parameters:
+    ///   - url: Candidate path.
+    ///   - root: Repository root.
     /// - Returns: Whether the candidate is a descendant of the root.
     internal static func contains(_ url: URL, in root: URL) -> Bool {
         url.resolvingSymlinksInPath().standardizedFileURL.path.hasPrefix(
@@ -82,7 +86,11 @@ internal enum RepositoryReader {
     }
 
     /// Reads legacy column metadata first, then falls back to a labelled scope value when the column is absent.
-    /// - Parameters: key: Normalized metadata name. headers: Normalized source headings. row: Source cells. scope: Raw scope cell.
+    /// - Parameters:
+    ///   - key: Normalized metadata name.
+    ///   - headers: Normalized source headings.
+    ///   - row: Source cells.
+    ///   - scope: Raw scope cell.
     /// - Returns: Inert display text, or nil for an explicit blank, missing label, or blank labelled value.
     private static func registerValue(_ key: String, headers: [String], row: [String], scope: String) -> String? {
         if let index = headers.firstIndex(of: key) {
@@ -105,7 +113,11 @@ internal enum RepositoryReader {
     }
 
     /// Assembles a project while representing a missing README explicitly.
-    /// - Parameters: name: Register label. folder: Local project folder. scope: Root summary. root: Trust boundary.
+    /// - Parameters:
+    ///   - name: Register label.
+    ///   - folder: Local project folder.
+    ///   - scope: Root summary.
+    ///   - root: Trust boundary.
     /// - Returns: Presentation data with source availability flags.
     private static func project(name: String, folder: URL, scope: String, root: URL) -> ProjectRecord {
         let readme = folder.appendingPathComponent(ControlConstants.readme)
@@ -142,7 +154,9 @@ internal enum RepositoryReader {
     }
 
     /// Observes top-level app additions, removals, and metadata changes alongside README changes.
-    /// - Parameters: folder: Registered project folder. root: Allowed repository boundary.
+    /// - Parameters:
+    ///   - folder: Registered project folder.
+    ///   - root: Allowed repository boundary.
     /// - Returns: Pre-read identities, including incomplete bundles so repairs can be detected.
     private static func projectFingerprint(_ folder: URL, within root: URL) -> [String] {
         [identity(folder), documentIdentity(folder.appendingPathComponent(ControlConstants.readme), within: root)]
@@ -154,7 +168,9 @@ internal enum RepositoryReader {
     }
 
     /// Detects content changes even when an editor preserves file size and modification time.
-    /// - Parameters: url: README path. root: Allowed repository boundary.
+    /// - Parameters:
+    ///   - url: README path.
+    ///   - root: Allowed repository boundary.
     /// - Returns: Fresh metadata and a bounded content digest, or a stable unreadable marker.
     private static func documentIdentity(_ url: URL, within root: URL) -> String {
         let metadata = identity(url)

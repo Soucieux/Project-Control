@@ -17,7 +17,9 @@ internal enum CommitActivityCalculator {
     }
 
     /// Groups valid timestamp metadata and records project participation for every calendar month.
-    /// - Parameters: records: Complete loaded Git records. calendar: Calendar and time zone used for grouping.
+    /// - Parameters:
+    ///   - records: Complete loaded Git records.
+    ///   - calendar: Calendar and time zone used for grouping.
     /// - Returns: Descending valid years, twelve total and per-project buckets, and the unfiltered record total.
     internal static func summarize(_ records: [GitCommitMetadata], calendar: Calendar) -> CommitActivity {
         var buckets: [Int: [Int]] = [:]
@@ -57,7 +59,11 @@ internal enum CommitActivityCalculator {
     }
 
     /// Distinguishes months strictly later than the current calendar month.
-    /// - Parameters: year: Displayed year. month: One-based displayed month. date: Comparison instant. calendar: Calendar and time zone.
+    /// - Parameters:
+    ///   - year: Displayed year.
+    ///   - month: One-based displayed month.
+    ///   - date: Comparison instant.
+    ///   - calendar: Calendar and time zone.
     /// - Returns: True only when the displayed month begins after the comparison month.
     internal static func isFuture(year: Int, month: Int, relativeTo date: Date, calendar: Calendar) -> Bool {
         let current = calendar.dateComponents([.year, .month], from: date)
@@ -69,7 +75,10 @@ internal enum CommitActivityCalculator {
 /// Reads Git timestamps, changed paths, and ref identities through fixed read-only system-git arguments.
 internal enum GitActivityReader {
     /// Loads every unique commit reachable from repository refs without reading messages, authors, or file contents.
-    /// - Parameters: root: Selected repository root. projects: Registered top-level folders. calendar: Calendar and time zone used for grouping.
+    /// - Parameters:
+    ///   - root: Selected repository root.
+    ///   - projects: Registered top-level folders.
+    ///   - calendar: Calendar and time zone used for grouping.
     /// - Returns: Complete monthly activity, or an explicit unavailable value when Git cannot read the repository.
     internal static func load(_ root: URL, projects: [ProjectRecord] = [],
                               calendar: Calendar = .autoupdatingCurrent) -> CommitActivity {
@@ -81,7 +90,9 @@ internal enum GitActivityReader {
     }
 
     /// Parses NUL-framed records without treating quoted or multiline filenames as commit metadata.
-    /// - Parameters: data: Fixed-format system-Git bytes. projects: Registered folders eligible for path mapping.
+    /// - Parameters:
+    ///   - data: Fixed-format system-Git bytes.
+    ///   - projects: Registered folders eligible for path mapping.
     /// - Returns: One timestamp and deduplicated affected-project set for each complete Git record.
     internal static func records(from data: Data, projects: [ProjectRecord]) -> [GitCommitMetadata] {
         let identities = Dictionary(uniqueKeysWithValues: projects.map { ($0.folder.lastPathComponent, $0.id) })
@@ -128,7 +139,9 @@ internal enum GitActivityReader {
     }
 
     /// Executes one fixed system-Git request directly, never through a shell.
-    /// - Parameters: root: Repository passed as Git's working-directory argument. arguments: Trusted constant Git arguments.
+    /// - Parameters:
+    ///   - root: Repository passed as Git's working-directory argument.
+    ///   - arguments: Trusted constant Git arguments.
     /// - Returns: Exit status and standard-output bytes, or nil when the executable cannot start.
     private static func output(_ root: URL, arguments: [String]) -> GitCommandOutput? {
         let process = Process()

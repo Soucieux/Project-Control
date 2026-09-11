@@ -9,7 +9,9 @@ internal struct WindowTransparencyConfigurator: NSViewRepresentable {
     internal func makeNSView(context: Context) -> NSView { TransparentWindowBridge() }
 
     /// Keeps the bridge inert after the one-time window configuration.
-    /// - Parameters: nsView: Existing bridge. context: SwiftUI representable context.
+    /// - Parameters:
+    ///   - nsView: Existing bridge.
+    ///   - context: SwiftUI representable context.
     /// - Returns: Nothing; visible state remains owned by SwiftUI.
     internal func updateNSView(_ nsView: NSView, context: Context) {}
 }
@@ -146,7 +148,6 @@ internal struct CinematicArtwork: View {
             .blur(radius: 3).offset(x: -size.width * 0.22, y: size.height * 0.35)
             .accessibilityHidden(true)
     }
-
 }
 
 /// Draws the lower-third dot field shared by the clear lock artwork and blurred detail background.

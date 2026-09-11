@@ -3,7 +3,9 @@ import Foundation
 /// Discovers only top-level app bundles; no scripts, recursive build scans, or launch side effects.
 internal enum ApplicationLocator {
     /// Finds visible app-shaped directories contained within the selected project.
-    /// - Parameters: folder: Project folder from the register. root: Selected repository boundary.
+    /// - Parameters:
+    ///   - folder: Project folder from the register.
+    ///   - root: Selected repository boundary.
     /// - Returns: Sorted, canonical candidates, including incomplete bundles for refresh tracking.
     internal static func candidates(in folder: URL, within root: URL) -> [URL] {
         guard RepositoryReader.contains(folder, in: root) else { return [] }
@@ -18,7 +20,9 @@ internal enum ApplicationLocator {
     }
 
     /// Rechecks an automatic candidate against the project identity captured in the snapshot.
-    /// - Parameters: url: Previously discovered bundle. project: Registered project with its canonical identity.
+    /// - Parameters:
+    ///   - url: Previously discovered bundle.
+    ///   - project: Registered project with its canonical identity.
     /// - Returns: True only while the folder and bundle remain within that original project.
     internal static func isCurrentCandidate(_ url: URL, for project: ProjectRecord) -> Bool {
         project.folder.resolvingSymlinksInPath().standardizedFileURL.path == project.id
@@ -55,7 +59,10 @@ internal enum ApplicationLocator {
     }
 
     /// Prefers a project-name match, then a folder-name match, then a sole remaining app.
-    /// - Parameters: applications: Valid candidates. project: Register name. folder: Project folder.
+    /// - Parameters:
+    ///   - applications: Valid candidates.
+    ///   - project: Register name.
+    ///   - folder: Project folder.
     /// - Returns: The unambiguous target, or nil when a choice is needed.
     internal static func preferred(_ applications: [URL], project: String, folder: URL) -> URL? {
         for name in [project, folder.lastPathComponent] {

@@ -197,7 +197,9 @@ internal struct WorkNote: Codable, Identifiable, Equatable {
     private enum CodingKeys: String, CodingKey { case id, text, title, detail }
 
     /// Creates a plain note while allowing edits to retain the saved identity.
-    /// - Parameters: id: Existing identity, or a new one for an unsaved note. text: Complete note content.
+    /// - Parameters:
+    ///   - id: Existing identity, or a new one for an unsaved note.
+    ///   - text: Complete note content.
     /// - Returns: A plain-text work note with the supplied identity.
     internal init(id: UUID = UUID(), text: String) { self.id = id; self.text = text }
 

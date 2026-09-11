@@ -48,7 +48,9 @@ internal struct WorkflowDiagram: View {
     }
 
     /// Draws directional edges between measured nodes without guessing any additional relationship.
-    /// - Parameters: anchors: Current node bounds. proxy: Shared diagram coordinate space.
+    /// - Parameters:
+    ///   - anchors: Current node bounds.
+    ///   - proxy: Shared diagram coordinate space.
     /// - Returns: Orthogonal connectors and arrowheads, beneath the node surfaces.
     private func connections(_ anchors: [Int: Anchor<CGRect>], proxy: GeometryProxy) -> Path {
         var path = Path()
@@ -74,7 +76,9 @@ private struct WorkflowBounds: PreferenceKey {
     fileprivate static var defaultValue: [Int: Anchor<CGRect>] = [:]
 
     /// Merges node bounds from each row into the graph coordinate space.
-    /// - Parameters: value: Accumulated anchors. nextValue: Next child anchors.
+    /// - Parameters:
+    ///   - value: Accumulated anchors.
+    ///   - nextValue: Next child anchors.
     /// - Returns: Nothing; each source node retains its unique measured bounds.
     fileprivate static func reduce(value: inout [Int: Anchor<CGRect>], nextValue: () -> [Int: Anchor<CGRect>]) {
         value.merge(nextValue(), uniquingKeysWith: { _, new in new })

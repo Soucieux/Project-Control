@@ -258,7 +258,9 @@ internal struct ControlWindow: View {
     }
 
     /// Animates every child row when its README-driven category opens or closes.
-    /// - Parameters: category: Source-ordered project group. icon: Stable visual marker for this position.
+    /// - Parameters:
+    ///   - category: Source-ordered project group.
+    ///   - icon: Stable visual marker for this position.
     /// - Returns: A disclosure section in expanded mode or one aligned category control in rail mode.
     private func categorySection(_ category: ProjectCategory, icon: String) -> some View {
         let collapsed = collapsedCategories.contains(category.name)
@@ -327,7 +329,9 @@ internal struct ControlWindow: View {
     }
 
     /// Centers every collapsed marker on the same rail axis.
-    /// - Parameters: name: SF Symbol name. selected: Whether the destination owns the current selection.
+    /// - Parameters:
+    ///   - name: SF Symbol name.
+    ///   - selected: Whether the destination owns the current selection.
     /// - Returns: A fixed-size rounded icon target.
     private func railIcon(_ name: String, selected: Bool) -> some View {
         Image(systemName: name).font(.system(size: 17, weight: .medium))

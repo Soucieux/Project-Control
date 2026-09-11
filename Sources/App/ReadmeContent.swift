@@ -88,7 +88,9 @@ internal struct ReadmeTableView: View {
     }
 
     /// Gives each cell a shared column constraint while its row owns the full-width divider.
-    /// - Parameters: value: Inert source text. width: Optional fixed content width.
+    /// - Parameters:
+    ///   - value: Inert source text.
+    ///   - width: Optional fixed content width.
     /// - Returns: A wrapping, selectable text cell without Markdown delimiters.
     private func cell(_ value: String, width: CGFloat?) -> some View {
         Text(value).font(.system(size: 13)).lineSpacing(4)

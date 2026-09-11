@@ -21,7 +21,10 @@ private struct CommitActivityGridLayout: Layout {
     internal let metrics: CommitActivityMetrics
 
     /// Reports the exact table height after deriving monthly width and the 1.15:1 cell ratio.
-    /// - Parameters: proposal: Width offered by the parent. subviews: Header and year-row cells. cache: Unused layout cache.
+    /// - Parameters:
+    ///   - proposal: Width offered by the parent.
+    ///   - subviews: Header and year-row cells.
+    ///   - cache: Unused layout cache.
     /// - Returns: Full responsive grid size without horizontal overflow or zero-height rows.
     internal func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let width = proposal.width ?? minimumWidth
@@ -30,7 +33,11 @@ private struct CommitActivityGridLayout: Layout {
     }
 
     /// Places header labels and activity cells on their calculated row and column coordinates.
-    /// - Parameters: bounds: Final layout bounds. proposal: Parent proposal. subviews: Header and year-row cells. cache: Unused layout cache.
+    /// - Parameters:
+    ///   - bounds: Final layout bounds.
+    ///   - proposal: Parent proposal.
+    ///   - subviews: Header and year-row cells.
+    ///   - cache: Unused layout cache.
     /// - Returns: Nothing; every subview receives an explicit nonzero proposal.
     internal func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize,
                                 subviews: Subviews, cache: inout ()) {
@@ -56,7 +63,9 @@ private struct CommitActivityGridLayout: Layout {
     }
 
     /// Derives consistent row heights and month widths for the supplied container.
-    /// - Parameters: width: Live grid width. subviewCount: Header plus year-row child count.
+    /// - Parameters:
+    ///   - width: Live grid width.
+    ///   - subviewCount: Header plus year-row child count.
     /// - Returns: Header height, monthly dimensions, and complete grid height.
     private func dimensions(width: CGFloat, subviewCount: Int) ->
         (headerHeight: CGFloat, cellWidth: CGFloat, cellHeight: CGFloat, height: CGFloat) {
@@ -178,7 +187,12 @@ internal struct CommitActivityView: View {
     }
 
     /// Renders one month using fixed absolute intensity thresholds and future-month concealment.
-    /// - Parameters: year: Calendar year. monthIndex: Zero-based month. count: Loaded commits. distribution: Project participation counts. metrics: Active layout values.
+    /// - Parameters:
+    ///   - year: Calendar year.
+    ///   - monthIndex: Zero-based month.
+    ///   - count: Loaded commits.
+    ///   - distribution: Project participation counts.
+    ///   - metrics: Active layout values.
     /// - Returns: One accessible monthly activity cell.
     private func monthCell(year: Int, monthIndex: Int, count: Int,
                            distribution: [String: Int], metrics: CommitActivityMetrics) -> some View {
@@ -222,7 +236,11 @@ internal struct CommitActivityView: View {
     }
 
     /// Presents monthly project participation without exposing commit content or changed-file names.
-    /// - Parameters: year: Calendar year. monthIndex: Zero-based month. count: Unique monthly commit total. distribution: Per-project participation totals.
+    /// - Parameters:
+    ///   - year: Calendar year.
+    ///   - monthIndex: Zero-based month.
+    ///   - count: Unique monthly commit total.
+    ///   - distribution: Per-project participation totals.
     /// - Returns: A compact native card with project icons, names, and counts.
     private func distributionCard(year: Int, monthIndex: Int, count: Int,
                                   distribution: [String: Int]) -> some View {
@@ -284,7 +302,11 @@ internal struct CommitActivityView: View {
     }
 
     /// Describes hidden, empty, and populated cells without relying on colour.
-    /// - Parameters: year: Calendar year. monthIndex: Zero-based month. count: Loaded commits. future: Whether the value is concealed.
+    /// - Parameters:
+    ///   - year: Calendar year.
+    ///   - monthIndex: Zero-based month.
+    ///   - count: Loaded commits.
+    ///   - future: Whether the value is concealed.
     /// - Returns: Full month, year, and state for assistive technologies.
     private func accessibilityLabel(year: Int, monthIndex: Int, count: Int, future: Bool) -> String {
         let month = ControlConstants.commitActivityMonthNames[monthIndex]

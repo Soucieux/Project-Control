@@ -83,7 +83,10 @@ internal enum StoreTests {
     }
 
     /// Confirms that store publication preserves the complete activity supplied by the repository reader.
-    /// - Parameters: root: Disposable selected repository. storage: Isolated local state. preferences: Isolated repository preference.
+    /// - Parameters:
+    ///   - root: Disposable selected repository.
+    ///   - storage: Isolated local state.
+    ///   - preferences: Isolated repository preference.
     /// - Returns: Nothing; terminates if activity is discarded or recalculated.
     private static func activityPublishingCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async {
         let expected = CommitActivity(years: [CommitActivityYear(year: 2026,
@@ -96,7 +99,10 @@ internal enum StoreTests {
     }
 
     /// Preserves project identity and notes while root-owned classification changes over stale content.
-    /// - Parameters: root: Disposable repository. storage: Isolated note storage. preferences: Isolated repository preferences.
+    /// - Parameters:
+    ///   - root: Disposable repository.
+    ///   - storage: Isolated note storage.
+    ///   - preferences: Isolated repository preferences.
     /// - Returns: Nothing; fails if project-content recovery masks authoritative root metadata.
     private static func classificationRecoveryCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let readme = root.appendingPathComponent(ControlConstants.readme)
@@ -128,7 +134,10 @@ internal enum StoreTests {
     }
 
     /// Keeps failures isolated while applying valid edits, removals, and source recovery.
-    /// - Parameters: root: Disposable repository. storage: Isolated local notes. preferences: Isolated preferences.
+    /// - Parameters:
+    ///   - root: Disposable repository.
+    ///   - storage: Isolated local notes.
+    ///   - preferences: Isolated preferences.
     /// - Returns: Nothing; fails if stale state or local data is mishandled.
     private static func sourceRecoveryChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let readme = root.appendingPathComponent(ControlConstants.readme)
@@ -179,7 +188,10 @@ internal enum StoreTests {
     }
 
     /// Holds a poll across a repository switch to exercise the main-actor handoff deterministically.
-    /// - Parameters: root: Disposable parent. storage: Isolated notes. preferences: Isolated preferences.
+    /// - Parameters:
+    ///   - root: Disposable parent.
+    ///   - storage: Isolated notes.
+    ///   - preferences: Isolated preferences.
     /// - Returns: Nothing; fails if the old poll is queued after the user's newer selection.
     private static func pollingRaceCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let base = root.appendingPathComponent(TestConstants.raceDirectory)
@@ -225,7 +237,10 @@ internal enum StoreTests {
     }
 
     /// Exercises automatic recovery when the remembered root README initially cannot be read.
-    /// - Parameters: root: Disposable parent. storage: Isolated notes. preferences: Isolated preferences.
+    /// - Parameters:
+    ///   - root: Disposable parent.
+    ///   - storage: Isolated notes.
+    ///   - preferences: Isolated preferences.
     /// - Returns: Nothing; terminates on a retry-lifecycle regression.
     private static func initialRecoveryCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let repository = root.appendingPathComponent(TestConstants.alias)
@@ -244,7 +259,10 @@ internal enum StoreTests {
     }
 
     /// Keeps parent and child selections stable across repository refreshes.
-    /// - Parameters: root: Disposable repository. storage: Isolated state. preferences: Isolated preferences.
+    /// - Parameters:
+    ///   - root: Disposable repository.
+    ///   - storage: Isolated state.
+    ///   - preferences: Isolated preferences.
     /// - Returns: Nothing; terminates on a navigation-state regression.
     private static func navigationChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async {
         let store = ControlStore(storage: storage, preferences: preferences)
@@ -264,7 +282,10 @@ internal enum StoreTests {
     }
 
     /// Reproduces an edit between snapshot parsing and delivery to the main actor.
-    /// - Parameters: root: Disposable repository. storage: Isolated workspace file. preferences: Isolated preference suite.
+    /// - Parameters:
+    ///   - root: Disposable repository.
+    ///   - storage: Isolated workspace file.
+    ///   - preferences: Isolated preference suite.
     /// - Returns: Nothing; fails if polling misses the concurrent edit.
     private static func refreshCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let folder = root.appendingPathComponent(TestConstants.project)
@@ -292,7 +313,10 @@ internal enum StoreTests {
     }
 
     /// Checks manual fallback resolution and automatic precedence without executing applications.
-    /// - Parameters: root: Disposable repository. storage: Isolated workspace file. preferences: Isolated preference suite.
+    /// - Parameters:
+    ///   - root: Disposable repository.
+    ///   - storage: Isolated workspace file.
+    ///   - preferences: Isolated preference suite.
     /// - Returns: Nothing; fails if launch-target selection changes the safety or fallback contract.
     private static func applicationChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) throws {
         var project = try RepositoryReader.load(root).projects[0]
@@ -315,7 +339,9 @@ internal enum StoreTests {
     }
 
     /// Records a deterministic state assertion.
-    /// - Parameters: condition: Expected truth value. label: Failure explanation.
+    /// - Parameters:
+    ///   - condition: Expected truth value.
+    ///   - label: Failure explanation.
     /// - Returns: Nothing; terminates unsuccessfully if the condition is false.
     private static func check(_ condition: Bool, _ label: String) {
         guard condition else { fatalError(TestConstants.failed + label) }

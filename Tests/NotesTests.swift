@@ -89,7 +89,9 @@ internal enum NotesTests {
     }
 
     /// Records one deterministic condition with its owning regression label.
-    /// - Parameters: condition: Expected truth. label: Failure description.
+    /// - Parameters:
+    ///   - condition: Expected truth.
+    ///   - label: Failure description.
     /// - Returns: Nothing; terminates on failure.
     private static func check(_ condition: Bool, _ label: String) {
         guard condition else { fatalError(label) }

@@ -5,14 +5,21 @@ internal struct TechnologyTagLayout: Layout {
     private let spacing: CGFloat = 4
 
     /// Measures the same rows used for placement, including wrapped labels and empty content.
-    /// - Parameters: proposal: Available size. subviews: Tag views. cache: Unused layout cache.
+    /// - Parameters:
+    ///   - proposal: Available size.
+    ///   - subviews: Tag views.
+    ///   - cache: Unused layout cache.
     /// - Returns: The bounded row width and complete content height.
     internal func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         arrangement(width: proposal.width, subviews: subviews).size
     }
 
     /// Places each tag at its measured row position inside the supplied bounds.
-    /// - Parameters: bounds: Container rectangle. proposal: Available size. subviews: Tag views. cache: Unused cache.
+    /// - Parameters:
+    ///   - bounds: Container rectangle.
+    ///   - proposal: Available size.
+    ///   - subviews: Tag views.
+    ///   - cache: Unused cache.
     /// - Returns: Nothing; positions the supplied subviews without changing their content.
     internal func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let layout = arrangement(width: bounds.width, subviews: subviews)
@@ -24,7 +31,9 @@ internal struct TechnologyTagLayout: Layout {
     }
 
     /// Packs intrinsic tag widths into bounded rows and measures long labels at that width.
-    /// - Parameters: width: Optional available width. subviews: Ordered tags to measure.
+    /// - Parameters:
+    ///   - width: Optional available width.
+    ///   - subviews: Ordered tags to measure.
     /// - Returns: Placement frames and the total content size; no rows when tags are absent.
     private func arrangement(width: CGFloat?, subviews: Subviews) -> (frames: [CGRect], size: CGSize) {
         let limit = max(0, width ?? .infinity)

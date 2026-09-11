@@ -3,7 +3,9 @@ import Foundation
 /// Converts only explicit arrow routes and a bounded text-diagram grammar into directed graphs.
 internal enum WorkflowParser {
     /// Converts one horizontal route, preserving its optional source label.
-    /// - Parameters: line: README prose line. label: Owning section title.
+    /// - Parameters:
+    ///   - line: README prose line.
+    ///   - label: Owning section title.
     /// - Returns: A linear graph, or nil when no complete route is documented.
     internal static func linear(_ line: String, label: String) -> WorkflowRoute? {
         let text = ReadmeParser.plain(line).replacingOccurrences(of: ControlConstants.asciiArrow, with: ControlConstants.arrow)
@@ -24,7 +26,9 @@ internal enum WorkflowParser {
     }
 
     /// Accepts independent horizontal arrows or vertical arrows with same-depth branch groups and merges.
-    /// - Parameters: lines: Text-only fenced block. label: Owning section title.
+    /// - Parameters:
+    ///   - lines: Text-only fenced block.
+    ///   - label: Owning section title.
     /// - Returns: Complete supported graphs; malformed or code-like blocks produce no diagram.
     internal static func diagrams(_ lines: [String], label: String) -> [WorkflowRoute] {
         let source = lines.map { $0.replacingOccurrences(of: ControlConstants.asciiArrow, with: ControlConstants.arrow) }

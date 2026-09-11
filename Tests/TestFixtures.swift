@@ -12,7 +12,9 @@ internal enum TestFixtures {
     }
 
     /// Creates a synthetic app with valid bundle metadata and an executable placeholder.
-    /// - Parameters: folder: Disposable parent directory. name: App filename without its extension.
+    /// - Parameters:
+    ///   - folder: Disposable parent directory.
+    ///   - name: App filename without its extension.
     /// - Returns: The created bundle URL, or throws on fixture setup failure.
     internal static func application(in folder: URL, name: String) throws -> URL {
         let application = folder.appendingPathComponent(name).appendingPathExtension(ControlConstants.appExtension)
@@ -31,7 +33,9 @@ internal enum TestFixtures {
     }
 
     /// Runs a fixed Git fixture operation with isolated configuration, identity, hooks, and dates.
-    /// - Parameters: arguments: Test-owned Git arguments. folder: Disposable fixture directory.
+    /// - Parameters:
+    ///   - arguments: Test-owned Git arguments.
+    ///   - folder: Disposable fixture directory.
     /// - Returns: Nothing; throws when fixture creation fails.
     internal static func git(_ arguments: [String], in folder: URL) throws {
         let process = Process()
@@ -50,5 +54,4 @@ internal enum TestFixtures {
             throw ControlFailure(message: "Disposable Git activity fixture could not be created.")
         }
     }
-
 }

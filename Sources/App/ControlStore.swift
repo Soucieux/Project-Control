@@ -20,7 +20,11 @@ internal final class ControlStore: ObservableObject {
     private let readRepository: @Sendable (URL) throws -> RepositorySnapshot
 
     /// Loads the independent local workspace without modifying the repository.
-    /// - Parameters: storage: Optional isolated storage. preferences: Repository preferences. fingerprintRepository: Background content checker. readRepository: Background snapshot reader.
+    /// - Parameters:
+    ///   - storage: Optional isolated storage.
+    ///   - preferences: Repository preferences.
+    ///   - fingerprintRepository: Background content checker.
+    ///   - readRepository: Background snapshot reader.
     /// - Returns: A store with either restored data or a visible read-only failure.
     internal init(storage: WorkspaceStorage? = nil, preferences: UserDefaults = .standard,
                   fingerprintRepository: @escaping @Sendable (RepositorySnapshot) -> [String] = { RepositoryReader.fingerprint($0) },
@@ -132,7 +136,9 @@ internal final class ControlStore: ObservableObject {
     internal func notes(for project: String) -> [WorkNote] { state.notes[project] ?? [] }
 
     /// Saves an inserted or edited work note before presenting it as committed.
-    /// - Parameters: note: Proposed note. project: Canonical project identifier.
+    /// - Parameters:
+    ///   - note: Proposed note.
+    ///   - project: Canonical project identifier.
     /// - Returns: Whether the local atomic save succeeded.
     internal func save(_ note: WorkNote, for project: String) -> Bool {
         guard note.isValid else { error = ControlConstants.noteLimit; return false }
@@ -145,7 +151,9 @@ internal final class ControlStore: ObservableObject {
     }
 
     /// Removes a user-confirmed note without changing the project or README.
-    /// - Parameters: note: Confirmed target. project: Owning project identifier.
+    /// - Parameters:
+    ///   - note: Confirmed target.
+    ///   - project: Owning project identifier.
     /// - Returns: Nothing; failures leave the original note intact.
     internal func delete(_ note: WorkNote, for project: String) {
         var next = state
@@ -195,7 +203,9 @@ internal final class ControlStore: ObservableObject {
     }
 
     /// Resolves an automatic target before a valid remembered manual choice.
-    /// - Parameters: project: Owning project. candidates: Optional fresh discovery results for click-time validation.
+    /// - Parameters:
+    ///   - project: Owning project.
+    ///   - candidates: Optional fresh discovery results for click-time validation.
     /// - Returns: An unambiguous application, or nil when selection or manual location is needed.
     internal func application(for project: ProjectRecord, candidates: [URL]? = nil) -> URL? {
         let available = (candidates ?? project.applications).filter { ApplicationLocator.isCurrentCandidate($0, for: project) }
@@ -208,7 +218,9 @@ internal final class ControlStore: ObservableObject {
     }
 
     /// Rechecks discovery on click and opens only an automatic or explicitly chosen application.
-    /// - Parameters: project: Owning project. selectedApp: Explicit choice from detected candidates or a native picker.
+    /// - Parameters:
+    ///   - project: Owning project.
+    ///   - selectedApp: Explicit choice from detected candidates or a native picker.
     /// - Returns: Nothing; missing apps offer location, and launch/save errors remain visible.
     internal func launch(_ project: ProjectRecord, selectedApp: URL? = nil) {
         guard let root = snapshot?.root,

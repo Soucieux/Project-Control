@@ -3,14 +3,20 @@ import Foundation
 /// A deliberately limited Markdown extractor, not an HTML renderer or code viewer.
 internal enum ReadmeParser {
     /// Replaces regular-expression matches with plain text.
-    /// - Parameters: value: Input text. pattern: Trusted expression. replacement: Replacement template.
+    /// - Parameters:
+    ///   - value: Input text.
+    ///   - pattern: Trusted expression.
+    ///   - replacement: Replacement template.
     /// - Returns: The transformed text.
     internal static func replace(_ value: String, _ pattern: String, _ replacement: String) -> String {
         value.replacingOccurrences(of: pattern, with: replacement, options: .regularExpression)
     }
 
     /// Extracts a capture group from the first expression match.
-    /// - Parameters: value: Input text. pattern: Trusted expression. group: Capture index.
+    /// - Parameters:
+    ///   - value: Input text.
+    ///   - pattern: Trusted expression.
+    ///   - group: Capture index.
     /// - Returns: Matched text, or nil when absent.
     internal static func match(_ value: String, _ pattern: String, group: Int = 0) -> String? {
         guard let expression = try? NSRegularExpression(pattern: pattern),
@@ -38,7 +44,9 @@ internal enum ReadmeParser {
     }
 
     /// Reads one explicitly labelled value from a scope cell without interpreting arbitrary HTML.
-    /// - Parameters: value: Raw scope cell. label: Trusted metadata label.
+    /// - Parameters:
+    ///   - value: Raw scope cell.
+    ///   - label: Trusted metadata label.
     /// - Returns: Plain nonempty value following the label, or nil when it is absent or blank.
     internal static func labelledValue(_ value: String, label: String) -> String? {
         let pattern = ControlConstants.scopeLabelPatternPrefix
@@ -185,7 +193,9 @@ internal enum ReadmeParser {
     }
 
     /// Assigns child headings to their closest documented topic, never extracting release-history details.
-    /// - Parameters: sections: Source hierarchy. topic: Requested content owner.
+    /// - Parameters:
+    ///   - sections: Source hierarchy.
+    ///   - topic: Requested content owner.
     /// - Returns: Source-ordered sections owned by that topic.
     internal static func topicSections(_ sections: [ReadmeSection], topic: ReadmeTopic) -> [ReadmeSection] {
         let explicit = sections.contains { $0.mapping != nil }
@@ -221,7 +231,9 @@ internal enum ReadmeParser {
     }
 
     /// Reads an explicit Overview section or the opening description before second-level headings.
-    /// - Parameters: sections: Parsed source. fallback: Register summary used only when prose is unavailable.
+    /// - Parameters:
+    ///   - sections: Parsed source.
+    ///   - fallback: Register summary used only when prose is unavailable.
     /// - Returns: Paragraphs, bullets, and subsection labels in their documented order.
     internal static func overview(_ sections: [ReadmeSection], fallback: String) -> [ReadmeBlock] {
         let explicit = topicSections(sections, topic: .overview)
@@ -232,7 +244,9 @@ internal enum ReadmeParser {
     }
 
     /// Tokenizes prose and consecutive table rows once, retaining source order and table headers.
-    /// - Parameters: sections: Selected source sections. includeHeadings: Whether to label subsequent sections.
+    /// - Parameters:
+    ///   - sections: Selected source sections.
+    ///   - includeHeadings: Whether to label subsequent sections.
     /// - Returns: Native presentation blocks, with no table row duplicated as prose.
     private static func blocks(_ sections: [ReadmeSection], includeHeadings: Bool = false) -> [ReadmeBlock] {
         var blocks: [ReadmeBlock] = []
@@ -272,7 +286,10 @@ internal enum ReadmeParser {
     }
 
     /// Flushes a prose buffer without leaking raw markup into the content view.
-    /// - Parameters: lines: Pending source lines, cleared afterward. kind: Paragraph or continued bullet. blocks: Destination blocks.
+    /// - Parameters:
+    ///   - lines: Pending source lines, cleared afterward.
+    ///   - kind: Paragraph or continued bullet.
+    ///   - blocks: Destination blocks.
     /// - Returns: Nothing; appends nonempty readable prose.
     private static func appendBlock(_ lines: inout [String], kind: ReadmeBlock.Kind, to blocks: inout [ReadmeBlock]) {
         let text = plain(lines.joined(separator: ControlConstants.space))
@@ -285,7 +302,9 @@ internal enum ReadmeParser {
     }
 
     /// Keeps table headers and cells at their source position, excluding delimiter rows.
-    /// - Parameters: lines: Pending table lines, cleared afterward. blocks: Destination presentation blocks.
+    /// - Parameters:
+    ///   - lines: Pending table lines, cleared afterward.
+    ///   - blocks: Destination presentation blocks.
     /// - Returns: Nothing; appends one structured table when it contains data rows.
     private static func appendTable(_ lines: inout [String], to blocks: inout [ReadmeBlock]) {
         let rows = table(lines).map { $0.map(plain) }
@@ -313,7 +332,9 @@ internal enum ReadmeParser {
     }
 
     /// Reads only the mapped release section, retaining the legacy register fallback for unmarked READMEs.
-    /// - Parameters: sections: Parsed README. fallback: Root Projects summary.
+    /// - Parameters:
+    ///   - sections: Parsed README.
+    ///   - fallback: Root Projects summary.
     /// - Returns: The documented current release, or nil when none is supplied.
     internal static func release(_ sections: [ReadmeSection], fallback: String) -> String? {
         let text = paragraphs(topicSections(sections, topic: .release)).joined(separator: ControlConstants.space)

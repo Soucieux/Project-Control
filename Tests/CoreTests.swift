@@ -175,7 +175,9 @@ internal enum CoreTests {
     }
 
     /// Exercises real Git framing, Unicode paths, merge attribution, and commits without changed paths.
-    /// - Parameters: root: Disposable fixture parent. calendar: Fixed UTC calendar for deterministic counts.
+    /// - Parameters:
+    ///   - root: Disposable fixture parent.
+    ///   - calendar: Fixed UTC calendar for deterministic counts.
     /// - Returns: Nothing; throws on fixture setup failure or terminates on a read regression.
     private static func gitActivityFixtureChecks(_ root: URL, calendar: Calendar) throws {
         let repository = root.appendingPathComponent("GitActivity")
@@ -417,7 +419,10 @@ internal enum CoreTests {
     }
 
     /// Exercises automatic app discovery without launching any fixture or reading user preferences.
-    /// - Parameters: repository: Disposable repository. project: Registered project folder. root: Fixture boundary.
+    /// - Parameters:
+    ///   - repository: Disposable repository.
+    ///   - project: Registered project folder.
+    ///   - root: Fixture boundary.
     /// - Returns: Nothing; throws on fixture failure and terminates on incorrect discovery behavior.
     private static func applicationChecks(_ repository: URL, project: URL, root: URL) throws {
         let before = try RepositoryReader.load(repository)
@@ -451,7 +456,9 @@ internal enum CoreTests {
     }
 
     /// Covers app changes that do not modify the project folder or restart this process.
-    /// - Parameters: repository: Disposable register. application: Valid disposable companion bundle.
+    /// - Parameters:
+    ///   - repository: Disposable register.
+    ///   - application: Valid disposable companion bundle.
     /// - Returns: Nothing; throws on fixture failure and terminates if fresh metadata is ignored.
     private static func applicationRefreshChecks(_ repository: URL, application: URL) throws {
         let contents = application.appendingPathComponent(ControlConstants.appContents)
@@ -483,7 +490,10 @@ internal enum CoreTests {
     }
 
     /// Checks canonical project identities, alias retargeting, and root README boundaries.
-    /// - Parameters: repository: Disposable repository. project: Its real project folder. outside: External fixture file.
+    /// - Parameters:
+    ///   - repository: Disposable repository.
+    ///   - project: Its real project folder.
+    ///   - outside: External fixture file.
     /// - Returns: Nothing; throws on fixture setup failure.
     private static func aliasChecks(_ repository: URL, project: URL, outside: URL) throws {
         let alias = repository.appendingPathComponent(TestConstants.alias)
@@ -528,7 +538,9 @@ internal enum CoreTests {
     }
 
     /// Records a single deterministic assertion.
-    /// - Parameters: condition: Expected truth value. label: Failure explanation.
+    /// - Parameters:
+    ///   - condition: Expected truth value.
+    ///   - label: Failure explanation.
     /// - Returns: Nothing; terminates unsuccessfully on failure.
     private static func check(_ condition: Bool, _ label: String) {
         guard condition else { fatalError(TestConstants.failed + label) }
@@ -536,7 +548,9 @@ internal enum CoreTests {
     }
 
     /// Asserts that an operation rejects invalid input.
-    /// - Parameters: label: Failure explanation. action: Expected throwing operation.
+    /// - Parameters:
+    ///   - label: Failure explanation.
+    ///   - action: Expected throwing operation.
     /// - Returns: Nothing; terminates if no error is raised.
     private static func checkThrows(_ label: String, action: () throws -> Void) {
         do { try action(); check(false, label) }
