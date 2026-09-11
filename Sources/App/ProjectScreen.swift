@@ -73,14 +73,16 @@ internal struct ProjectScreen: View {
     private var applicationTarget: URL? { store.application(for: project) }
 
     private var identity: some View {
-        HStack(alignment: .center, spacing: 14) {
-            ProjectIcon(project: project, size: 48)
-            VStack(alignment: .leading, spacing: 4) {
+        let iconSize: CGFloat = 48
+        let iconSpacing: CGFloat = 14
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .center, spacing: iconSpacing) {
+                ProjectIcon(project: project, size: iconSize)
                 Text(project.name).font(.system(size: 32, weight: .light)).tracking(-1)
                     .fixedSize(horizontal: false, vertical: true)
-                Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
-                    .foregroundStyle(ControlTheme.mint)
             }
+            Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
+                .foregroundStyle(ControlTheme.mint).padding(.leading, iconSize + iconSpacing)
         }
     }
 
