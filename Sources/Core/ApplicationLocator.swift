@@ -19,15 +19,24 @@ internal enum ApplicationLocator {
         return Array(Set(paths)).sorted { $0.path < $1.path }
     }
 
-    /// Rechecks an automatic candidate against the project identity captured in the snapshot.
+    /// Rechecks the canonical project identity and containment without reading bundle metadata.
     /// - Parameters:
     ///   - url: Previously discovered bundle.
     ///   - project: Registered project with its canonical identity.
     /// - Returns: True only while the folder and bundle remain within that original project.
-    internal static func isCurrentCandidate(_ url: URL, for project: ProjectRecord) -> Bool {
+    internal static func isWithinCurrentProject(_ url: URL, for project: ProjectRecord) -> Bool {
         project.folder.resolvingSymlinksInPath().standardizedFileURL.path == project.id
             && url.resolvingSymlinksInPath().standardizedFileURL.path.hasPrefix(project.id + ControlConstants.slash)
-            && isApplication(url)
+    }
+
+    /// Rechecks an automatic candidate against the project identity captured in the snapshot.
+    /// - Parameters:
+    ///   - url: Previously discovered bundle.
+    ///   - project: Registered project with its canonical identity.
+    /// - Returns: True only while the bundle remains within that original project and still has valid,
+    ///   executable bundle metadata.
+    internal static func isCurrentCandidate(_ url: URL, for project: ProjectRecord) -> Bool {
+        isWithinCurrentProject(url, for: project) && isApplication(url)
     }
 
     /// Checks bundle identity and executable metadata without reading or executing code.

@@ -35,9 +35,10 @@ internal enum WorkflowParser {
             .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
         guard !source.isEmpty, source.count <= ControlConstants.maxDiagramNodes * 2,
               source.allSatisfy({ ReadmeParser.match($0, ControlConstants.unsafeDiagramPattern) == nil }) else { return [] }
-        if source.allSatisfy({ ReadmeParser.match($0, ControlConstants.branchPattern) == nil && linear($0, label: label) != nil }) {
-            return source.compactMap { linear($0, label: label) }
+        let routes = source.compactMap {
+            ReadmeParser.match($0, ControlConstants.branchPattern) == nil ? linear($0, label: label) : nil
         }
+        if routes.count == source.count { return routes }
         var nodes: [WorkflowNode] = []
         var edges: [WorkflowEdge] = []
         var frontier: [Int] = []

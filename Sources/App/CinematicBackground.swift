@@ -155,12 +155,13 @@ internal struct CinematicHalftone: View {
     internal var body: some View {
         Canvas { context, size in
             let spacing: CGFloat = 7
-            var y: CGFloat = size.height * 0.50
-            while y < size.height {
-                var x: CGFloat = spacing
-                while x < size.width {
-                    let wave = sin((x / max(size.width, 1)) * .pi * 4) * size.height * 0.035
-                    let start = size.height * 0.54 + wave
+            let top = size.height * 0.50
+            var x: CGFloat = spacing
+            while x < size.width {
+                let wave = sin((x / max(size.width, 1)) * .pi * 4) * size.height * 0.035
+                let start = size.height * 0.54 + wave
+                var y: CGFloat = top
+                while y < size.height {
                     let depth = min(max((y - start) / max(size.height - start, 1), 0), 1)
                     if depth > 0 {
                         let phase = Int((x + y) / spacing)
@@ -171,9 +172,9 @@ internal struct CinematicHalftone: View {
                             with: .color(ControlTheme.sceneWater.opacity(opacity))
                         )
                     }
-                    x += spacing
+                    y += spacing
                 }
-                y += spacing
+                x += spacing
             }
         }
         .accessibilityHidden(true)

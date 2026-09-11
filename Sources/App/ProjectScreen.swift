@@ -85,30 +85,37 @@ internal struct ProjectScreen: View {
     }
 
     private var actions: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let target = applicationTarget
+        return VStack(alignment: .leading, spacing: 10) {
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) { actionControls }
-                VStack(alignment: .leading, spacing: 10) { actionControls }
+                HStack(spacing: 10) { actionControls(target: target) }
+                VStack(alignment: .leading, spacing: 10) { actionControls(target: target) }
             }.controlSize(.large).buttonStyle(.bordered)
-            Text(applicationTarget.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
+            Text(target.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
                 + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
                 ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
                 .font(.caption).foregroundStyle(ControlTheme.muted)
         }
     }
 
-    @ViewBuilder private var actionControls: some View {
+    /// Builds the folder, README, and launch controls from one resolved launch target.
+    /// - Parameter target: Launch target already resolved for this view update.
+    /// - Returns: The adaptive action row shared by both fitted layouts.
+    @ViewBuilder private func actionControls(target: URL?) -> some View {
         Button { store.open(project.folder) } label: { Label(ControlConstants.folder, systemImage: ControlConstants.folderIcon) }
             .buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background).disabled(!project.folderAvailable)
         Button { store.open(project.readme) } label: { Label(ControlConstants.read, systemImage: ControlConstants.readIcon) }
             .disabled(!project.readmeAvailable)
         HStack(spacing: 10) {
-            launchControls
+            launchControls(target: target)
         }
     }
 
-    @ViewBuilder private var launchControls: some View {
-        if applicationTarget == nil && project.applications.count > 1 {
+    /// Offers ambiguous candidates as a menu and keeps the forget-app control beside them.
+    /// - Parameter target: Launch target already resolved for this view update.
+    /// - Returns: The launch button or candidate menu, with the optional stored-choice menu.
+    @ViewBuilder private func launchControls(target: URL?) -> some View {
+        if target == nil && project.applications.count > 1 {
             Menu {
                 ForEach(project.applications, id: \.self) { application in
                     Button(application.deletingPathExtension().lastPathComponent) {
