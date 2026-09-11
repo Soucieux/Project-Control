@@ -343,7 +343,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v2.8 (build 28)** in source; the signed local app remains v2.7 (build 27) until it is rebuilt. [Change and delivery evidence](#exhaustive-pass-maintenance).
+**v2.8 (build 28)** in source and in the signed local app. [Change and delivery evidence](#exhaustive-pass-maintenance).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -439,12 +439,14 @@ One record per change; complete details and evidence are below. Older work dates
   behind when their sections moved to the contributor instructions. The development-checks anchor
   now leads to the change history.
 
-- **Status:** Source advances to v2.8/build 28 because this batch changes application source. The
-  signed local app has not been rebuilt and remains v2.7/build 27. Delivered uncommitted.
+- **Status:** Source advances to v2.8/build 28 because this batch changes application source. It was
+  initially delivered uncommitted, then committed and landed on `main` on 2026-09-11. The signed local
+  app was rebuilt from `main` at v2.8/build 28; the replaced v2.7/build-27 app is recoverable under
+  `build/previous.Pz6Djl`.
 
 **Evidence and delivery status**
 
-v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; the signed local app remains v2.7/build 27 until it is rebuilt from the integrated source; delivered uncommitted
+v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; source commits `a602e83`, `63baa89`, `73cbdc9`, `1ba170b`, `0169387`, `2e94694`, `2724f30`, `2b6c9a6`, `7e5cb6c`; the signed v2.8/build-28 app built from `main` passed strict signing, exact source-metadata, arm64, ten-size icon and project-root launch checks, with v2.7/build 27 preserved under `build/previous.Pz6Djl`; initially delivered uncommitted
 
 [Back to change history](#change-history)
 
