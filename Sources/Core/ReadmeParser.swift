@@ -372,7 +372,7 @@ internal enum ReadmeParser {
         return Array(selected.flatMap { section in
             section.lines.compactMap { WorkflowParser.linear($0, label: section.title) }
                 + section.diagrams.flatMap { WorkflowParser.diagrams($0, label: section.title) }
-        }.prefix(8))
+        }.prefix(ControlConstants.maxWorkflowRoutes))
     }
 
     /// Extracts structured history tables, falling back to version-labelled release headings.
@@ -382,7 +382,7 @@ internal enum ReadmeParser {
         let selected = topicSections(sections, topic: .history)
         let rows = selected.flatMap { table($0.lines) }.filter { $0.count >= 2 }
         if !rows.isEmpty {
-            return rows.prefix(30).map { source in
+            return rows.prefix(ControlConstants.maxHistoryEntries).map { source in
                 let row = source.map(plain)
                 let dateIndex = row.indices.dropFirst().first { match(row[$0], ControlConstants.historyDatePattern) != nil }
                 let detail = row.indices.dropFirst().filter { $0 != dateIndex && !row[$0].isEmpty }.map { row[$0] }
@@ -390,7 +390,8 @@ internal enum ReadmeParser {
                 return HistoryEntry(title: row[0], detail: detail, date: dateIndex.map { row[$0] })
             }
         }
-        return selected.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }.prefix(30).map {
+        return selected.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }
+            .prefix(ControlConstants.maxHistoryEntries).map {
             HistoryEntry(title: $0.title, detail: paragraphs([$0]).prefix(2).joined(separator: ControlConstants.space))
         }
     }

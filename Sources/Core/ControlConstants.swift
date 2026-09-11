@@ -31,6 +31,8 @@ internal enum ControlConstants {
     internal static let gitHead = "--head"
     internal static let gitHashOnly = "--hash"
     internal static let gitUnavailableFingerprint = "git-unavailable"
+    internal static let gitRecordNewlineByte: UInt8 = 10
+    internal static let gitPathSeparatorByte: UInt8 = 47
     internal static let projectsHeading = "projects"
     internal static let categoryColumn = "category"
     internal static let technicalScopeColumn = "technical scope"
@@ -218,11 +220,13 @@ internal enum ControlConstants {
     internal static let repositoryIcon = "square.grid.2x2"
     internal static let categoryIcons = ["brain.head.profile", "key", "chart.xyaxis.line", "books.vertical", "briefcase"]
     internal static let maxNoteLength = 4000
-    internal static let noteLimit = "Write a nonempty note using up to 4,000 characters."
+    internal static let noteLimit = "Write a nonempty note using up to \(maxNoteLength.formatted()) characters."
     internal static let synchronized = "README snapshot"
     internal static let releaseUnknown = "Release not specified"
     internal static let notesLocked = "Notes are read-only until the saved workspace can be loaded."
     internal static let maxDiagramNodes = 32
+    internal static let maxWorkflowRoutes = 8
+    internal static let maxHistoryEntries = 30
     internal static let monthCount = 12
     internal static let activityCompactBreakpoint: CGFloat = 940
     internal static let maxReadmeBytes = 2_000_000

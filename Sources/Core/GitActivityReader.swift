@@ -115,10 +115,11 @@ internal enum GitActivityReader {
                 firstPath = true
                 continue
             }
-            let path = firstPath && field.first == 10 ? field.dropFirst() : field[...]
+            let path = firstPath && field.first == ControlConstants.gitRecordNewlineByte
+                ? field.dropFirst() : field[...]
             firstPath = false
             guard timestamp != nil,
-                  let folder = path.split(separator: 47, maxSplits: 1).first,
+                  let folder = path.split(separator: ControlConstants.gitPathSeparatorByte, maxSplits: 1).first,
                   let name = String(data: folder, encoding: .utf8),
                   let identity = identities[name] else { continue }
             projectIDs.insert(identity)
