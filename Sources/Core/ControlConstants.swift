@@ -39,7 +39,6 @@ internal enum ControlConstants {
     internal static let technologiesColumn = "technologies"
     internal static let technologySeparator = ";"
     internal static let uncategorized = "Uncategorized"
-    internal static let technicalScope = "Technical scope"
     internal static let technology = "Technology or approach"
     internal static let repositoryActions = "Repository actions"
     internal static let repositoryRead = "Open README file"
@@ -216,7 +215,6 @@ internal enum ControlConstants {
     internal static let lockIcon = "lock"
     internal static let unlockIcon = "lock.open"
     internal static let collapseSidebarIcon = "rectangle.leftthird.inset.filled"
-    internal static let expandSidebarIcon = "chevron.right"
     internal static let repositoryIcon = "square.grid.2x2"
     internal static let categoryIcons = ["brain.head.profile", "key", "chart.xyaxis.line", "books.vertical", "briefcase"]
     internal static let maxNoteLength = 4000

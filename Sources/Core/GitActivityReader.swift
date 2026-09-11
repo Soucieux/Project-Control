@@ -9,13 +9,6 @@ private struct GitCommandOutput {
 
 /// Converts complete timestamp lists into fixed calendar-month activity buckets.
 internal enum CommitActivityCalculator {
-    /// Groups every valid timestamp while retaining invalid records in the overall total.
-    /// - Parameters: timestamps: Complete loaded timestamp records. calendar: Calendar and time zone used for grouping.
-    /// - Returns: Descending valid years, twelve counts per year, and the unfiltered record total.
-    internal static func summarize(_ timestamps: [String], calendar: Calendar) -> CommitActivity {
-        summarize(timestamps.map { GitCommitMetadata(timestamp: $0, projectIDs: []) }, calendar: calendar)
-    }
-
     /// Groups valid timestamp metadata and records project participation for every calendar month.
     /// - Parameters:
     ///   - records: Complete loaded Git records.

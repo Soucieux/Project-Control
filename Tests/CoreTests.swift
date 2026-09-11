@@ -117,10 +117,10 @@ internal enum CoreTests {
             fatalError(TestConstants.checkActivityFuture)
         }
         calendar.timeZone = timeZone
-        let nonfinite = CommitActivityCalculator.summarize(["nan", "inf", "-inf"], calendar: calendar)
+        let nonfinite = CommitActivityCalculator.summarize(timestampRecords(["nan", "inf", "-inf"]), calendar: calendar)
         check(nonfinite.totalCount == 3 && nonfinite.years.isEmpty,
             "nonfinite timestamps remain in the total without creating calendar buckets")
-        let activity = CommitActivityCalculator.summarize(TestConstants.activityTimestamps, calendar: calendar)
+        let activity = CommitActivityCalculator.summarize(timestampRecords(TestConstants.activityTimestamps), calendar: calendar)
         check(activity.available && activity.totalCount == TestConstants.activityTimestamps.count,
             TestConstants.checkActivityTotal)
         check(activity.years.map(\.year) == [2026, 2024]
@@ -535,6 +535,13 @@ internal enum CoreTests {
         check(try storage.load().notes[TestConstants.project] == [note], TestConstants.checkNotes)
         try TestConstants.corrupt.write(to: storage.file, atomically: true, encoding: .utf8)
         checkThrows(TestConstants.checkCorrupt) { _ = try storage.load() }
+    }
+
+    /// Wraps bare timestamps as Git records with no mapped project paths.
+    /// - Parameter timestamps: Timestamp fields exactly as Git would report them.
+    /// - Returns: One repository-level record per timestamp, in source order.
+    private static func timestampRecords(_ timestamps: [String]) -> [GitCommitMetadata] {
+        timestamps.map { GitCommitMetadata(timestamp: $0, projectIDs: []) }
     }
 
     /// Records a single deterministic assertion.
