@@ -343,7 +343,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v2.7 (build 27)**. [Change and delivery evidence](#change-4).
+**v2.8 (build 28)** in source; the signed local app remains v2.7 (build 27) until it is rebuilt. [Change and delivery evidence](#exhaustive-pass-maintenance).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -364,6 +364,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v2.8 / build 28 | 2026-09-11 | <ul><li><strong>Source:</strong> Restored the header icon's alignment with the project name, removed per-render bundle reads and repeated measurement from the interface layer, named the documented parsing limits, and removed unused code.</li><li><strong>Documentation:</strong> Each change-history record now states its change once, and unused link anchors were removed.</li></ul> | [Full record](#exhaustive-pass-maintenance) |
 | Documentation | 2026-09-06 | <ul><li><strong>Structure:</strong> User guide first; one history table.</li><li><strong>Rules:</strong> Scoped contributor guidance under AGENTS.</li></ul> | [Full record](#readme-organization) |
 | Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Reorganized long paragraphs and table cells without dropping details.</li></ul> | [Full record](#change-1) |
 | Documentation | 2026-09-06 | <ul><li><strong>Change:</strong> Moved complete project descriptions, register details, and repository-origin history into this README.</li></ul> | [Full record](#change-2) |
@@ -396,6 +397,56 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="exhaustive-pass-maintenance"></a>
+
+### v2.8 / build 28
+
+- **Recorded date:** 2026-09-11; work began 2026-09-10.
+
+- **Scope:** Exhaustive pass over every file under `Project Control/`, requested as a full sweep.
+
+- **Interface:** Project icons and the project screen no longer read and parse bundle metadata on
+  every view update. `ApplicationLocator` now separates the canonical identity recheck from the
+  bounded `Info.plist` read, so icon lookup keeps its documented identity check without the file
+  read; the project screen resolves its launch target once per update instead of three times.
+  The project header again centers its icon on the project-name line, with the version beneath the
+  name, restoring the v0.7 alignment that the v2.5 header merge had moved onto the combined
+  name-and-version stack.
+- **Layout and drawing:** The technology-tag layout reuses one measured arrangement per width, the
+  workflow parser builds each linear route once, and the halftone artwork computes its per-column
+  wave once per column.
+- **Clarity:** The repository-open action no longer performs its side effect inside a guard
+  condition, and the workflow preference key holds its default immutably.
+- **Constants:** The documented eight-route and thirty-entry parsing limits and the two raw Git
+  output bytes now have names; the work-note limit message derives its number from the limit itself.
+- **Documentation comments:** 61 callables across the sources and tests now use the nested Swift
+  parameter list rather than a single flattened line.
+- **Unused code:** Removed `CommitActivityCalculator.summarize(_ timestamps:calendar:)`, which only the
+  tests called; the core tests now build their timestamp records directly. The never-referenced
+  `technicalScope` and `expandSidebarIcon` constants were also removed.
+- **Version checks:** `Tests/VersionChecks.sh` reports the number of cases it actually ran. The
+  expectation stays the function's last statement so a wrong result still stops the run.
+- **Change history:** Each record now states its change once. Repeated restatements were merged into
+  one list, v2.7 delivery text was removed from the v2.6 record, and fifteen duplicated evidence
+  blocks were merged. The v2.6, v2.1 and v0.8 records had retold other releases; they now keep only
+  their own work, and details found only in a retelling moved to the record they describe. The
+  out-of-date "Current implementation" snapshot inside the v0.8 record was removed; its facts remain
+  in the release records and this guide. Every distinct fact, figure, Git reference, date and
+  delivery status was retained.
+- **Links:** The Project Control tag-policy link now resolves to the repository instructions instead
+  of an empty legacy anchor. Removed 95 link anchors that nothing pointed to, including eight left
+  behind when their sections moved to the contributor instructions. The development-checks anchor
+  now leads to the change history.
+
+- **Status:** Source advances to v2.8/build 28 because this batch changes application source. The
+  signed local app has not been rebuilt and remains v2.7/build 27. Delivered uncommitted.
+
+**Evidence and delivery status**
+
+v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; the signed local app remains v2.7/build 27 until it is rebuilt from the integrated source; delivered uncommitted
+
+[Back to change history](#change-history)
 
 <a id="readme-organization"></a>
 
