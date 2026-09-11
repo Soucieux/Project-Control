@@ -73,7 +73,7 @@ internal struct WorkflowDiagram: View {
 
 /// Collects measured node anchors without imposing a fixed text height.
 private struct WorkflowBounds: PreferenceKey {
-    fileprivate static var defaultValue: [Int: Anchor<CGRect>] = [:]
+    fileprivate static let defaultValue: [Int: Anchor<CGRect>] = [:]
 
     /// Merges node bounds from each row into the graph coordinate space.
     /// - Parameters:

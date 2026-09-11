@@ -174,8 +174,11 @@ internal final class ControlStore: ObservableObject {
     /// - Parameter url: Project folder or README URL from the current snapshot.
     /// - Returns: Nothing; failed open actions display a recoverable message.
     internal func open(_ url: URL) {
-        guard let snapshot, RepositoryReader.contains(url, in: snapshot.root),
-              NSWorkspace.shared.open(url) else { error = ControlConstants.openFailure; return }
+        guard let snapshot, RepositoryReader.contains(url, in: snapshot.root) else {
+            error = ControlConstants.openFailure
+            return
+        }
+        if !NSWorkspace.shared.open(url) { error = ControlConstants.openFailure }
     }
 
     /// Locates and opens an app only after an explicit Open App action.
