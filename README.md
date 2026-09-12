@@ -145,9 +145,9 @@ Local work notes → notes available / no notes summary
    folder outside the repository is rejected.
 2. **Create the project's README.** Add `Example Project/README.md` as a regular UTF-8 file smaller
    than 2 MB. Start with a plain-language overview, then document the architecture, optional models,
-   workflows, and history that the app should show. Choose the project's change-history mode from
-   the [version and build-number policy](../AGENTS.md#version-and-build-number-policy), and place
-   the required linked declaration beside its current-release or history section.
+   workflows, and history that the app should show. Choose the project's change-history mode — project
+   version and build, version-only component, or dated history — and place the required linked
+   declaration beside its current-release or history section.
 3. **Mark the app-visible README sections.** Put one supported
    `<!-- project-control:section=... -->` marker immediately before each heading that Project Control
    should read. Use `overview`, `architecture`, `models`, `workflows`, `release`, or `history` as
@@ -278,7 +278,7 @@ A child's explicit marker can select a different destination, except inside `ign
 
 case-insensitive duplicates keep their first spelling and position. Keep punctuation inside names, such as `C++` or `model_name-v1`. Do not use a semicolon inside one name.
 
-- Follow the [Project Control-only tag policy](../AGENTS.md#project-control) when choosing factual technologies/approaches.
+- Follow the [tag rules](CONTRIBUTING.md#presentation-rules) when choosing factual technologies/approaches; they apply to this app's presentation only.
 - The app displays this metadata; it does not verify runtime use or infer tags from architecture tables, categories, or scope descriptions.
 
 The former **AI usage** column is ignored, even when Technologies is absent or blank; there is no fallback that creates an AI or absence badge.
@@ -346,13 +346,13 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=ignore -->
 ## Contributing
 
-For source changes, follow the [repository instructions](../AGENTS.md#project-control).
+For source changes, follow the [contribution guide](CONTRIBUTING.md).
 
 <!-- project-control:section=history -->
 ## Change history
 
 **Change-history numbering:** This project uses marketing versions and integer build numbers.
-Follow the repository-wide [version and build-number policy](../AGENTS.md#version-and-build-number-policy).
+Follow the [version and build policy](CONTRIBUTING.md#version-and-build-policy).
 
 One record per change; complete details and evidence are below. Older work dates and Git checkpoints remain labelled when they differ.
 
@@ -360,6 +360,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| Documentation | 2026-09-12 | <ul><li><strong>Contributing:</strong> Added a standalone project guide so the source carries its own contribution and numbering rules.</li><li><strong>Links:</strong> Removed the README's dependencies on parent-only repository files.</li></ul> | [Full record](#standalone-contributor-guide) |
 | v2.8 / build 28 | 2026-09-11 | <ul><li><strong>Source:</strong> Restored the header icon's alignment with the project name, removed per-render bundle reads and repeated measurement from the interface layer, named the documented parsing limits, and removed unused code.</li><li><strong>Documentation:</strong> Each change-history record now states its change once, and unused link anchors were removed.</li></ul> | [Full record](#exhaustive-pass-maintenance) |
 | Documentation | 2026-09-06 | <ul><li><strong>Structure:</strong> User guide first; one history table.</li><li><strong>Rules:</strong> Scoped contributor guidance under AGENTS.</li></ul> | [Full record](#readme-organization) |
 | Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Reorganized long paragraphs and table cells without dropping details.</li></ul> | [Full record](#change-1) |
@@ -393,6 +394,17 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="standalone-contributor-guide"></a>
+
+### Documentation — 2026-09-12
+
+- **Guide:** `CONTRIBUTING.md` now carries the project-facing rules that used to live only in the private repository instructions: what the app may read and do, the presentation rules for tags and the glass direction, the checks a change must pass, and the version and build policy. The private scoped instructions remain authoritative for repository-wide workflow and automation.
+- **Links:** the README's four links into the parent `AGENTS.md` now point at that guide or state the rule directly, so every link resolves from the project folder alone. The one remaining parent path sits inside a fenced example of a registered project's README, where Markdown renders it as literal text rather than a link.
+- **Numbering:** the change-history declaration links to the guide's own policy section, matching the two projects already exported this way. The policy itself is unchanged: `v<major>.<minor>`, build `major x 10 + minor`, both advancing for every change except a documentation-only one.
+- **Status:** Documentation only. Source, the signed v2.8 build 28 application, and its delivery state are unchanged, and no version or build advances for this change.
+
+[Back to change history](#change-history)
 
 <a id="exhaustive-pass-maintenance"></a>
 
