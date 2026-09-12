@@ -114,8 +114,6 @@ Project Control/
 └── build/              # Staging, caches, recovery copies; ignored by Git
 ```
 
-<a id="how-information-stays-current"></a>
-
 <!-- project-control:section=workflows -->
 ## Workflow and data sources
 
@@ -350,8 +348,6 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 
 For source changes, follow the [repository instructions](../AGENTS.md#project-control).
 
-<a id="development-and-focused-checks"></a>
-
 <!-- project-control:section=history -->
 ## Change history
 
@@ -457,7 +453,7 @@ v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/pres
 - **Structure:** Put purpose, capabilities, setup, architecture, and workflows before history.
 - **History:** Merge matching repository-origin records into the owning change; preserve unique detail, evidence, and older links.
 - **Ownership:** Keep user documentation here; route scoped contributor rules through root AGENTS.
-- **Status:** Documentation changes only; uncommitted. Existing application versions, artifacts, and deployment state are unchanged.
+- **Status:** Documentation changes only; initially delivered uncommitted and recorded in `795cd8e`. Existing application versions, artifacts, and deployment state are unchanged.
 
 <a id="change-1"></a>
 <a id="readability-maintenance"></a>
@@ -488,7 +484,7 @@ Local documentation changes; initially delivered uncommitted and recorded in thi
 
 **Evidence and delivery status**
 
-Local documentation update; uncommitted
+Local documentation update; initially delivered uncommitted and recorded in `795cd8e`
 
 [Back to change history](#change-history)
 
