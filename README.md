@@ -187,12 +187,12 @@ Local work notes → notes available / no notes summary
    ```
 4. **Register the project in the root Projects table.** Add one row directly to the table under the
    `projects` marker. The first cell must link to the new top-level folder. If the folder name
-   contains spaces, encode each space as `%20` in the link. Begin the Professional scope cell with
-   Category, Technical scope, and Technologies in exactly that order, followed by the useful project
-   summary.
+   contains spaces, encode each space as `%20` in the link. Open the Professional scope cell with
+   the latest update date, add a public-repository link when the project has a public mirror, then
+   Category, Technical scope and Technologies, followed by the useful project summary.
 
    ```markdown
-   | [Example Project](Example%20Project/) | <ul><li><strong>Category:</strong> Project Management</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; SQLite</li><li><strong>Product:</strong> A concise factual summary.</li></ul> | 2026-09-04 |
+   | [Example Project](Example%20Project/) | <ul><li><strong>Latest update:</strong> 2026-09-04</li><li><strong>Category:</strong> Project Management</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; SQLite</li><li><strong>Product:</strong> A concise factual summary.</li></ul> |
    ```
 
    Use real, source-confirmed classifications. Separate technology names with semicolons. The folder
@@ -254,8 +254,8 @@ A child's explicit marker can select a different destination, except inside `ign
 - The Projects register reads tables directly under its selected heading, not unrelated tables inside descriptive subsections.
 - Keep extended project descriptions in the owning project README; the root Projects table contains concise introductions and links in each Professional scope cell.
 
-- The first two register columns remain the project folder link and Professional scope description; the current register keeps **Latest update** as its third human-readable column.
-- Start every Professional scope cell with these three labelled list items, in this order:
+- The register has two columns: the project folder link and the Professional scope description. The app reads a labelled item wherever it appears in that cell, so the order below is for readers, not for parsing.
+- Every Professional scope cell opens with **Latest update**, then **Public repository** for a project with a public mirror, and carries these three labelled items:
 
 ```html
 <ul><li><strong>Category:</strong> Project Management</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; README-driven</li><li><strong>Product:</strong> Project-specific summary.</li></ul>
