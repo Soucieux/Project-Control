@@ -451,12 +451,12 @@ One record per change; complete details and evidence are below. Older work dates
 
 - **Status:** Source advances to v2.8/build 28 because this batch changes application source. It was
   initially delivered uncommitted, then committed and landed on `main` on 2026-09-11. The signed local
-  app was rebuilt from `main` at v2.8/build 28; the replaced v2.7/build-27 app is recoverable under
-  `build/previous.Pz6Djl`.
+  app was rebuilt from `main` at v2.8/build 28, replacing the v2.7/build-27 app. The project keeps
+  one delivered bundle; an earlier build is rebuilt from its commit rather than retained.
 
 **Evidence and delivery status**
 
-v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; source commits `a602e83`, `63baa89`, `73cbdc9`, `1ba170b`, `0169387`, `2e94694`, `2724f30`, `2b6c9a6`, `7e5cb6c`; the signed v2.8/build-28 app built from `main` passed strict signing, exact source-metadata, arm64, ten-size icon and project-root launch checks, with v2.7/build 27 preserved under `build/previous.Pz6Djl`; initially delivered uncommitted
+v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; source commits `a602e83`, `63baa89`, `73cbdc9`, `1ba170b`, `0169387`, `2e94694`, `2724f30`, `2b6c9a6`, `7e5cb6c`; the signed v2.8/build-28 app built from `main` passed strict signing, exact source-metadata, arm64, ten-size icon and project-root launch checks; initially delivered uncommitted
 
 [Back to change history](#change-history)
 
@@ -627,7 +627,7 @@ Source `bfa6c70`; project record `71d43d3`; signed project-root app; expansion/e
 - Complete native compilation, a cache-free optimized build, and strict signature/metadata/arm64/icon checks passed. The signed project-root app matches the source plist at v2.6/build 26, contains the exact generated icon, and has an arm64 executable with a valid strict ad-hoc signature.
 - Formal verification then repeated the affected tests, complete compilation, cache-free optimized packaging, and strict package checks. Native icon packaging required its normal macOS access outside the command sandbox; the unchanged rule then succeeded.
 - On September 3, live checks of an initial candidate confirmed prose wrapping, compact headers, an inline single-field editor, disabled empty Save, and enabled Save for a multiline draft; no saved notes were changed. Live inspection after the width correction confirmed the 1,120-point minimum, the single-row header, and the collapsed sidebar endpoint. The Mac was locked before the corrected expansion animation and remaining editor interactions could be reinspected.
-- At that delivery, v2.5/build 16 was recoverable under `build/previous.g6aJIt`. On September 4, the three superseded v2.6 candidates were removed while the signed app and ten distinct-version recoveries were retained; full core/store suites were not rerun for that cleanup. The September 6 cleanup later removed every build-folder recovery.
+- On September 4, the three superseded v2.6 candidates were removed while the signed app and ten distinct-version recoveries were retained; full core/store suites were not rerun for that cleanup. The September 6 cleanup later removed every build-folder recovery.
 - Implementation is committed in `bfa6c70` and `262e934`, with project documentation in `71d43d3`; this documentation checkpoint records the result.
 
 **Evidence and delivery status**
@@ -650,7 +650,7 @@ Source `bfa6c70`; navigation `262e934`; project record `71d43d3`; this documenta
 - Live app inspection covered Local Assistant and the longer Python Accomplishments title at regular and minimum window sizes, confirming visible actions, detection text, integrated health, the notes gauge, and unclipped tab/content layout.
 - Core/store logic was unchanged, so those suites were not rerun.
 - The subsequent authorized review found no actionable issues; verification repeated a cache-free optimized build, strict signature/metadata/arm64/icon checks, and live narrow-window Local Assistant and Python Accomplishments header inspection.
-- The initial delivery preceded that review and was uncommitted. The prior v2.4/build-15 bundle was preserved under `build/previous.6HZ7jk`; superseded same-version candidates and generated intermediates were removed after the final package checks.
+- The initial delivery preceded that review and was uncommitted. Superseded same-version candidates and generated intermediates were removed after the final package checks.
 
 **Evidence and delivery status**
 
@@ -688,7 +688,6 @@ This documentation commit
 - Compact workspace/sync status and the live bundle version follow a second separator, aligned to the visible icon column rather than the rail edge. Duplicate header/detail controls remain removed, all compact icons stay centered on one axis in the collapsed rail, and the detail header keeps identity and context without duplicated actions.
 - Passed 332 core checks, 39 store checks, optimized arm64 compilation, strict signing, exact source/bundle v2.4/build-15 metadata, icon checks, root-bundle promotion, and live inspection of repository/project Overview, Architecture, and Workflows, expanded/collapsed footer and rails, lock artwork, halftone density, and the native/detail corners.
 - The complete code review found no actionable source findings. Formal verification repeated a clean optimized rebuild, strict signing and package-identity checks, arm64/icon checks, and live expanded/collapsed, Overview, Workflows, and lock-state inspection.
-- The replaced v2.3/build-14 bundle was preserved under `build/previous.bIh8aG`.
 
 **Evidence and delivery status**
 
@@ -709,7 +708,6 @@ Source `014523d`; project documentation `ceb9c78`; this documentation checkpoint
 - Removed rail/detail overlap and visible scrollbars. The reference-style brand control stays visible in both rail states; the expanded brand row and collapsed 40-point icon column share one leading axis, and every rail icon keeps that fixed axis while labels animate. Top navigation, scrolling project groups, and the pinned local-only status remain structurally separate.
 - Reduce Motion suppresses transitions, while Reduce Transparency retains the solid detail fallback.
 - Passed 8 focused activity core checks, 1 store check, complete native type-checking, optimized compilation, strict signing, exact v2.3/build-14 metadata, arm64 executable/icon checks, and live expanded/collapsed/lock and activity inspection. Optional code review and formal verification did not run.
-- The replaced v2.2/build-13 app was preserved under `build/previous.IqYCW4`.
 - The activity implementation is committed in `bb0689e` and the shell implementation in `a01102b`; this documentation checkpoint records their delivered state.
 
 **Evidence and delivery status**
@@ -731,7 +729,7 @@ Moved Category, Technical scope, and Technologies into the first three labelled 
 - The existing v2.1 glass UI, project content, notes, launch behavior, synchronization paths, and all other project-management behavior are unchanged.
 - All 20 focused core checks and 5 isolated store checks passed, including the new labelled-scope, blank-value, compatibility, and precedence regressions.
 - Complete native type-checking, cache-free optimized compilation, strict signing, exact source/bundle metadata equality, arm64 executable/icon checks, bundle promotion, and a separate-instance project-root launch passed.
-- Source is committed in `ad84aa7`. The v2.1/build-12 bundle was preserved under `build/previous.ftKKT9` as the newest recovery bundle; generated compiler/icon intermediates and the smoke process were removed.
+- Source is committed in `ad84aa7`. Generated compiler/icon intermediates and the smoke process were removed.
 - Optional code review and formal verification did not run.
 
 **Evidence and delivery status**
@@ -752,7 +750,7 @@ Source `ad84aa7`; this project documentation and delivery checkpoint
 - Added the Project Control-specific rendered acceptance rule to root AGENTS.md without changing sibling-project policy.
 - Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass content plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability.
 - After the source and dual-README checkpoints were committed, cache-free optimized compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, bundle promotion, and a separate-instance project-root launch passed.
-- The v2.0/build-11 bundle was preserved under `build/previous.Yj7LyM` as the newest recovery bundle; generated intermediates and the smoke process were removed.
+- Generated intermediates and the smoke process were removed.
 - Core/store behavior was unchanged, so those suites were not rerun; optional code review and formal verification did not run.
 
 **Evidence and delivery status**
@@ -773,7 +771,7 @@ Source `8c7981c`; project source record `0c57d69`; root source record `9738555`;
 - README-derived data and parsing, classifications, notes, project icons, application discovery, content tabs, tables, diagrams, workflow data, and background README synchronization are unchanged.
 - All **323 core checks** and **39 store checks** passed, followed by complete native type-checking, before distributable compilation. After the source and dual-README checkpoints were committed, a clean optimized build passed strict signing, exact source/bundle metadata equality, and separate-instance project-root launch.
 - ScreenCaptureKit access remained denied, so final live capture and interaction are not claimed; optional code review and formal verification did not run.
-- The superseded v2.0 bundle and generated intermediates were removed; the v1.0 recovery and documented older recoveries remain unchanged. Superseded Vector/Lens design and reference files remain in Git history.
+- The superseded v2.0 bundle and generated intermediates were removed. Superseded Vector/Lens design and reference files remain in Git history.
 
 **Evidence and delivery status**
 
@@ -793,7 +791,7 @@ Initial source `32f2df4`; desktop glass `0e07484`; project records `2f44ecd`, `9
 - Offscreen views at 900×660 and 1160×840 and a six-project tag panel were inspected. The isolated render needed normal macOS icon-service access outside the agent sandbox; it captured only its own never-shown views, not desktop pixels, and no screen-recording permission was changed or retried. These checks do not establish live scrolling, keyboard interaction, or installed-app behavior.
 - Source was committed separately, with the user's authorization, in `9f3e399` (metadata/sync), `eb643cb` (header), and `2a512b8` (sidebar), with root metadata/policy in `b43b9fd` and release records in `19ac73f` / `6d6e110`, before the build; no build-gate exception was used.
 - A cache-free optimized arm64 build was promoted to the project root. Strict signing, exact source/bundle metadata equality, v1.0/build-10 identity, unchanged Nexus icon bytes, and a fresh root-level process launch passed. The smoke-test process remained running for at least 47 seconds and was then closed; no existing Project Control process was present before the check. This confirms launch, not live interaction.
-- The preserved v0.9 bundle at `build/previous.6S5wt3/Project Control.app` retains its valid signature and exact pre-build executable, metadata, and icon checksums; the documented v0.8/v0.7 recoveries are retained. Generated compiler caches and intermediate icon files were removed and can be regenerated. No desktop capture or privacy-setting change was attempted.
+- Generated compiler caches and intermediate icon files were removed and can be regenerated. No desktop capture or privacy-setting change was attempted.
 - No live-interaction, code-review, or formal-verification claim is made.
 
 Run only the classification regressions from this project folder:
@@ -823,7 +821,7 @@ make test-core test-store TEST_ARGS=--classification
 - Native type-checking and a cache-free optimized build passed. Four isolated, never-shown native views were rendered: at 900×660 and 1160×840, a tall register showing all five categories, and a minimum-width long-repository-name case. The header icon/title alignment, separate ellipsis, wrapping badges, counts, selection highlight, and real app/fallback icons were inspected. The design pass retains the navy/icy-blue palette and uses informational badges, not health scores. These renders do not establish live scrolling, collapsing, keyboard, menu, or window-chrome behavior.
 - macOS denied live window capture; no capture permission or privacy setting was changed or retried. The render probe and icon packager needed normal macOS icon-service access outside the agent sandbox; neither captured the desktop.
 - The app was delivered directly in the project folder. Clean compilation, strict bundle identity/signature checks, matching source/bundle metadata, unchanged Nexus icon bytes, and project-root launch passed. Only the newly started background smoke-test instance was closed; the existing app session was preserved.
-- The preceding v0.8 source/build work was already committed before this build; the unchanged v0.8 bundle retains its original executable, metadata, icon checksums, and valid signature under `build/previous.JxnKxh/Project Control.app`. Temporary render sources/images, test binaries, compiler caches, and intermediate icons were removed.
+- The preceding v0.8 source/build work was already committed before this build; Temporary render sources/images, test binaries, compiler caches, and intermediate icons were removed.
 - Source was uncommitted at delivery; the retained header/category implementation is now captured with v1.0 in `9f3e399`, `eb643cb`, and `2a512b8`, not in a separate v0.9 release commit. Live interaction, optional code review, and formal verification were not confirmed or run for this batch.
 
 **Evidence and delivery status**
@@ -858,7 +856,7 @@ Prior release references below; no separate app build
 - Final verification passed **303 core checks and 34 store checks**, a targeted mutation check, native type-checking, clean compilation, strict signing, and source/bundle metadata and identity checks.
 - Native offscreen rendering produced all six architecture views at 583- and 843-point content widths; minimum-width views, a regular-width representative, and the stale warning were inspected. This is layout evidence, not live window/keyboard/file-picker verification. No privacy setting or capture permission was changed.
 - The existing app process was left untouched and not restarted; quit and reopen the root-level app to load the new binary. Live UI interaction remains unverified.
-- The release was delivered as **Project Control.app** beside this README. The previous v0.7 source was committed before this update, and its unchanged bundle remains recoverable under `build/previous.sH4KB5/Project Control.app`. The obsolete v0.6 recovery and the superseded pre-review v0.8 candidate were moved to macOS Trash under `Project Control - retired bundles 2026-08-31-sync`; temporary test, mutation, rendering, and compiler/icon artifacts were removed.
+- The release was delivered as **Project Control.app** beside this README. The previous v0.7 source was committed before this update. The obsolete v0.6 recovery and the superseded pre-review v0.8 candidate were moved to macOS Trash under `Project Control - retired bundles 2026-08-31-sync`; temporary test, mutation, rendering, and compiler/icon artifacts were removed.
 - The separate Observatory v2.2 snapshot was rebuilt with permission to leave its pending Atlas/release work uncommitted.
 
 **Evidence and delivery status**
@@ -896,7 +894,7 @@ Grouped all six projects' architecture components into relevant category tables 
 - All 128 core checks and 18 isolated store checks passed, along with native type-checking, offscreen header/history/table layouts, clean compilation, strict bundle checks, and root-level launch.
 - Offscreen native rendering checked all six project headers at minimum and regular content widths, title-line icon alignment, dated history headings, and Local Assistant's complete 15-row architecture table. Wrapped cells exposed uneven per-cell dividers; full-width grid dividers corrected the layout and were checked at both widths. These probes rendered only their own never-shown views, without capturing desktop pixels.
 - A cache-free native build passed strict signature, source/bundle metadata, unchanged Nexus icon, project-root launch, and checksum-matched v0.6 recovery checks.
-- Preserved v0.6 unchanged as the only required recovery bundle under `build/` and removed temporary/generated artifacts. v0.5 was retired to Trash, though a final Trash inventory was denied by macOS and was not retried.
+- Removed temporary/generated artifacts. v0.5 was retired to Trash, though a final Trash inventory was denied by macOS and was not retried.
 - The user explicitly permitted the required builds before committing Project Control v0.6 or Observatory v1.9; source was uncommitted at delivery and no commit was made at that point.
 - Live UI interaction, optional code review, and formal verification had not run at delivery; the later category-grouping review and verification are recorded under v0.8 delivery evidence.
 
@@ -936,7 +934,7 @@ Retrospective record in `0a17adc`; implemented source committed with v0.7
 - Nine added core assertions cover these regressions plus binary/malformed/oversized metadata and executable-directory rejection. All 71 focused checks (57 core and 14 store) passed with native type-checking, clean compilation, and strict signature/metadata/icon checks; no synthetic app was launched.
 - The reviewed source was committed in separate parser, app-discovery, UI, and documentation groups before clean distributable compilation; no build-rule exception was needed.
 - Strict root-bundle signature checks, source/bundle metadata equality, unchanged Nexus icon, and project-root process launch passed.
-- The preserved v0.4 bundle retains its original executable/metadata/icon checksums and valid signature. The superseded v0.3 bundle was moved to Trash with matching checksums, and disposable probes, test binaries, compiler caches, and intermediate icons were removed.
+- The superseded v0.3 bundle was moved to Trash with matching checksums, and disposable probes, test binaries, compiler caches, and intermediate icons were removed.
 - Live UI interaction remains unconfirmed; the unchanged view layout has the earlier v0.4 offscreen evidence only.
 
 **Evidence and delivery status**
@@ -973,7 +971,7 @@ Retrospective record in `9f086e9`; implemented source committed with v0.5
 - Review fixes preserve fenced-code boundaries, escaped table pipes, optional trailing delimiters, and URL/step colons in workflows.
 - Capture metadata before reads for refresh identities, share canonical identities for folder aliases, queue the latest repository selection while loading, and apply the same path boundary to root/project README opening.
 - Passed 27 core checks, 10 isolated store checks (including a concurrent-edit/polling regression), native application type-checking, clean native compilation, strict signature validation, source/bundle metadata equality, bundle metadata/icon checks, and project-root process launch.
-- The packaged Nexus icon is byte-identical to the verified v0.2 icon. The preserved v0.2 bundle retains its valid signature and original executable, metadata, and icon checksums.
+- The packaged Nexus icon is byte-identical to the verified v0.2 icon.
 - Moved the superseded icon comparison and v0.1 bundle to Trash with matching checksums; generated compiler caches and intermediate icon files were removed after verification.
 - The user explicitly permitted building v0.3 before committing v0.2. Native visual inspection remains unconfirmed.
 

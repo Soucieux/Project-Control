@@ -63,8 +63,10 @@ make app
 - The suites never launch an application or touch the user's real workspace, and disposable
   fixtures are removed afterwards.
 - `make app` prepares the bundle under the ignored `build/` folder, checks its signature, and only
-  then promotes the complete bundle to `Project Control.app` at this project root. A replaced
-  bundle is preserved under an ignored `build/previous.*` directory; restore it if promotion fails.
+  then promotes the complete bundle to `Project Control.app` at this project root. The promotion is
+  transactional: the existing app is set aside while the new one moves into place and put back if
+  that move fails, and the staging folder is disposable afterwards. The project keeps one delivered
+  bundle; rebuild an earlier version from its commit rather than keeping old bundles around.
 - For an interface change, inspect the built app at the screen and state you changed, including the
   smallest supported window. A passing test establishes only the behavior it exercises.
 
