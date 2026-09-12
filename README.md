@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v2.8%20build%2028-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v2.9%20build%2029-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -343,7 +343,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v2.8 (build 28)** in source and in the signed local app. [Change and delivery evidence](#exhaustive-pass-maintenance).
+**v2.9 (build 29)** in source and in the signed local app. [Change and delivery evidence](#single-delivered-bundle).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -362,6 +362,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v2.9 / build 29 | 2026-09-12 | <ul><li><strong>Delivery:</strong> The promotion step deletes the set-aside bundle once the new app is in place, so a build no longer leaves an older release behind.</li></ul> | [Full record](#single-delivered-bundle) |
 | Documentation | 2026-09-12 | <ul><li><strong>Contributing:</strong> Added a standalone project guide so the source carries its own contribution and numbering rules.</li><li><strong>Links:</strong> Removed the README's dependencies on parent-only repository files.</li></ul> | [Full record](#standalone-contributor-guide) |
 | v2.8 / build 28 | 2026-09-11 | <ul><li><strong>Source:</strong> Restored the header icon's alignment with the project name, removed per-render bundle reads and repeated measurement from the interface layer, named the documented parsing limits, and removed unused code.</li><li><strong>Documentation:</strong> Each change-history record now states its change once, and unused link anchors were removed.</li></ul> | [Full record](#exhaustive-pass-maintenance) |
 | Documentation | 2026-09-06 | <ul><li><strong>Structure:</strong> User guide first; one history table.</li><li><strong>Rules:</strong> Scoped contributor guidance under AGENTS.</li></ul> | [Full record](#readme-organization) |
@@ -396,6 +397,21 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="single-delivered-bundle"></a>
+
+### v2.9 / build 29
+
+- **Recorded date:** 2026-09-12.
+- **Promotion:** `make app` moved the installed app into a `build/previous.*` folder before putting the new one in place, and left it there for good. Every release since v0.2 therefore accumulated a copy of the one it replaced. The step is still transactional — the existing app is set aside and put back if the move fails — but the set-aside copy is now deleted as soon as the new bundle is in place. The project keeps one delivered bundle; an earlier version is rebuilt from its commit.
+- **Scope:** the build recipe only. No application source changed, so the interface, parsing, storage and launch behavior are those of v2.8.
+- **Documentation:** the README, the contributor guide and the scoped instructions no longer describe retained recoveries, and the records that named a `build/previous.*` path as recoverable no longer claim one exists.
+
+**Evidence and delivery status**
+
+v2.9/build 29 source; `make check-version` accepts the pair; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); `make app` rebuilt and promoted the bundle to the project root, where it reports v2.9 build 29, carries a valid strict signature and an arm64 executable, and left no `build/previous.*` folder behind — the behaviour this release changes. The promoted app launched and quit cleanly. Disposable staging was removed afterwards. Initially delivered uncommitted.
+
+[Back to change history](#change-history)
 
 <a id="standalone-contributor-guide"></a>
 

@@ -51,6 +51,7 @@ app: check-version icons
 		if ! mv "$(APP)" "$(FINAL_APP)"; then \
 			mv "$$previous/$(FINAL_APP)" "$(FINAL_APP)"; exit 1; \
 		fi; \
+		rm -rf "$$previous"; \
 	else mv "$(APP)" "$(FINAL_APP)"; fi
 
 test: test-core test-store test-notes test-version
