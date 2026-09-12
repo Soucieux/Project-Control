@@ -1,5 +1,7 @@
 # Project Control
 
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v2.8%20build%2028-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+
 <!-- project-control:section=overview -->
 ## Overview
 
