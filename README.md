@@ -255,7 +255,7 @@ A child's explicit marker can select a different destination, except inside `ign
 - Keep extended project descriptions in the owning project README; the root Projects table contains concise introductions and links in each Professional scope cell.
 
 - The register has two columns: the project folder link and the Professional scope description. The app reads a labelled item wherever it appears in that cell, so the order below is for readers, not for parsing.
-- A row whose first-column link points at another repository — a fork or any work kept outside this one — is skipped rather than displayed, because there is no folder here to read. A relative link that escapes the repository is still refused as unsafe.
+- A row whose first-column link points at another repository — a fork or any work kept outside this one — is skipped rather than displayed, because there is no folder here to read; such rows belong in the root README's **Forked projects** section, which is marked `ignore`. A relative link that escapes the repository is still refused as unsafe.
 - Every Professional scope cell opens with **Latest update**, then **Public repository** for a project with a public mirror, and carries these three labelled items:
 
 ```html
