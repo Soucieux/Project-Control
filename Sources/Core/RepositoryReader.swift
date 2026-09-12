@@ -60,6 +60,9 @@ internal enum RepositoryReader {
                       let name = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 1),
                       let link = ReadmeParser.match(row[0], ControlConstants.linkPattern, group: 2),
                       let decoded = link.removingPercentEncoding else { throw ControlFailure(message: ControlConstants.invalidRepository) }
+                // A row naming another repository documents work kept outside this one: there is no
+                // folder here to read, so it is skipped rather than treated as an unsafe project.
+                guard ReadmeParser.match(link, ControlConstants.absoluteLinkPattern) == nil else { return nil }
                 let folder = canonical.appendingPathComponent(decoded).standardizedFileURL
                 guard contains(folder, in: canonical), folder.deletingLastPathComponent() == canonical else {
                     throw ControlFailure(message: ControlConstants.unsafeProject)

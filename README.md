@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v2.9%20build%2029-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.0%20build%2030-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -255,6 +255,7 @@ A child's explicit marker can select a different destination, except inside `ign
 - Keep extended project descriptions in the owning project README; the root Projects table contains concise introductions and links in each Professional scope cell.
 
 - The register has two columns: the project folder link and the Professional scope description. The app reads a labelled item wherever it appears in that cell, so the order below is for readers, not for parsing.
+- A row whose first-column link points at another repository — a fork or any work kept outside this one — is skipped rather than displayed, because there is no folder here to read. A relative link that escapes the repository is still refused as unsafe.
 - Every Professional scope cell opens with **Latest update**, then **Public repository** for a project with a public mirror, and carries these three labelled items:
 
 ```html
@@ -343,7 +344,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v2.9 (build 29)** in source and in the signed local app. [Change and delivery evidence](#single-delivered-bundle).
+**v3.0 (build 30)** in source and in the signed local app. [Change and delivery evidence](#external-register-rows).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -362,6 +363,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.0 / build 30 | 2026-09-12 | <ul><li><strong>Register:</strong> A row linking to another repository is skipped instead of making the whole register unreadable.</li></ul> | [Full record](#external-register-rows) |
 | v2.9 / build 29 | 2026-09-12 | <ul><li><strong>Delivery:</strong> The promotion step deletes the set-aside bundle once the new app is in place, so a build no longer leaves an older release behind.</li></ul> | [Full record](#single-delivered-bundle) |
 | Documentation | 2026-09-12 | <ul><li><strong>Contributing:</strong> Added a standalone project guide so the source carries its own contribution and numbering rules.</li><li><strong>Links:</strong> Removed the README's dependencies on parent-only repository files.</li></ul> | [Full record](#standalone-contributor-guide) |
 | v2.8 / build 28 | 2026-09-11 | <ul><li><strong>Source:</strong> Restored the header icon's alignment with the project name, removed per-render bundle reads and repeated measurement from the interface layer, named the documented parsing limits, and removed unused code.</li><li><strong>Documentation:</strong> Each change-history record now states its change once, and unused link anchors were removed.</li></ul> | [Full record](#exhaustive-pass-maintenance) |
@@ -397,6 +399,21 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="external-register-rows"></a>
+
+### v3.0 / build 30
+
+- **Recorded date:** 2026-09-12.
+- **Register:** the root register gained a second table for work carried on top of someone else's project, whose first column links to a public repository rather than a folder here. Every row in the Projects section is read as a register row, and a row whose link is not a direct child folder was refused as unsafe — which made the entire repository unreadable, not just that row. A row whose link carries a URL scheme is now skipped: there is no folder here to open, so it is documentation rather than a project the app can show. A relative link that escapes the repository is still refused, and that protection keeps its check.
+- **Scope:** one guard in `RepositoryReader` and one pattern in `ControlConstants`. No interface, storage, or history behavior changed.
+- **Checks:** `make check-version` accepts the v3.0/build 30 pair; 434 native checks passed (341 core, 40 store, 41 note/presentation, 12 version), two of them new — an external row is skipped while the folder-based rows around it still load, and an escaping relative link is still refused. The live register, which now carries the forked-project table, parses again; before the fix its read threw and the smoke check failed.
+
+**Evidence and delivery status**
+
+v3.0/build 30 source; `make app` rebuilt and promoted the bundle to the project root, where it reports v3.0 build 30 with a valid strict signature and left no bundle behind; the promoted app launched and quit cleanly; staging removed. Initially delivered uncommitted.
+
+[Back to change history](#change-history)
 
 <a id="single-delivered-bundle"></a>
 

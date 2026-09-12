@@ -277,6 +277,26 @@ internal enum CoreTests {
             "each register table retains its own column order")
         check(tables.projects[2].classification == ProjectClassification(),
             "a missing legacy cell stays blank rather than falling back to conflicting scope labels")
+        let externalRow = """
+        ## Projects
+        | Project | Scope |
+        |---|---|
+        | [Inside](Inside/) | A project in this repository. |
+
+        | Forked project | Scope |
+        |---|---|
+        | [Outside](https://example.test/owner/outside) | Work kept in its own repository. |
+        """
+        try externalRow.write(to: readme, atomically: true, encoding: .utf8)
+        let external = try RepositoryReader.load(repository)
+        check(external.projects.count == 1 && external.projects[0].name == "Inside",
+            "a row linking to another repository is skipped, not read as a project")
+        let escaping = externalRow.replacingOccurrences(
+            of: "https://example.test/owner/outside", with: "../Outside/")
+        try escaping.write(to: readme, atomically: true, encoding: .utf8)
+        var refused = false
+        do { _ = try RepositoryReader.load(repository) } catch { refused = true }
+        check(refused, "a relative link escaping the repository is still refused")
     }
 
     /// Checks the real register's positive tags without inspecting project code or runtime state.

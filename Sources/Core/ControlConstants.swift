@@ -85,6 +85,7 @@ internal enum ControlConstants {
     internal static let headingPattern = #"^(#{1,6})\s+(.+?)\s*#*$"#
     internal static let boldHeadingPattern = #"^(?:\*\*[^*]+\*\*|__[^_]+__)$"#
     internal static let linkPattern = #"!?\[([^\]]*)\]\(([^)]+)\)"#
+    internal static let absoluteLinkPattern = #"^[a-zA-Z][a-zA-Z0-9+.-]*:"#
     internal static let htmlBreakPattern = #"</(?:li|p)>|<br\s*/?>"#
     internal static let htmlPattern = #"<[^>]*>"#
     internal static let inlineCodePattern = #"(`+)(.+?)\1"#
