@@ -363,6 +363,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| Documentation | 2026-09-13 | <ul><li><strong>License:</strong> Added the approved Soucieux proprietary-software notice.</li></ul> | [Full record](#soucieux-proprietary-license) |
 | v3.0 / build 30 | 2026-09-12 | <ul><li><strong>Register:</strong> A row linking to another repository is skipped instead of making the whole register unreadable.</li></ul> | [Full record](#external-register-rows) |
 | v2.9 / build 29 | 2026-09-12 | <ul><li><strong>Delivery:</strong> The promotion step deletes the set-aside bundle once the new app is in place, so a build no longer leaves an older release behind.</li></ul> | [Full record](#single-delivered-bundle) |
 | Documentation | 2026-09-12 | <ul><li><strong>Contributing:</strong> Added a standalone project guide so the source carries its own contribution and numbering rules.</li><li><strong>Links:</strong> Removed the README's dependencies on parent-only repository files.</li></ul> | [Full record](#standalone-contributor-guide) |
@@ -399,6 +400,18 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="soucieux-proprietary-license"></a>
+
+### Documentation
+
+- **Recorded date:** 2026-09-13.
+- Added the approved Soucieux proprietary-software notice, reserving rights in original project
+  materials while retaining third-party license terms.
+- Documentation only; application behavior, v3.0/build 30 source, the signed local app, deployment,
+  and publication status are unchanged.
+
+[Back to change history](#change-history)
 
 <a id="external-register-rows"></a>
 
@@ -1067,3 +1080,20 @@ Retrospective record in `6c8dd32`; source committed with v0.3
 [Back to change history](#change-history)
 
 </details>
+
+---
+
+<!-- project-control:section=ignore -->
+## 🔒 License
+
+**PROPRIETARY SOFTWARE — ALL RIGHTS RESERVED**
+
+Copyright © 2024–2026 Soucieux. All rights reserved.
+
+The original source code, documentation, and other original materials in this repository are proprietary and are not open-source software.
+
+Except where applicable law expressly permits otherwise, no permission is granted to copy, modify, publish, distribute, sublicense, sell, deploy, or create derivative works from these materials, in whole or in part, without prior written authorization from the copyright owner.
+
+Access to this repository does not grant a license. Third-party software and materials remain subject to their respective license terms.
+
+*This private project is not open for external contributions.*
