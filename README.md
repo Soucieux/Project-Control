@@ -439,7 +439,7 @@ v3.0/build 30 source; `make app` rebuilt and promoted the bundle to the project 
 
 **Evidence and delivery status**
 
-v2.9/build 29 source; `make check-version` accepts the pair; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); `make app` rebuilt and promoted the bundle to the project root, where it reports v2.9 build 29, carries a valid strict signature and an arm64 executable, and left no `build/previous.*` folder behind — the behaviour this release changes. The promoted app launched and quit cleanly. Disposable staging was removed afterwards. Initially delivered uncommitted and recorded in `d99f078`.
+v2.9/build 29 source; `make check-version` accepts the pair; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); `make app` rebuilt and promoted the bundle to the project root, where it reports v2.9 build 29, carries a valid strict signature and an arm64 executable, and left no `build/previous.*` folder behind — the behaviour this release changes. The promoted app launched and quit cleanly. Disposable staging was removed afterwards. Initially delivered uncommitted and recorded in `75c1cf2`.
 
 [Back to change history](#change-history)
 
@@ -502,7 +502,7 @@ v2.9/build 29 source; `make check-version` accepts the pair; 432 native checks p
 
 **Evidence and delivery status**
 
-v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; source commits `a602e83`, `63baa89`, `73cbdc9`, `1ba170b`, `0169387`, `2e94694`, `2724f30`, `2b6c9a6`, `7e5cb6c`; the signed v2.8/build-28 app built from `main` passed strict signing, exact source-metadata, arm64, ten-size icon and project-root launch checks; initially delivered uncommitted
+v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/presentation, 12 version); a v2.8/build-28 bundle built from the final source in an isolated worktree passed strict signing, exact source-metadata, arm64 and ten-size icon checks and was then removed with its build folder; offscreen renders of all six project headers, with real and fallback icons and wrapped names, confirmed that the icon centers on the project name; source commits `de37545`, `878d273`, `4f80801`, `96879e6`, `fecbb6a`, `f5d0219`, `cfe44ab`, `1e377a5`, `0c3836a`; the signed v2.8/build-28 app built from `main` passed strict signing, exact source-metadata, arm64, ten-size icon and project-root launch checks; initially delivered uncommitted
 
 [Back to change history](#change-history)
 
@@ -513,7 +513,7 @@ v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/pres
 - **Structure:** Put purpose, capabilities, setup, architecture, and workflows before history.
 - **History:** Merge matching repository-origin records into the owning change; preserve unique detail, evidence, and older links.
 - **Ownership:** Keep user documentation here; route scoped contributor rules through root AGENTS.
-- **Status:** Documentation changes only; initially delivered uncommitted and recorded in `795cd8e`. Existing application versions, artifacts, and deployment state are unchanged.
+- **Status:** Documentation changes only; initially delivered uncommitted and recorded in `07fa894`. Existing application versions, artifacts, and deployment state are unchanged.
 
 [Back to change history](#change-history)
 
@@ -546,7 +546,7 @@ Local documentation changes; initially delivered uncommitted and recorded in thi
 
 **Evidence and delivery status**
 
-Local documentation update; initially delivered uncommitted and recorded in `795cd8e`
+Local documentation update; initially delivered uncommitted and recorded in `07fa894`
 
 [Back to change history](#change-history)
 
@@ -595,7 +595,7 @@ User-authorized complete build-folder cleanup; package and asset checks passed; 
 
 **Evidence and delivery status**
 
-Source `0e7bd25`, `d826029`, `4dacb60`, `01030c2`, `ffb1804`, `f7d769a`, `7966c13`, `b26a07c`, `c44dc8d`, `535f42f`; initially delivered uncommitted; 432 native checks and optimized packaging passed; signed project-root app; live checks and their limits recorded above and in Project details
+Source `f8a858a`, `9590feb`, `561878c`, `cf12d65`, `b6ada81`, `81f0824`, `17184b5`, `468e2a0`, `311c87b`, `3bfa43d`; initially delivered uncommitted; 432 native checks and optimized packaging passed; signed project-root app; live checks and their limits recorded above and in Project details
 
 [Back to change history](#change-history)
 
@@ -612,7 +612,7 @@ Source `0e7bd25`, `d826029`, `4dacb60`, `01030c2`, `ffb1804`, `f7d769a`, `7966c1
 
 **Evidence and delivery status**
 
-Local cleanup; registration guide `fdecb4ab`; this history reconciliation
+Local cleanup; registration guide `ceb01aeb`; this history reconciliation
 
 [Back to change history](#change-history)
 
@@ -633,7 +633,7 @@ Local cleanup; registration guide `fdecb4ab`; this history reconciliation
 
 **Evidence and delivery status**
 
-Source `262e934`; project record `71d43d3`; signed project-root app; live expansion/editor checks pending
+Source `330cb4b`; project record `265e76c`; signed project-root app; live expansion/editor checks pending
 
 [Back to change history](#change-history)
 
@@ -652,7 +652,7 @@ Raised the minimum window width from 980 to 1,120 points and removed the header'
 
 **Evidence and delivery status**
 
-Source `bfa6c70`; project record `71d43d3`; signed project-root app; expansion/editor recheck pending
+Source `e44c740`; project record `265e76c`; signed project-root app; expansion/editor recheck pending
 
 [Back to change history](#change-history)
 
@@ -676,11 +676,11 @@ Source `bfa6c70`; project record `71d43d3`; signed project-root app; expansion/e
 - Formal verification then repeated the affected tests, complete compilation, cache-free optimized packaging, and strict package checks. Native icon packaging required its normal macOS access outside the command sandbox; the unchanged rule then succeeded.
 - On September 3, live checks of an initial candidate confirmed prose wrapping, compact headers, an inline single-field editor, disabled empty Save, and enabled Save for a multiline draft; no saved notes were changed. Live inspection after the width correction confirmed the 1,120-point minimum, the single-row header, and the collapsed sidebar endpoint. The Mac was locked before the corrected expansion animation and remaining editor interactions could be reinspected.
 - On September 4, the three superseded v2.6 candidates were removed while the signed app and ten distinct-version recoveries were retained; full core/store suites were not rerun for that cleanup. The September 6 cleanup later removed every build-folder recovery.
-- Implementation is committed in `bfa6c70` and `262e934`, with project documentation in `71d43d3`; this documentation checkpoint records the result.
+- Implementation is committed in `e44c740` and `330cb4b`, with project documentation in `265e76c`; this documentation checkpoint records the result.
 
 **Evidence and delivery status**
 
-Source `bfa6c70`; navigation `262e934`; project record `71d43d3`; this documentation checkpoint; signed project-root app
+Source `e44c740`; navigation `330cb4b`; project record `265e76c`; this documentation checkpoint; signed project-root app
 
 [Back to change history](#change-history)
 
@@ -702,7 +702,7 @@ Source `bfa6c70`; navigation `262e934`; project record `71d43d3`; this documenta
 
 **Evidence and delivery status**
 
-Source `52cbaf7`; this documentation checkpoint; signed project-root app
+Source `9c6756a`; this documentation checkpoint; signed project-root app
 
 [Back to change history](#change-history)
 
@@ -739,7 +739,7 @@ This documentation commit
 
 **Evidence and delivery status**
 
-Source `014523d`; project documentation `ceb9c78`; this documentation checkpoint; signed project-root app
+Source `d26cb65`; project documentation `12fe707`; this documentation checkpoint; signed project-root app
 
 [Back to change history](#change-history)
 
@@ -756,11 +756,11 @@ Source `014523d`; project documentation `ceb9c78`; this documentation checkpoint
 - Removed rail/detail overlap and visible scrollbars. The reference-style brand control stays visible in both rail states; the expanded brand row and collapsed 40-point icon column share one leading axis, and every rail icon keeps that fixed axis while labels animate. Top navigation, scrolling project groups, and the pinned local-only status remain structurally separate.
 - Reduce Motion suppresses transitions, while Reduce Transparency retains the solid detail fallback.
 - Passed 8 focused activity core checks, 1 store check, complete native type-checking, optimized compilation, strict signing, exact v2.3/build-14 metadata, arm64 executable/icon checks, and live expanded/collapsed/lock and activity inspection. Optional code review and formal verification did not run.
-- The activity implementation is committed in `bb0689e` and the shell implementation in `a01102b`; this documentation checkpoint records their delivered state.
+- The activity implementation is committed in `b5358ab` and the shell implementation in `dc612a8`; this documentation checkpoint records their delivered state.
 
 **Evidence and delivery status**
 
-Activity `bb0689e`; shell `a01102b`; project documentation `78bbbab`; this documentation checkpoint; signed project-root app
+Activity `b5358ab`; shell `dc612a8`; project documentation `920a9bb`; this documentation checkpoint; signed project-root app
 
 [Back to change history](#change-history)
 
@@ -777,12 +777,12 @@ Moved Category, Technical scope, and Technologies into the first three labelled 
 - The existing v2.1 glass UI, project content, notes, launch behavior, synchronization paths, and all other project-management behavior are unchanged.
 - All 20 focused core checks and 5 isolated store checks passed, including the new labelled-scope, blank-value, compatibility, and precedence regressions.
 - Complete native type-checking, cache-free optimized compilation, strict signing, exact source/bundle metadata equality, arm64 executable/icon checks, bundle promotion, and a separate-instance project-root launch passed.
-- Source is committed in `ad84aa7`. Generated compiler/icon intermediates and the smoke process were removed.
+- Source is committed in `5ab1b93`. Generated compiler/icon intermediates and the smoke process were removed.
 - Optional code review and formal verification did not run.
 
 **Evidence and delivery status**
 
-Source `ad84aa7`; this project documentation and delivery checkpoint
+Source `5ab1b93`; this project documentation and delivery checkpoint
 
 [Back to change history](#change-history)
 
@@ -803,7 +803,7 @@ Source `ad84aa7`; this project documentation and delivery checkpoint
 
 **Evidence and delivery status**
 
-Source `8c7981c`; project source record `0c57d69`; root source record `9738555`; project delivery `efe483d`; this delivery checkpoint
+Source `f4fca5b`; project source record `ad48ff1`; root source record `41593c8`; project delivery `ee58c92`; this delivery checkpoint
 
 [Back to change history](#change-history)
 
@@ -814,7 +814,7 @@ Source `8c7981c`; project source record `0c57d69`; root source record `9738555`;
 - **Recorded date:** 2026-09-01.
 
 - Delivered the complete cinematic glass redesign, replacing the earlier angular navy interface: a transparent native window and real behind-window desktop blur inside one outlined rounded shell, an aligned expanding/collapsing black hierarchy rail, staggered per-project disclosure transitions, bounded internal scrolling with hidden indicators, rounded content cards, and a no-password artwork lock that replaces the whole interface with local artwork and a centered Unlock control.
-- The user's screenshot rejected the first signed candidate because it showed an internal green field; source `0e07484` provides the transparent-window and real behind-window material correction.
+- The user's screenshot rejected the first signed candidate because it showed an internal green field; source `c4ef97a` provides the transparent-window and real behind-window material correction.
 - Offscreen inspection removed a redundant lock caption that crossed the fortress silhouette. Offscreen repository/project renders confirmed the outlined shell, rounded hierarchy, real app icons, fixed-height content, and centered lock control; behind-window sampling itself requires the live window.
 - README-derived data and parsing, classifications, notes, project icons, application discovery, content tabs, tables, diagrams, workflow data, and background README synchronization are unchanged.
 - All **323 core checks** and **39 store checks** passed, followed by complete native type-checking, before distributable compilation. After the source and dual-README checkpoints were committed, a clean optimized build passed strict signing, exact source/bundle metadata equality, and separate-instance project-root launch.
@@ -823,7 +823,7 @@ Source `8c7981c`; project source record `0c57d69`; root source record `9738555`;
 
 **Evidence and delivery status**
 
-Initial source `32f2df4`; desktop glass `0e07484`; project records `2f44ecd`, `92c5186`, `9de1a2a`; root records `92491bd`, `a1edc1d`; this delivery checkpoint
+Initial source `f317ff0`; desktop glass `c4ef97a`; project records `13e395f`, `039702e`, `98dad53`; root records `afd56a7`, `4e9319c`; this delivery checkpoint
 
 [Back to change history](#change-history)
 
@@ -837,7 +837,7 @@ Initial source `32f2df4`; desktop glass `0e07484`; project records `2f44ecd`, `9
 - Added per-tag wrapping, case-insensitive deduplication, explicit empty and retired-column behavior, and focused parser/store regressions; updated the parser, sidebar, all six root register entries, both README records, and the Project Control-only tag rule in root AGENTS.md.
 - Passed **19 focused parser/register checks**, **5 store checks**, native type-checking, and **24 native tag-layout cases** at 64-, 148-, and 320-point widths, including empty and long labels.
 - Offscreen views at 900×660 and 1160×840 and a six-project tag panel were inspected. The isolated render needed normal macOS icon-service access outside the agent sandbox; it captured only its own never-shown views, not desktop pixels, and no screen-recording permission was changed or retried. These checks do not establish live scrolling, keyboard interaction, or installed-app behavior.
-- Source was committed separately, with the user's authorization, in `9f3e399` (metadata/sync), `eb643cb` (header), and `2a512b8` (sidebar), with root metadata/policy in `b43b9fd` and release records in `19ac73f` / `6d6e110`, before the build; no build-gate exception was used.
+- Source was committed separately, with the user's authorization, in `dc45f88` (metadata/sync), `36c21c4` (header), and `a427582` (sidebar), with root metadata/policy in `45ccc3d` and release records in `7f5b5ee` / `11896bf`, before the build; no build-gate exception was used.
 - A cache-free optimized arm64 build was promoted to the project root. Strict signing, exact source/bundle metadata equality, v1.0/build-10 identity, unchanged Nexus icon bytes, and a fresh root-level process launch passed. The smoke-test process remained running for at least 47 seconds and was then closed; no existing Project Control process was present before the check. This confirms launch, not live interaction.
 - Generated compiler caches and intermediate icon files were removed and can be regenerated. No desktop capture or privacy-setting change was attempted.
 - No live-interaction, code-review, or formal-verification claim is made.
@@ -853,7 +853,7 @@ make test-core test-store TEST_ARGS=--classification
 
 **Evidence and delivery status**
 
-`9f3e399`, `eb643cb`, `2a512b8`; root metadata/policy `b43b9fd`; pre-build release records `19ac73f`, `6d6e110`
+`dc45f88`, `36c21c4`, `a427582`; root metadata/policy `45ccc3d`; pre-build release records `7f5b5ee`, `11896bf`
 
 [Back to change history](#change-history)
 
@@ -870,11 +870,11 @@ make test-core test-store TEST_ARGS=--classification
 - macOS denied live window capture; no capture permission or privacy setting was changed or retried. The render probe and icon packager needed normal macOS icon-service access outside the agent sandbox; neither captured the desktop.
 - The app was delivered directly in the project folder. Clean compilation, strict bundle identity/signature checks, matching source/bundle metadata, unchanged Nexus icon bytes, and project-root launch passed. Only the newly started background smoke-test instance was closed; the existing app session was preserved.
 - The preceding v0.8 source/build work was already committed before this build; Temporary render sources/images, test binaries, compiler caches, and intermediate icons were removed.
-- Source was uncommitted at delivery; the retained header/category implementation is now captured with v1.0 in `9f3e399`, `eb643cb`, and `2a512b8`, not in a separate v0.9 release commit. Live interaction, optional code review, and formal verification were not confirmed or run for this batch.
+- Source was uncommitted at delivery; the retained header/category implementation is now captured with v1.0 in `dc45f88`, `36c21c4`, and `a427582`, not in a separate v0.9 release commit. Live interaction, optional code review, and formal verification were not confirmed or run for this batch.
 
 **Evidence and delivery status**
 
-Retained implementation captured with v1.0 in `9f3e399`, `eb643cb`, `2a512b8`; no separate v0.9 release commit
+Retained implementation captured with v1.0 in `dc45f88`, `36c21c4`, `a427582`; no separate v0.9 release commit
 
 [Back to change history](#change-history)
 
@@ -909,7 +909,7 @@ Prior release references below; no separate app build
 
 **Evidence and delivery status**
 
-`a6266cf`, `6402aba`, `26f4fdf`, `c323a23`, `6232bf9`
+`bf86701`, `0fdba44`, `384149c`, `b8c2f83`, `59cf4f4`
 
 [Back to change history](#change-history)
 
@@ -927,7 +927,7 @@ Grouped all six projects' architecture components into relevant category tables 
 
 **Evidence and delivery status**
 
-`0a17adc`, `8cf8850`; historical work record
+`359f658`, `a04248c`; historical work record
 
 [Back to change history](#change-history)
 
@@ -948,7 +948,7 @@ Grouped all six projects' architecture components into relevant category tables 
 
 **Evidence and delivery status**
 
-`0125869`, `70321c5`, `0a17adc`, `8cf8850`
+`15a15c1`, `40196c9`, `359f658`, `a04248c`
 
 [Back to change history](#change-history)
 
@@ -968,7 +968,7 @@ Grouped all six projects' architecture components into relevant category tables 
 
 **Evidence and delivery status**
 
-Retrospective record in `0a17adc`; implemented source committed with v0.7
+Retrospective record in `359f658`; implemented source committed with v0.7
 
 [Back to change history](#change-history)
 
@@ -987,7 +987,7 @@ Retrospective record in `0a17adc`; implemented source committed with v0.7
 
 **Evidence and delivery status**
 
-`aa794c4`, `1f2e7ae`, `d0b9426`, `9f086e9`, `74ccd1a`
+`e62041e`, `7dc76ae`, `105d1a0`, `81f601c`, `492dbb3`
 
 [Back to change history](#change-history)
 
@@ -1006,7 +1006,7 @@ Retrospective record in `0a17adc`; implemented source committed with v0.7
 
 **Evidence and delivery status**
 
-Retrospective record in `9f086e9`; implemented source committed with v0.5
+Retrospective record in `81f601c`; implemented source committed with v0.5
 
 [Back to change history](#change-history)
 
@@ -1025,7 +1025,7 @@ Retrospective record in `9f086e9`; implemented source committed with v0.5
 
 **Evidence and delivery status**
 
-`07f72b4`, `1f1dfad`, `352ad0b`, `6c8dd32`
+`5b0b224`, `188ddbd`, `7627e26`, `d3c00a5`
 
 [Back to change history](#change-history)
 
@@ -1043,7 +1043,7 @@ Retrospective record in `9f086e9`; implemented source committed with v0.5
 
 **Evidence and delivery status**
 
-Retrospective record in `6c8dd32`; source committed with v0.3
+Retrospective record in `d3c00a5`; source committed with v0.3
 
 [Back to change history](#change-history)
 
@@ -1060,7 +1060,7 @@ Retrospective record in `6c8dd32`; source committed with v0.3
 
 **Evidence and delivery status**
 
-Retrospective record in `6c8dd32`
+Retrospective record in `d3c00a5`
 
 [Back to change history](#change-history)
 
@@ -1077,7 +1077,7 @@ Retrospective record in `6c8dd32`
 
 **Evidence and delivery status**
 
-Retrospective record in `6c8dd32`; source committed with v0.3
+Retrospective record in `d3c00a5`; source committed with v0.3
 
 [Back to change history](#change-history)
 
