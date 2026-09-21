@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.0%20build%2030-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.1%20build%2031-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -109,7 +109,7 @@ No LLM, embedding service, RAG index, network client, or automatic project execu
 Project Control/
 ├── Sources/Core/       # README extraction, models, constants, local storage
 ├── Sources/App/        # Native state, layered interface, shared detail/lock artwork
-├── Resources/          # Bundle identity, version, and editable Nexus icon
+├── Resources/          # Bundle identity, version, Repository Atlas master, and icon catalog
 ├── Tests/              # Focused synthetic and read-only repository checks
 ├── Makefile            # Local build, focused checks, launch
 ├── Project Control.app # Latest completed app; ignored by Git
@@ -344,7 +344,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.0 (build 30)** in source and in the signed local app. [Change and delivery evidence](#external-register-rows).
+**v3.1 (build 31)** in source and in the signed local app. [Change and delivery evidence](#repository-atlas-icon).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -363,6 +363,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.1 / build 31 | 2026-09-21 | <ul><li><strong>Identity:</strong> Repository Atlas shows the root README branching to its projects, with one selected project, a work note, and Git activity.</li><li><strong>Packaging:</strong> The build now compiles the checked-in macOS asset catalog with Apple's asset tool.</li></ul> | [Full record](#repository-atlas-icon) |
 | Documentation | 2026-09-13 | <ul><li><strong>License:</strong> Added the approved Soucieux proprietary-software notice.</li></ul> | [Full record](#soucieux-proprietary-license) |
 | v3.0 / build 30 | 2026-09-12 | <ul><li><strong>Register:</strong> A row linking to another repository is skipped instead of making the whole register unreadable.</li></ul> | [Full record](#external-register-rows) |
 | v2.9 / build 29 | 2026-09-12 | <ul><li><strong>Delivery:</strong> The promotion step deletes the set-aside bundle once the new app is in place, so a build no longer leaves an older release behind.</li></ul> | [Full record](#single-delivered-bundle) |
@@ -400,6 +401,34 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="repository-atlas-icon"></a>
+
+### v3.1 / build 31
+
+- **Recorded date:** 2026-09-21.
+- **Identity:** Repository Atlas replaces the generic Nexus mark. Its root document branches to
+  project folders; one selected project carries a work note, and the activity grid below represents
+  the local Git history Project Control displays.
+- **Source:** `Resources/ProjectControl.png` is the canonical transparent 1024-pixel master. The
+  checked-in asset catalog carries every standard and Retina representation from 16 through 1024
+  pixels. The obsolete Nexus SVG was removed so it cannot be mistaken for the editable source of
+  the selected raster artwork.
+- **Packaging:** `make icons` now compiles that catalog with Apple's asset-catalog tool. The previous
+  `iconutil` route rejects even an icon set extracted from the previously shipped app on the current
+  macOS toolchain.
+- **Scope:** No README parsing, navigation, notes, activity, storage, or opening behavior changed.
+
+**Evidence and delivery status**
+
+`make app` passed, promoted the signed v3.1/build 31 app to the project root, and the bundle passed
+strict signature verification. Its packaged 256-pixel icon representation matches the catalog
+pixels. The 40 store checks and 12 version checks passed. The complete `make test` target remains
+blocked by pre-existing live-document assertions that still expect the older six-project register
+and earlier prose grouping while the current workspace carries unrelated documentation changes.
+Publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="soucieux-proprietary-license"></a>
 

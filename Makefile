@@ -4,10 +4,9 @@ SWIFT := /usr/bin/xcrun swiftc
 BUILD := build
 APP := $(BUILD)/Project Control.app
 FINAL_APP := Project Control.app
-ICON_PNG := Resources/ProjectControl.png
-ICON_SET := $(BUILD)/ProjectControl.iconset
+ASSET_CATALOG := Resources/Assets.xcassets
+ASSET_OUTPUT := $(BUILD)/IconAssets
 ICON_FILE := $(BUILD)/ProjectControl.icns
-ICON_POINTS := 16 32 128 256 512
 CORE := $(wildcard Sources/Core/*.swift)
 UI := $(wildcard Sources/App/*.swift)
 TEST_SUPPORT := Tests/TestConstants.swift Tests/TestFixtures.swift Tests/NotesTestConstants.swift
@@ -29,13 +28,11 @@ test-notes:
 	"$(BUILD)/NotesTests"
 
 icons:
-	@mkdir -p "$(ICON_SET)"
-	@set -eu; for points in $(ICON_POINTS); do \
-		/usr/bin/sips -z "$$points" "$$points" "$(ICON_PNG)" --out "$(ICON_SET)/icon_$${points}x$${points}.png" >/dev/null; \
-		retina=$$((points * 2)); \
-		/usr/bin/sips -z "$$retina" "$$retina" "$(ICON_PNG)" --out "$(ICON_SET)/icon_$${points}x$${points}@2x.png" >/dev/null; \
-	done
-	/usr/bin/iconutil -c icns "$(ICON_SET)" -o "$(ICON_FILE)"
+	@mkdir -p "$(ASSET_OUTPUT)"
+	/usr/bin/xcrun actool --compile "$(ASSET_OUTPUT)" --platform macosx \
+		--minimum-deployment-target 14.0 --target-device mac --app-icon AppIcon \
+		--output-partial-info-plist "$(ASSET_OUTPUT)/asset-info.plist" "$(ASSET_CATALOG)" >/dev/null
+	cp "$(ASSET_OUTPUT)/AppIcon.icns" "$(ICON_FILE)"
 
 app: check-version icons
 	@mkdir -p "$(APP)/Contents/MacOS" "$(APP)/Contents/Resources"
