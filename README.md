@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.2%20build%2032-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.3%20build%2033-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -50,7 +50,7 @@ open "Project Control.app"
 
 ### Refresh and recovery
 
-- **Automatic refresh:** Active views check the registered READMEs about every two seconds. **Refresh now** (`Command-R`) reloads immediately; `Command-O` chooses a repository.
+- **Automatic refresh:** Active views check the registered READMEs about every two seconds. **Refresh now** — the arrow at the end of the rail's status line, or `Command-R` — reloads immediately. **Change repository…** in the rail footer, or `Command-O`, chooses another repository.
 - **Valid edits:** Replace the displayed content while preserving local notes and an existing selection.
 - **Unreadable files:** Keep the last good view with an out-of-date warning. Repair the README to recover on the next check.
 - **Last read:** Reports when documentation was read; runtime health remains unchecked.
@@ -265,7 +265,7 @@ A child's explicit marker can select a different destination, except inside `ign
 - Project Control reads the labels case-insensitively, removes presentation markup, and leaves later project-specific bullets available as the professional summary.
 - Categories and their projects retain first-appearance/source order.
 
-- Missing or blank Category values use **Uncategorized**; missing or blank Technical scope/Technologies values are omitted from the sidebar.
+- Missing or blank Category values use **Uncategorized**; a missing or blank Technical scope is omitted from the sidebar row, and missing or blank Technologies from the project card.
 - Custom category labels are supported without changing code.
 
 - Use short, factual labels: native UI with local logic is **Native desktop**, not a server-based full-stack app; AI educational content is not an AI runtime.
@@ -344,7 +344,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.2 (build 32)** in source and in the signed local app. [Change and delivery evidence](#folder-icons).
+**v3.3 (build 33)** in source and in the signed local app. [Change and delivery evidence](#navigation-rail-layout).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -363,6 +363,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.3 / build 33 | 2026-09-23 | <ul><li><strong>Rail:</strong> Categories are quiet section headers and each project row is one line, so more of the register fits before scrolling.</li><li><strong>Footer:</strong> Repository README, Change repository…, and Lock are plain buttons; the Repository menu is gone, and Refresh now sits on the status line.</li><li><strong>Detail:</strong> Technology tags moved to the project card, and the header strip repeating the Project Control name was removed.</li></ul> | [Full record](#navigation-rail-layout) |
 | v3.2 / build 32 | 2026-09-23 | <ul><li><strong>Icons:</strong> Every project row, project header, and activity hover shows the project folder's own Finder icon instead of an app's icon, so projects without an app no longer show a generic symbol.</li><li><strong>Identity:</strong> A missing folder, or an alias that no longer points at the project, still shows the neutral symbol.</li><li><strong>Checks:</strong> The live checks follow the root register, so the full test suite runs again.</li></ul> | [Full record](#folder-icons) |
 | v3.1 / build 31 | 2026-09-21 | <ul><li><strong>Identity:</strong> Repository Atlas shows the root README branching to its projects, with one selected project, a work note, and Git activity.</li><li><strong>Packaging:</strong> The build now compiles the checked-in macOS asset catalog with Apple's asset tool.</li></ul> | [Full record](#repository-atlas-icon) |
 | Documentation | 2026-09-13 | <ul><li><strong>License:</strong> Added the approved Soucieux proprietary-software notice.</li></ul> | [Full record](#soucieux-proprietary-license) |
@@ -402,6 +403,39 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="navigation-rail-layout"></a>
+
+### v3.3 / build 33
+
+- **Recorded date:** 2026-09-23.
+- **Rail:** Categories are quiet section headers — a disclosure chevron, the category name, and its
+  project count — instead of rows with their own icons, so the projects are what stands out. Each
+  project row shows its icon, name, note marker, and technical scope. At the default window size the
+  rail now reaches the third category before scrolling, where it previously showed only the first.
+  The collapsed rail keeps its category markers on the same icon axis.
+- **Tags:** A project's technology tags moved from its rail row to its detail card, under the
+  version. Every tag the root register documents still appears.
+- **Footer:** Three plain buttons say what they do: **Repository README**, **Change repository…**,
+  and **Lock**. The Repository menu, which looked like a button but opened a two-item menu, is gone.
+  **Refresh now** is the arrow at the end of the status line, which reads *Auto-refresh every 2 s*
+  and the running version. `Command-O` and `Command-R` work as before.
+- **Detail:** The header strip above every screen, which repeated the Project Control icon and name
+  and the repository name, is removed. The brand appears once, at the top of the rail, and the
+  repository once, as the rail's first row.
+- **Scope:** No README parsing, selection, notes, activity, storage, or launching behavior changed.
+
+**Evidence and delivery status**
+
+`make test` passed: 351 core, 40 store, 47 note/presentation, and 12 version checks. `make app`
+passed and promoted the signed v3.3/build 33 app to the project root; the bundle passed strict
+signature verification, reports version 3.3 and build 33, and opened its window. Offscreen renders of
+the real `ControlWindow` against the live register showed the expanded rail on a project and on the
+repository screen, the collapsed rail, and the 1,120 × 620 minimum window, where every category
+header stays on one line and the project card's tags fit in one row. Initially delivered
+uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="folder-icons"></a>
 
