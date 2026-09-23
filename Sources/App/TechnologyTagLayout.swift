@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Content-sized, noninteractive tags wrap to the sidebar width without truncating their labels.
+/// Content-sized, noninteractive tags wrap to the available width without truncating their labels.
 internal struct TechnologyTagLayout: Layout {
     private let spacing: CGFloat = 4
 

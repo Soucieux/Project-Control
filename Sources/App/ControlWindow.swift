@@ -94,25 +94,12 @@ internal struct ControlWindow: View {
                     Button { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) } label: {
                         footerActionLabel(icon: ControlConstants.repositoryReadIcon,
                             title: ControlConstants.repositoryRead)
-                    }.buttonStyle(.plain).help(ControlConstants.read).accessibilityLabel(ControlConstants.read)
-                    Menu {
-                        Button(ControlConstants.changeRepository) { store.chooseRepository() }
-                        Button(ControlConstants.refresh) {
-                            Task { await store.reload(snapshot.root) }
-                        }.disabled(store.loading)
-                    } label: {
-                        Color.clear.frame(maxWidth: .infinity).frame(height: ControlTheme.railIconSize)
-                            .contentShape(Rectangle())
-                    }.menuStyle(.borderlessButton).menuIndicator(.hidden)
-                        .tint(ControlTheme.railInk)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .leading) {
-                            footerActionLabel(icon: ControlConstants.repositoryActionsIcon,
-                                title: ControlConstants.repositoryMore)
-                                .allowsHitTesting(false)
-                                .accessibilityHidden(true)
-                        }
-                        .help(ControlConstants.repositoryActions).accessibilityLabel(ControlConstants.repositoryActions)
+                    }.buttonStyle(.plain).help(ControlConstants.openRepositoryReadme)
+                        .accessibilityLabel(ControlConstants.openRepositoryReadme)
+                    Button { store.chooseRepository() } label: {
+                        footerActionLabel(icon: ControlConstants.folderIcon, title: ControlConstants.changeRepository)
+                    }.buttonStyle(.plain).help(ControlConstants.changeRepository)
+                        .accessibilityLabel(ControlConstants.changeRepository)
                     Button { setLocked(true) } label: {
                         footerActionLabel(icon: ControlConstants.lockIcon, title: ControlConstants.lock)
                     }.buttonStyle(.plain).help(ControlConstants.lockDisplay)
@@ -120,19 +107,19 @@ internal struct ControlWindow: View {
                     if sidebarExpanded {
                         Rectangle().fill(ControlTheme.railMuted.opacity(0.20)).frame(height: 1)
                             .padding(.vertical, 6).accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(ControlConstants.localWorkspace)
-                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                                .tracking(1.2).foregroundStyle(ControlTheme.railMuted)
-                            Text(ControlConstants.readmeSyncCadence).font(.caption2)
-                                .foregroundStyle(ControlTheme.railMuted)
+                        HStack(spacing: 8) {
+                            Text([ControlConstants.readmeSyncCadence, bundleVersionLabel].compactMap { $0 }
+                                .joined(separator: ControlConstants.joined))
+                                .font(.caption2).foregroundStyle(ControlTheme.railMuted)
                                 .fixedSize(horizontal: false, vertical: true)
-                            if let bundleVersionLabel {
-                                Text(bundleVersionLabel).font(.caption2.monospaced())
-                                    .foregroundStyle(ControlTheme.signal.opacity(0.72)).padding(.top, 2)
-                            }
-                        }.frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, ControlTheme.footerMetadataInset).transition(.opacity)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .help(ControlConstants.readmeSyncExplanation)
+                            Button { Task { await store.reload(snapshot.root) } } label: {
+                                Image(systemName: ControlConstants.refreshIcon).font(.system(size: 12, weight: .medium))
+                                    .frame(width: 24, height: 24).contentShape(Rectangle())
+                            }.buttonStyle(.plain).disabled(store.loading)
+                                .help(ControlConstants.refresh).accessibilityLabel(ControlConstants.refresh)
+                        }.padding(.leading, ControlTheme.footerMetadataInset).transition(.opacity)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -156,7 +143,6 @@ internal struct ControlWindow: View {
 
     private var contentSurface: some View {
         VStack(spacing: 0) {
-            contentHeader
             if let message = store.error { errorBanner(message) }
             if let snapshot = store.snapshot { selectedContent(snapshot) }
             else { connectionPrompt }
@@ -184,22 +170,6 @@ internal struct ControlWindow: View {
                 .allowsHitTesting(false)
         }
         .zIndex(1)
-    }
-
-    private var contentHeader: some View {
-        HStack(spacing: 12) {
-            Image(nsImage: NSApplication.shared.applicationIconImage).resizable().interpolation(.high)
-                .scaledToFit().frame(width: 34, height: 34).accessibilityHidden(true)
-            Text(ControlConstants.appName).font(.system(size: 17, weight: .semibold))
-                .lineLimit(1).fixedSize().layoutPriority(2)
-            Spacer(minLength: 18)
-            if let root = store.snapshot?.root {
-                Text(root.lastPathComponent).font(.caption).foregroundStyle(ControlTheme.muted)
-                    .lineLimit(1).truncationMode(.middle).help(root.lastPathComponent).layoutPriority(0)
-            }
-        }
-        .padding(.horizontal, 24).frame(height: 66)
-        .overlay(alignment: .bottom) { Rectangle().fill(ControlTheme.line).frame(height: 1) }
     }
 
     /// Shows the selected README surface inside a fixed window-height scroll region.
@@ -260,8 +230,8 @@ internal struct ControlWindow: View {
     /// Animates every child row when its README-driven category opens or closes.
     /// - Parameters:
     ///   - category: Source-ordered project group.
-    ///   - icon: Stable visual marker for this position.
-    /// - Returns: A disclosure section in expanded mode or one aligned category control in rail mode.
+    ///   - icon: Stable visual marker for this position, shown only in rail mode.
+    /// - Returns: A quiet disclosure header in expanded mode or one aligned category control in rail mode.
     private func categorySection(_ category: ProjectCategory, icon: String) -> some View {
         let collapsed = collapsedCategories.contains(category.name)
         return VStack(spacing: 5) {
@@ -272,16 +242,19 @@ internal struct ControlWindow: View {
                 } else if let project = category.projects.first { store.selection = project.id }
             } label: {
                 HStack(spacing: 10) {
-                    railIcon(icon, selected: store.selectedProject?.classification.category == category.name)
                     if sidebarExpanded {
-                        Text(category.name).font(.system(size: 12, weight: .semibold)).lineLimit(2)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Text(category.projects.count.formatted()).font(.caption2.monospaced()).foregroundStyle(ControlTheme.railMuted)
                         Image(systemName: collapsed ? ControlConstants.collapsedIcon : ControlConstants.expandedIcon)
-                            .font(.system(size: 9, weight: .semibold)).frame(width: 10).accessibilityHidden(true)
+                            .font(.system(size: 9, weight: .semibold)).frame(width: ControlTheme.railIconSize)
+                            .accessibilityHidden(true)
+                        Text(category.name).font(.system(size: 11, weight: .semibold))
+                            .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+                        Text(category.projects.count.formatted()).font(.caption2.monospaced())
+                    } else {
+                        railIcon(icon, selected: store.selectedProject?.classification.category == category.name)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                .foregroundStyle(sidebarExpanded ? ControlTheme.railMuted : ControlTheme.railInk)
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityLabel(category.name + ControlConstants.joined
                 + String(category.projects.count))
                 .accessibilityValue(sidebarExpanded ? (collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
@@ -295,7 +268,7 @@ internal struct ControlWindow: View {
         }.animation(reduceMotion ? nil : ControlTheme.motion, value: collapsed)
     }
 
-    /// Shows documented scope without adding inferred capabilities or absent tags.
+    /// Shows the project's name, notes availability, and documented scope; its tags stay on its detail card.
     /// - Parameter project: Registered project with root-owned classification metadata.
     /// - Returns: A compact, fully selectable project row.
     private func projectRow(_ project: ProjectRecord) -> some View {
@@ -313,13 +286,6 @@ internal struct ControlWindow: View {
                     }
                     if let scope = project.classification.technicalScope {
                         Text(scope).font(.caption2).foregroundStyle(ControlTheme.railMuted).lineLimit(1)
-                    }
-                    if !project.classification.technologies.isEmpty {
-                        TechnologyTagLayout {
-                            ForEach(project.classification.technologies, id: \.self) { technology in
-                                ClassificationBadge(title: ControlConstants.technology, value: technology)
-                            }
-                        }
                     }
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }.padding(.vertical, 5).padding(.horizontal, 4).contentShape(Rectangle())
@@ -340,7 +306,7 @@ internal struct ControlWindow: View {
             .accessibilityHidden(true)
     }
 
-    /// Builds one stable footer row so buttons and menus share the same icon and label axis.
+    /// Builds one stable footer row so every footer button shares the same icon and label axis.
     /// - Parameters:
     ///   - icon: SF Symbol name rendered in the fixed rail icon column.
     ///   - title: Visible action label shown only while navigation is expanded.
@@ -368,22 +334,6 @@ internal struct ControlWindow: View {
     /// - Returns: Nothing; changes only the local presentation state.
     private func setLocked(_ locked: Bool) {
         withAnimation(reduceMotion ? nil : ControlTheme.motion) { displayLocked = locked }
-    }
-}
-
-/// A wrapping informational badge; its appearance does not imply a clickable action or health state.
-private struct ClassificationBadge: View {
-    internal let title: String
-    internal let value: String
-
-    internal var body: some View {
-        Text(value).font(.system(size: 10, weight: .medium)).foregroundStyle(ControlTheme.railInk)
-            .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, 8).padding(.vertical, 4)
-            .background(Color.white.opacity(0.08), in: Capsule())
-            .overlay { Capsule().stroke(ControlTheme.railMuted.opacity(0.35), lineWidth: 0.7) }
-            .help(title + ControlConstants.colon + ControlConstants.space + value)
-            .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityValue(value)
     }
 }
 

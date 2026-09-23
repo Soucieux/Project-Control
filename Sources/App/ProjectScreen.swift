@@ -83,6 +83,13 @@ internal struct ProjectScreen: View {
             }
             Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
                 .foregroundStyle(ControlTheme.mint).padding(.leading, iconSize + iconSpacing)
+            if !project.classification.technologies.isEmpty {
+                TechnologyTagLayout {
+                    ForEach(project.classification.technologies, id: \.self) { technology in
+                        ClassificationBadge(title: ControlConstants.technology, value: technology)
+                    }
+                }.padding(.leading, iconSize + iconSpacing).padding(.top, 6)
+            }
         }
     }
 
@@ -217,6 +224,22 @@ internal struct ProjectScreen: View {
     private var healthMessage: String {
         !project.folderAvailable ? ControlConstants.folderMissing
             : project.readmeAvailable ? ControlConstants.available : ControlConstants.noReadme
+    }
+}
+
+/// A wrapping informational badge; its appearance does not imply a clickable action or health state.
+private struct ClassificationBadge: View {
+    internal let title: String
+    internal let value: String
+
+    internal var body: some View {
+        Text(value).font(.system(size: 11, weight: .medium)).foregroundStyle(ControlTheme.ink)
+            .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(Color.white.opacity(0.45), in: Capsule())
+            .overlay { Capsule().stroke(ControlTheme.line, lineWidth: 0.7) }
+            .help(title + ControlConstants.colon + ControlConstants.space + value)
+            .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityValue(value)
     }
 }
 
