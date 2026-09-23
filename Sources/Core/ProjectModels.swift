@@ -160,6 +160,12 @@ internal struct ProjectRecord: Identifiable {
     internal var sourceWarning: String? = nil
     internal var isStale = false
     internal var classification = ProjectClassification()
+
+    /// True while the folder still resolves to the canonical identity captured with the snapshot, so a
+    /// retargeted alias never lends another folder's icon or apps to this project.
+    internal var hasCurrentIdentity: Bool {
+        folder.resolvingSymlinksInPath().standardizedFileURL.path == id
+    }
 }
 
 /// A complete repository snapshot; refresh failures never replace it with partial data.

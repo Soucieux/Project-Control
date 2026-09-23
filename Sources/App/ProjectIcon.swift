@@ -1,17 +1,15 @@
 import AppKit
 import SwiftUI
 
-/// Reuses the preferred project-root application's macOS icon, never a companion's arbitrary brand.
+/// Shows the project folder's own Finder icon, the artwork each project folder carries.
 internal struct ProjectIcon: View {
     internal let project: ProjectRecord
     internal let size: CGFloat
 
     internal var body: some View {
         Group {
-            if let application = ApplicationLocator.preferred(project.applications.filter {
-                ApplicationLocator.isWithinCurrentProject($0, for: project)
-            }, project: project.name, folder: project.folder) {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
+            if project.folderAvailable && project.hasCurrentIdentity {
+                Image(nsImage: NSWorkspace.shared.icon(forFile: project.folder.path))
                     .resizable().interpolation(.high).scaledToFit()
             } else {
                 Image(systemName: ControlConstants.projectIcon)
