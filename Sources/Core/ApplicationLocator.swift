@@ -25,7 +25,7 @@ internal enum ApplicationLocator {
     ///   - project: Registered project with its canonical identity.
     /// - Returns: True only while the folder and bundle remain within that original project.
     internal static func isWithinCurrentProject(_ url: URL, for project: ProjectRecord) -> Bool {
-        project.folder.resolvingSymlinksInPath().standardizedFileURL.path == project.id
+        project.hasCurrentIdentity
             && url.resolvingSymlinksInPath().standardizedFileURL.path.hasPrefix(project.id + ControlConstants.slash)
     }
 

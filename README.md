@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.1%20build%2031-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.2%20build%2032-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -25,7 +25,7 @@
 3. Select a project in the sidebar, then open its detail tabs.
 4. Use **Work notes → Add note** to save a private note, or **Open folder**, **Read README**, and **Open App** to open the selected item.
 
-**Success:** The six registered projects appear; their documented content opens without a README warning.
+**Success:** Every registered project appears; its documented content opens without a README warning.
 
 ### Build from source
 
@@ -73,7 +73,7 @@ open "Project Control.app"
 | Technology or concept | Use in this project |
 |---|---|
 | SwiftUI | Builds the black chassis, shared-artwork detail layer, animated hierarchy rail, artwork lock, project screens, work-note editor, History, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
-| AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon keeps app and fallback artwork consistent. |
+| AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon shows each project folder's own Finder icon, with a neutral fallback. |
 
 ### Backend & Application Logic
 
@@ -344,7 +344,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.1 (build 31)** in source and in the signed local app. [Change and delivery evidence](#repository-atlas-icon).
+**v3.2 (build 32)** in source and in the signed local app. [Change and delivery evidence](#folder-icons).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -363,6 +363,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.2 / build 32 | 2026-09-23 | <ul><li><strong>Icons:</strong> Every project row, project header, and activity hover shows the project folder's own Finder icon instead of an app's icon, so projects without an app no longer show a generic symbol.</li><li><strong>Identity:</strong> A missing folder, or an alias that no longer points at the project, still shows the neutral symbol.</li><li><strong>Checks:</strong> The live checks follow the root register, so the full test suite runs again.</li></ul> | [Full record](#folder-icons) |
 | v3.1 / build 31 | 2026-09-21 | <ul><li><strong>Identity:</strong> Repository Atlas shows the root README branching to its projects, with one selected project, a work note, and Git activity.</li><li><strong>Packaging:</strong> The build now compiles the checked-in macOS asset catalog with Apple's asset tool.</li></ul> | [Full record](#repository-atlas-icon) |
 | Documentation | 2026-09-13 | <ul><li><strong>License:</strong> Added the approved Soucieux proprietary-software notice.</li></ul> | [Full record](#soucieux-proprietary-license) |
 | v3.0 / build 30 | 2026-09-12 | <ul><li><strong>Register:</strong> A row linking to another repository is skipped instead of making the whole register unreadable.</li></ul> | [Full record](#external-register-rows) |
@@ -401,6 +402,35 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="folder-icons"></a>
+
+### v3.2 / build 32
+
+- **Recorded date:** 2026-09-23.
+- **Icons:** `ProjectIcon` shows each project folder's own Finder icon in the sidebar row, the
+  project header, and the commit-activity hover. Previously a project showed artwork only when it
+  had a project-root app, and that artwork was the app's icon; the other five projects showed a
+  neutral symbol. Every registered project now shows its own folder icon.
+- **Identity:** The folder icon appears only while the folder is available and still resolves to
+  the identity captured with the snapshot; otherwise the neutral symbol remains.
+  `ProjectRecord.hasCurrentIdentity` holds that check, and the app rechecks share it.
+- **Checks:** The live-repository checks now read the project names, categories, and technologies
+  from the root register itself instead of a six-project copy of it, so adding a project no longer
+  stops `make test`. The setup guide's success line no longer counts projects either.
+- **Scope:** Open App still discovers and prefers project-root apps as before. No README parsing,
+  navigation, notes, activity, storage, or launching behavior changed.
+
+**Evidence and delivery status**
+
+`make app` passed and promoted the signed v3.2/build 32 app to the project root; the bundle passed
+strict signature verification and reports version 3.2 and build 32. The later test-only change
+leaves every app source unchanged, so that bundle still matches. An offscreen render of the real
+`ProjectIcon` against the live register showed all eight projects with their folder icons. The
+complete `make test` passed: 351 core, 40 store, 47 note/presentation, and 12 version checks.
+Publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="repository-atlas-icon"></a>
 

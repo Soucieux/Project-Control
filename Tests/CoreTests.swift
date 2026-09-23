@@ -18,7 +18,8 @@ internal enum CoreTests {
         }
         if CommandLine.arguments.contains(TestConstants.classificationOnly) {
             try classificationChecks(root)
-            liveTechnologyChecks(try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot)))
+            liveTechnologyChecks(try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot)),
+                register: try TestFixtures.registerRows(in: URL(fileURLWithPath: TestConstants.liveRoot)))
             print(TestConstants.passed + String(count))
             return
         }
@@ -71,12 +72,15 @@ internal enum CoreTests {
         try classificationChecks(root)
         try aliasChecks(repository, project: project, outside: outside)
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
-        check(live.projects.count == 6, TestConstants.checkLive)
-        liveTechnologyChecks(live)
+        let register = try TestFixtures.registerRows(in: URL(fileURLWithPath: TestConstants.liveRoot))
+        check(live.projects.map(\.name) == register.map(\.name), TestConstants.checkLive)
+        liveTechnologyChecks(live, register: register)
         check(live.projects.first { $0.name == ControlConstants.appName }?.workflows.count == 4,
             "Project Control shows four documented routes without turning parser guidance into a workflow")
-        check(live.categories.map(\.name) == TestConstants.liveCategories
-            && live.categories.map { $0.projects.count } == [2, 1, 1, 1, 1], TestConstants.checkLiveCategories)
+        let categories = registerCategories(register)
+        check(live.categories.map(\.name) == categories
+            && live.categories.map { $0.projects.count } == categories.map { name in register.filter { $0.category == name }.count },
+            TestConstants.checkLiveCategories)
         check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 6, TestConstants.checkLiveFlows)
         let liveModels = live.projects.first { $0.name == TestConstants.liveProject }?.models ?? []
         check(liveModels.contains { $0.table != nil }
@@ -300,14 +304,25 @@ internal enum CoreTests {
     }
 
     /// Checks the real register's positive tags without inspecting project code or runtime state.
-    /// - Parameter snapshot: Read-only snapshot of the repository's documented metadata.
-    /// - Returns: Nothing; fails when any registered project's tags diverge from its documented inventory.
-    private static func liveTechnologyChecks(_ snapshot: RepositorySnapshot) {
-        check(snapshot.projects.count == TestConstants.liveTechnologyTags.count, TestConstants.checkLive)
-        check(snapshot.categories.map(\.name) == TestConstants.liveCategories, TestConstants.checkLiveCategories)
+    /// - Parameters:
+    ///   - snapshot: Read-only snapshot of the repository's documented metadata.
+    ///   - register: The same register read independently of the app's parser.
+    /// - Returns: Nothing; fails when any registered project's tags diverge from its register row.
+    private static func liveTechnologyChecks(_ snapshot: RepositorySnapshot, register: [RegisterRow]) {
+        check(snapshot.projects.count == register.count, TestConstants.checkLive)
+        check(snapshot.categories.map(\.name) == registerCategories(register), TestConstants.checkLiveCategories)
         for project in snapshot.projects {
-            check(project.classification.technologies == TestConstants.liveTechnologyTags[project.name],
+            check(project.classification.technologies == register.first { $0.name == project.name }?.technologies,
                 TestConstants.checkLiveTechnologyTags + project.name)
+        }
+    }
+
+    /// Lists the register's categories in first-appearance order.
+    /// - Parameter register: Register rows read independently of the app's parser.
+    /// - Returns: Each category name once, in the order its first project appears.
+    private static func registerCategories(_ register: [RegisterRow]) -> [String] {
+        register.map(\.category).reduce(into: []) { names, name in
+            if !names.contains(name) { names.append(name) }
         }
     }
 
@@ -456,8 +471,8 @@ internal enum CoreTests {
         check(ApplicationLocator.preferred(detected, project: TestConstants.project, folder: project) == application, TestConstants.checkAppPreference)
         check(ApplicationLocator.preferred([companion], project: TestConstants.project, folder: project) == companion, TestConstants.checkAppSingle)
         check(ApplicationLocator.preferred(detected, project: TestConstants.external, folder: root) == nil, TestConstants.checkAppAmbiguous)
-        check(ApplicationLocator.preferred(detected, project: TestConstants.external, folder: project) == application, TestConstants.checkIconFolderMatch)
-        check(ApplicationLocator.preferred([], project: TestConstants.project, folder: project) == nil, TestConstants.checkIconFallback)
+        check(ApplicationLocator.preferred(detected, project: TestConstants.external, folder: project) == application, TestConstants.checkAppFolderMatch)
+        check(ApplicationLocator.preferred([], project: TestConstants.project, folder: project) == nil, TestConstants.checkAppFallback)
         check(RepositoryReader.fingerprint(before) != before.fingerprint, TestConstants.checkAppFingerprint)
         let beforeRepair = try RepositoryReader.load(repository)
         _ = try TestFixtures.application(in: project, name: TestConstants.incompleteApp)
@@ -527,6 +542,10 @@ internal enum CoreTests {
             version: nil, architecture: [], workflows: [], history: [], folderAvailable: true, readmeAvailable: false)
         let aliasSnapshot = RepositorySnapshot(root: repository, projects: [aliasRecord], history: [], readAt: Date(), fingerprint: [])
         let before = RepositoryReader.fingerprint(aliasSnapshot)
+        let resolvedAlias = ProjectRecord(id: project.resolvingSymlinksInPath().standardizedFileURL.path,
+            name: TestConstants.alias, folder: alias, readme: aliasRecord.readme, introduction: ControlConstants.empty,
+            version: nil, architecture: [], workflows: [], history: [], folderAvailable: true, readmeAvailable: false)
+        check(resolvedAlias.hasCurrentIdentity, TestConstants.checkIconIdentity)
         let outsideFolder = outside.deletingLastPathComponent().appendingPathComponent("ExternalApps")
         let outsideApplication = try TestFixtures.application(in: outsideFolder, name: "Unexpected")
         try FileManager.default.removeItem(at: alias)
@@ -534,6 +553,7 @@ internal enum CoreTests {
         check(ApplicationLocator.candidates(in: alias, within: repository).isEmpty
             && !ApplicationLocator.isCurrentCandidate(outsideApplication, for: aliasRecord),
             "retargeted project aliases cannot scan or validate external automatic apps")
+        check(!resolvedAlias.hasCurrentIdentity, TestConstants.checkIconRetarget)
         try FileManager.default.removeItem(at: alias)
         try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: outside)
         check(RepositoryReader.fingerprint(aliasSnapshot) != before, TestConstants.checkAliasChange)

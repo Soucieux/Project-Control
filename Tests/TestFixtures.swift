@@ -1,7 +1,45 @@
 import Foundation
 
+/// One project row of the live root README register, read independently of the app's parser.
+internal struct RegisterRow: Equatable {
+    internal let name: String
+    internal let category: String
+    internal let technologies: [String]
+}
+
 /// Disposable app metadata fixtures shared by core and store checks; never launched.
 internal enum TestFixtures {
+    /// Reads the live register's project rows with a deliberately simple scan, so live checks follow
+    /// the register as projects are added instead of repeating counts that go stale.
+    /// - Parameter root: Repository root holding the register README.
+    /// - Returns: Local project rows in register order; a row linking to another repository is skipped.
+    internal static func registerRows(in root: URL) throws -> [RegisterRow] {
+        let readme = try String(contentsOf: root.appendingPathComponent(ControlConstants.readme), encoding: .utf8)
+        return readme.components(separatedBy: .newlines).compactMap { line in
+            guard line.hasPrefix(TestConstants.registerRowPrefix),
+                  let link = line.range(of: TestConstants.registerLinkSeparator),
+                  let close = line[link.upperBound...].firstIndex(of: ")"),
+                  !line[link.upperBound..<close].contains(TestConstants.externalLinkMarker) else { return nil }
+            let name = line[line.index(line.startIndex, offsetBy: TestConstants.registerRowPrefix.count)..<link.lowerBound]
+            let technologies = registerValue(TestConstants.registerTechnologiesLabel, in: line).components(separatedBy: ";")
+            return RegisterRow(name: String(name), category: registerValue(TestConstants.registerCategoryLabel, in: line),
+                technologies: technologies.map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty })
+        }
+    }
+
+    /// Reads one labelled list item from a register row.
+    /// - Parameters:
+    ///   - label: Bold label that opens the item.
+    ///   - line: One register table row.
+    /// - Returns: The item's trimmed text with code-span backticks removed, as the app displays it, or
+    ///   an empty string when the row omits the label.
+    private static func registerValue(_ label: String, in line: String) -> String {
+        guard let start = line.range(of: label),
+              let end = line[start.upperBound...].range(of: TestConstants.registerItemEnd) else { return ControlConstants.empty }
+        return line[start.upperBound..<end.lowerBound].replacingOccurrences(of: "`", with: ControlConstants.empty)
+            .trimmingCharacters(in: .whitespaces)
+    }
+
     /// Flattens parsed blocks only for legacy text assertions; production views retain table structure.
     /// - Parameter blocks: Parsed README presentation blocks.
     /// - Returns: Source prose and joined table rows in their original order.

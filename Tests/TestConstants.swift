@@ -46,15 +46,12 @@ internal enum TestConstants {
     internal static let activityNow = "2026-09-01T00:00:00Z"
     internal static let hostedTechnologyTags = ["Next.js", "LangGraph", "Hosted AI"]
     internal static let literalTechnologyTags = ["Local AI", "RAG", "C++", "model_name-v1"]
-    internal static let liveTechnologyTags = [
-        "Local Assistant": ["SwiftUI", "Local AI", "RAG"],
-        "Prospect Copilot": ["Next.js", "LangGraph", "Hosted AI"],
-        "OpenClaw": ["AI agents", "SQLite", "Ollama", "Scheduled workflows"],
-        "Project Control": ["SwiftUI", "README-driven", "Git metadata"],
-        "Knowledge Transfer": ["Markdown", "React", "Obsidian Canvas"],
-        "Python Accomplishments": ["Python", "Browser automation", "Speech APIs"]
-    ]
-    internal static let liveCategories = ["AI Applications", "Agent Workspaces", "Project Management", "Knowledge & Learning", "Utility Collections"]
+    internal static let registerRowPrefix = "| ["
+    internal static let registerLinkSeparator = "]("
+    internal static let externalLinkMarker = "://"
+    internal static let registerCategoryLabel = "<strong>Category:</strong>"
+    internal static let registerTechnologiesLabel = "<strong>Technologies:</strong>"
+    internal static let registerItemEnd = "</li>"
     internal static let checkClassification = "scope labels are read case-insensitively and rendered as plain text"
     internal static let checkClassificationCompatibility = "legacy classification columns remain supported and override conflicting scope labels"
     internal static let checkClassificationGroups = "categories and members retain first appearance without duplicating projects"
@@ -65,7 +62,7 @@ internal enum TestConstants {
     internal static let checkLiveTechnologyTags = "registered projects show only their documented technologies and approaches: "
     internal static let checkClassificationRefresh = "root metadata edits regroup existing path identities without a rebuild"
     internal static let checkClassificationStale = "root classification refreshes and clears while project details remain stale"
-    internal static let checkLiveCategories = "all six registered projects use the approved five source-driven categories"
+    internal static let checkLiveCategories = "registered projects group into their register categories in first-appearance order"
     internal static let checkActivityTotal = "activity total includes every loaded timestamp record"
     internal static let checkActivityYears = "activity uses newest-first distinct valid years with twelve months each"
     internal static let checkActivityMonths = "valid timestamps increment their exact calendar months"
@@ -503,8 +500,10 @@ internal enum TestConstants {
     internal static let checkAdjacentTable = "prose directly beside a table stays separate and is not lost"
     internal static let checkOverviewTable = "Overview retains the source order of paragraphs, native tables, and bullets"
     internal static let checkLiveTables = "Local Assistant models contain native tables and no raw Markdown table paragraph"
-    internal static let checkIconFolderMatch = "project icon selection falls back to the matching folder-name app"
-    internal static let checkIconFallback = "a project without an app has no invented brand icon"
+    internal static let checkAppFolderMatch = "Open App selection falls back to the matching folder-name app"
+    internal static let checkAppFallback = "a project without an app has no invented Open App target"
+    internal static let checkIconIdentity = "a project folder that still resolves to its identity shows its own icon"
+    internal static let checkIconRetarget = "a retargeted project alias never lends another folder's icon"
     internal static let checkRepositorySelection = "the repository parent is selectable and survives refresh"
     internal static let checkProjectSelection = "a selected project survives refresh under its repository parent"
     internal static let checkSelectionFallback = "a removed selection returns to the repository parent"
