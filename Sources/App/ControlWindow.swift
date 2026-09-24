@@ -172,12 +172,16 @@ internal struct ControlWindow: View {
     }
 
     /// Pins the repository parent above the scrolling projects. Its icon and name collapse or expand the
-    /// rail; the summary line beneath the name opens the repository's own screen.
+    /// rail, the name row ends in the number of listed projects, and the summary line beneath the name
+    /// opens the repository's own screen.
     /// - Parameter snapshot: Current repository identity.
     /// - Returns: The repository row, or its icon alone in rail mode.
     private func repositoryRow(_ snapshot: RepositorySnapshot) -> some View {
         let selected = store.selection == snapshot.root.path
         let toggle = sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation
+        let count = snapshot.projects.count
+        let countLabel = String(format: count == 1 ? ControlConstants.singleProjectCountFormat
+            : ControlConstants.projectCountFormat, count)
         return HStack(spacing: 10) {
             Button(action: toggleRail) {
                 railIcon(ControlConstants.repositoryIcon, selected: selected).contentShape(Rectangle())
@@ -187,10 +191,16 @@ internal struct ControlWindow: View {
             if sidebarExpanded {
                 VStack(alignment: .leading, spacing: 3) {
                     Button(action: toggleRail) {
-                        Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
-                            .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                        // The total of every listed project, styled like each category's count below it.
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(count.formatted()).font(.caption2.monospaced()).foregroundStyle(ControlTheme.railMuted)
+                                .help(countLabel)
+                        }.contentShape(Rectangle())
                     }.buttonStyle(.plain).help(toggle)
-                        .accessibilityLabel(snapshot.root.lastPathComponent).accessibilityHint(toggle)
+                        .accessibilityLabel(snapshot.root.lastPathComponent).accessibilityValue(countLabel)
+                        .accessibilityHint(toggle)
                     Button { store.selection = snapshot.root.path } label: {
                         Text(ControlConstants.repositorySummary).font(.caption2)
                             .foregroundStyle(selected ? ControlTheme.railInk : ControlTheme.railMuted)
