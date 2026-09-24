@@ -141,7 +141,8 @@ internal struct CommitActivity: Equatable {
     internal static let unavailable = CommitActivity(years: [], totalCount: 0, available: false)
 }
 
-/// Read-only, display-ready information for a project registered in the root README.
+/// Read-only, display-ready information for a project in the root README register, or for a top-level
+/// folder that carries a README but is not registered yet.
 internal struct ProjectRecord: Identifiable {
     internal let id: String
     internal var name: String
@@ -160,6 +161,8 @@ internal struct ProjectRecord: Identifiable {
     internal var sourceWarning: String? = nil
     internal var isStale = false
     internal var classification = ProjectClassification()
+    /// False for a folder found beside the registered projects; it has no register metadata to show.
+    internal var isRegistered = true
 
     /// True while the folder still resolves to the canonical identity captured with the snapshot, so a
     /// retargeted alias never lends another folder's icon or apps to this project.

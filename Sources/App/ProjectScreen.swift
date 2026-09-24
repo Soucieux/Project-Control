@@ -219,6 +219,10 @@ internal struct ProjectScreen: View {
                 ? ControlConstants.completeIcon : ControlConstants.warningIcon)
                 .font(.caption.weight(.medium))
                 .foregroundStyle(project.folderAvailable && project.readmeAvailable ? ControlTheme.mint : ControlTheme.amber)
+            if !project.isRegistered {
+                Text(ControlConstants.unregisteredProject).font(.caption).foregroundStyle(ControlTheme.amber)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Text(ControlConstants.runtimeUnknown).font(.caption).foregroundStyle(ControlTheme.muted)
         }.fixedSize(horizontal: true, vertical: false)
     }

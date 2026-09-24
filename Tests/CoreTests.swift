@@ -69,17 +69,25 @@ internal enum CoreTests {
         architectureHistoryChecks()
         try commitActivityChecks(root)
         try mappingChecks(root)
+        try discoveryChecks(root)
         try classificationChecks(root)
         try aliasChecks(repository, project: project, outside: outside)
         let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
         let register = try TestFixtures.registerRows(in: URL(fileURLWithPath: TestConstants.liveRoot))
-        check(live.projects.map(\.name) == register.map(\.name), TestConstants.checkLive)
+        check(live.projects.filter(\.isRegistered).map(\.name) == register.map(\.name), TestConstants.checkLive)
+        let liveFolders = try FileManager.default.contentsOfDirectory(at: URL(fileURLWithPath: TestConstants.liveRoot),
+            includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]).filter {
+            FileManager.default.fileExists(atPath: $0.appendingPathComponent(ControlConstants.readme).path)
+        }.map { $0.resolvingSymlinksInPath().standardizedFileURL.path }
+        check(Set(liveFolders).isSubset(of: Set(live.projects.map(\.id))), TestConstants.checkLiveDiscovery)
         liveTechnologyChecks(live, register: register)
         check(live.projects.first { $0.name == ControlConstants.appName }?.workflows.count == 4,
             "Project Control shows four documented routes without turning parser guidance into a workflow")
         let categories = registerCategories(register)
-        check(live.categories.map(\.name) == categories
-            && live.categories.map { $0.projects.count } == categories.map { name in register.filter { $0.category == name }.count },
+        let registeredGroups = live.categories.filter { $0.projects.contains(where: \.isRegistered) }
+        check(registeredGroups.map(\.name) == categories
+            && registeredGroups.map { $0.projects.filter(\.isRegistered).count }
+                == categories.map { name in register.filter { $0.category == name }.count },
             TestConstants.checkLiveCategories)
         check(live.projects.first { $0.name == TestConstants.liveProject }?.workflows.count == 6, TestConstants.checkLiveFlows)
         let liveModels = live.projects.first { $0.name == TestConstants.liveProject }?.models ?? []
@@ -87,6 +95,7 @@ internal enum CoreTests {
             && !liveModels.contains { $0.text.contains(TestConstants.rawTableSeparator) || $0.text.hasPrefix(ControlConstants.pipe) }, TestConstants.checkLiveTables)
         for project in live.projects {
             check(project.sourceWarning == nil, TestConstants.checkSourceMapping + project.name)
+            check(!project.workflows.isEmpty && !project.history.isEmpty, TestConstants.checkLiveCompleteness + project.name)
             let categories = project.architecture.enumerated().filter {
                 $0.element.kind == .heading && TestConstants.architectureGroupTitles.contains($0.element.text)
             }
@@ -309,9 +318,11 @@ internal enum CoreTests {
     ///   - register: The same register read independently of the app's parser.
     /// - Returns: Nothing; fails when any registered project's tags diverge from its register row.
     private static func liveTechnologyChecks(_ snapshot: RepositorySnapshot, register: [RegisterRow]) {
-        check(snapshot.projects.count == register.count, TestConstants.checkLive)
-        check(snapshot.categories.map(\.name) == registerCategories(register), TestConstants.checkLiveCategories)
-        for project in snapshot.projects {
+        let registered = snapshot.projects.filter(\.isRegistered)
+        check(registered.count == register.count, TestConstants.checkLive)
+        check(snapshot.categories.filter { $0.projects.contains(where: \.isRegistered) }.map(\.name)
+            == registerCategories(register), TestConstants.checkLiveCategories)
+        for project in registered {
             check(project.classification.technologies == register.first { $0.name == project.name }?.technologies,
                 TestConstants.checkLiveTechnologyTags + project.name)
         }
@@ -371,10 +382,50 @@ internal enum CoreTests {
         check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint, TestConstants.checkDigest)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedProjectRow, with: ControlConstants.empty)
             .write(to: rootReadme, atomically: true, encoding: .utf8)
-        check(try RepositoryReader.load(repository).projects.isEmpty, TestConstants.checkEmptyRegister)
+        let unregistered = try RepositoryReader.load(repository).projects
+        check(unregistered.map(\.name) == [TestConstants.project] && unregistered[0].isRegistered == false
+            && unregistered[0].classification == ProjectClassification(), TestConstants.checkEmptyRegister)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.registerHeader, with: ControlConstants.empty)
             .write(to: rootReadme, atomically: true, encoding: .utf8)
         checkThrows(TestConstants.checkRegisterHeader) { _ = try RepositoryReader.load(repository) }
+    }
+
+    /// Lists unregistered top-level folders after the register and notices new ones on the next check.
+    /// - Parameter root: Disposable fixture parent; the linked folder's target sits outside the repository.
+    /// - Returns: Nothing; fails when a folder is missed, misordered, or listed when it should be skipped.
+    private static func discoveryChecks(_ root: URL) throws {
+        let repository = root.appendingPathComponent(TestConstants.discoveryDirectory)
+        let outsideProject = root.appendingPathComponent(TestConstants.discoveryDirectory + TestConstants.external)
+        let names = [TestConstants.project, TestConstants.laterFolder, TestConstants.earlierFolder, TestConstants.hiddenFolder]
+        for folder in names.map(repository.appendingPathComponent) + [outsideProject] {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try TestConstants.mappedReadme.write(to: folder.appendingPathComponent(ControlConstants.readme),
+                atomically: true, encoding: .utf8)
+        }
+        let readmeless = repository.appendingPathComponent(TestConstants.readmelessFolder)
+        try FileManager.default.createDirectory(at: readmeless, withIntermediateDirectories: true)
+        try FileManager.default.createSymbolicLink(at: repository.appendingPathComponent(TestConstants.linkedFolder),
+            withDestinationURL: outsideProject)
+        try TestConstants.mappedRoot.write(to: repository.appendingPathComponent(ControlConstants.readme),
+            atomically: true, encoding: .utf8)
+        let snapshot = try RepositoryReader.load(repository)
+        check(snapshot.projects.map(\.name) == [TestConstants.project, TestConstants.earlierFolder, TestConstants.laterFolder]
+            && snapshot.projects.map(\.isRegistered) == [true, false, false], TestConstants.checkDiscovery)
+        let found = snapshot.projects[1]
+        check(found.classification == ProjectClassification() && found.overview.first?.text == TestConstants.introduction
+            && found.version == TestConstants.mappedVersion && !found.history.isEmpty && !found.workflows.isEmpty
+            && snapshot.categories.map(\.name).last == ControlConstants.uncategorized, TestConstants.checkDiscoveryContent)
+        check(!snapshot.projects.contains { [TestConstants.hiddenFolder, TestConstants.readmelessFolder,
+            TestConstants.linkedFolder].contains($0.name) }, TestConstants.checkDiscoverySkips)
+        check(RepositoryReader.fingerprint(snapshot) == snapshot.fingerprint, TestConstants.checkDiscoveryStable)
+        let added = repository.appendingPathComponent(TestConstants.addedFolder)
+        try FileManager.default.createDirectory(at: added, withIntermediateDirectories: true)
+        try TestConstants.mappedReadme.write(to: added.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
+        let withAdded = try RepositoryReader.load(repository)
+        check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint
+            && withAdded.projects.map(\.name).contains(TestConstants.addedFolder), TestConstants.checkDiscoveryAdded)
+        try TestConstants.mappedReadme.write(to: readmeless.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
+        check(RepositoryReader.fingerprint(withAdded) != withAdded.fingerprint, TestConstants.checkDiscoveryReadme)
     }
 
     /// Covers valid Markdown edge cases that previously exposed or truncated content.
