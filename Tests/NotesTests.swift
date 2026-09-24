@@ -12,7 +12,8 @@ internal enum NotesTests {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
-        let suite = TestConstants.rootName + UUID().uuidString
+        // A suite named by a path keeps its plist inside the disposable root, never in ~/Library/Preferences.
+        let suite = root.appendingPathComponent(TestConstants.preferencesSuite).path
         guard let preferences = UserDefaults(suiteName: suite) else { fatalError(NotesTestConstants.storeLabel) }
         defer { preferences.removePersistentDomain(forName: suite) }
         let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))

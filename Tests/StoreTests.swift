@@ -12,7 +12,9 @@ internal enum StoreTests {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
-        let suite = TestConstants.rootName + UUID().uuidString
+        // A suite named by a path keeps its plist inside the disposable root; a plain name would leave an
+        // empty file in ~/Library/Preferences after every run, even once the domain is removed.
+        let suite = root.appendingPathComponent(TestConstants.preferencesSuite).path
         guard let preferences = UserDefaults(suiteName: suite) else { fatalError(TestConstants.failed) }
         defer { preferences.removePersistentDomain(forName: suite) }
         let firstRoot = root.appendingPathComponent(TestConstants.project)
