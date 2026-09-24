@@ -230,6 +230,7 @@ internal enum TestConstants {
     internal static let checkRegisterHeader = "a register without a table header is not a valid empty register"
     internal static let project = "Example"
     internal static let rootName = "ProjectControlTests-"
+    internal static let preferencesSuite = "preferences"
     internal static let failed = "FAILED: "
     internal static let passed = "Core checks passed: "
     internal static let corrupt = "not JSON"
