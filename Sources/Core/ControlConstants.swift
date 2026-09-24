@@ -121,6 +121,8 @@ internal enum ControlConstants {
     internal static let refresh = "Refresh now"
     internal static let repository = "REPOSITORY"
     internal static let repositorySummary = "Overview, history & activity"
+    internal static let projectCountFormat = "%d projects"
+    internal static let singleProjectCountFormat = "%d project"
     internal static let openRepositoryScreen = "Open the repository overview, history and activity"
     internal static let showCategoryProjects = "Lists this category's projects"
     internal static let noRepositoryOverview = "No repository overview documented. Open the README for more context."
