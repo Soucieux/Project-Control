@@ -53,40 +53,30 @@ internal struct ControlWindow: View {
 
     private var navigationRail: some View {
         VStack(spacing: 0) {
-            Button { sidebarExpanded.toggle() } label: {
-                HStack(spacing: 12) {
-                    Image(nsImage: NSApplication.shared.applicationIconImage)
-                        .resizable().interpolation(.high).scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
-                        .accessibilityHidden(true)
-                    if sidebarExpanded {
-                        Text(ControlConstants.appName).font(.system(size: 14, weight: .semibold))
-                            .lineLimit(1).transition(.opacity)
-                        Spacer(minLength: 8)
-                        Image(systemName: ControlConstants.collapseSidebarIcon)
-                            .font(.system(size: 14, weight: .medium))
-                            .frame(width: 22, height: 32)
-                            .foregroundStyle(ControlTheme.railMuted)
-                            .accessibilityHidden(true)
-                    }
+            HStack(spacing: 12) {
+                Image(nsImage: NSApplication.shared.applicationIconImage)
+                    .resizable().interpolation(.high).scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
+                    .accessibilityHidden(true)
+                if sidebarExpanded {
+                    Text(ControlConstants.appName).font(.system(size: 14, weight: .semibold))
+                        .lineLimit(1).transition(.opacity)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-            }.buttonStyle(.plain)
-                .help(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
-                .accessibilityLabel(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
-                .zIndex(3)
-                .frame(height: 46)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: 46)
+            .accessibilityElement(children: .ignore).accessibilityLabel(ControlConstants.appName)
+            .accessibilityAddTraits(.isHeader)
 
             if let snapshot = store.snapshot {
+                repositoryRow(snapshot).padding(.top, 22)
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 8) {
-                        repositoryRow(snapshot)
                         ForEach(Array(snapshot.categories.enumerated()), id: \.element.id) { index, category in
                             categorySection(category, icon: categoryIcon(at: index))
                         }
-                    }.padding(.top, 22).padding(.bottom, 12)
+                    }.padding(.top, 8).padding(.bottom, 12)
                 }
                 VStack(spacing: 5) {
                     Rectangle().fill(ControlTheme.railMuted.opacity(0.20)).frame(height: 1)
@@ -209,22 +199,34 @@ internal struct ControlWindow: View {
             .padding(.horizontal, 18).padding(.top, 12)
     }
 
-    /// Keeps the repository parent as a first-class hierarchy node in both rail states.
+    /// Keeps the repository parent as a pinned hierarchy node that also hosts the rail toggle.
     /// - Parameter snapshot: Current repository identity and project count.
-    /// - Returns: A full-row repository selection control.
+    /// - Returns: The repository selection control with a trailing rail toggle, or the toggle alone in rail mode.
     private func repositoryRow(_ snapshot: RepositorySnapshot) -> some View {
-        Button { store.selection = snapshot.root.path } label: {
-            HStack(spacing: 10) {
-                railIcon(ControlConstants.repositoryIcon, selected: store.selection == snapshot.root.path)
-                if sidebarExpanded {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
-                        Text(ControlConstants.repositorySummary).font(.caption2).foregroundStyle(ControlTheme.railMuted)
-                    }.frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
-                }
-            }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-        }.buttonStyle(.plain).accessibilityLabel(snapshot.root.lastPathComponent)
-            .accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
+        HStack(spacing: 8) {
+            if sidebarExpanded {
+                Button { store.selection = snapshot.root.path } label: {
+                    HStack(spacing: 10) {
+                        railIcon(ControlConstants.repositoryIcon, selected: store.selection == snapshot.root.path)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
+                            Text(ControlConstants.repositorySummary).font(.caption2).foregroundStyle(ControlTheme.railMuted)
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                    }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                }.buttonStyle(.plain).accessibilityLabel(snapshot.root.lastPathComponent)
+                    .accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
+                    .transition(.opacity)
+            }
+            Button { sidebarExpanded.toggle() } label: {
+                Image(systemName: ControlConstants.collapseSidebarIcon)
+                    .font(.system(size: sidebarExpanded ? 14 : 17, weight: .medium))
+                    .frame(width: sidebarExpanded ? 22 : ControlTheme.railIconSize, height: ControlTheme.railIconSize)
+                    .foregroundStyle(sidebarExpanded ? ControlTheme.railMuted : ControlTheme.railInk.opacity(0.82))
+                    .contentShape(Rectangle())
+            }.buttonStyle(.plain)
+                .help(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
+                .accessibilityLabel(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// Animates every child row when its README-driven category opens or closes.
