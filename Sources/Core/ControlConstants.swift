@@ -44,7 +44,7 @@ internal enum ControlConstants {
     internal static let openRepositoryReadme = "Open the repository README"
     internal static let collapseNavigation = "Collapse navigation"
     internal static let expandNavigation = "Expand navigation"
-    internal static let lock = "Lock"
+    internal static let lock = "Lock this window"
     internal static let lockDisplay = "Lock and show artwork"
     internal static let unlockDisplay = "Unlock"
     internal static let expanded = "Expanded"
