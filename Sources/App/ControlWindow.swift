@@ -199,34 +199,42 @@ internal struct ControlWindow: View {
             .padding(.horizontal, 18).padding(.top, 12)
     }
 
-    /// Keeps the repository parent as a pinned hierarchy node that also hosts the rail toggle.
-    /// - Parameter snapshot: Current repository identity and project count.
-    /// - Returns: The repository selection control with a trailing rail toggle, or the toggle alone in rail mode.
+    /// Pins the repository parent above the scrolling projects. Its icon and name collapse or expand the
+    /// rail; the summary line beneath the name opens the repository's own screen.
+    /// - Parameter snapshot: Current repository identity.
+    /// - Returns: The repository row, or its icon alone in rail mode.
     private func repositoryRow(_ snapshot: RepositorySnapshot) -> some View {
-        HStack(spacing: 8) {
+        let selected = store.selection == snapshot.root.path
+        let toggle = sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation
+        return HStack(spacing: 10) {
+            Button(action: toggleRail) {
+                railIcon(ControlConstants.repositoryIcon, selected: selected).contentShape(Rectangle())
+            }.buttonStyle(.plain).help(toggle).accessibilityLabel(toggle)
+                // Expanded, the name below carries the same action for assistive technologies.
+                .accessibilityHidden(sidebarExpanded)
             if sidebarExpanded {
-                Button { store.selection = snapshot.root.path } label: {
-                    HStack(spacing: 10) {
-                        railIcon(ControlConstants.repositoryIcon, selected: store.selection == snapshot.root.path)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
-                            Text(ControlConstants.repositorySummary).font(.caption2).foregroundStyle(ControlTheme.railMuted)
-                        }.frame(maxWidth: .infinity, alignment: .leading)
-                    }.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityLabel(snapshot.root.lastPathComponent)
-                    .accessibilityAddTraits(store.selection == snapshot.root.path ? .isSelected : [])
-                    .transition(.opacity)
+                VStack(alignment: .leading, spacing: 3) {
+                    Button(action: toggleRail) {
+                        Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
+                            .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                    }.buttonStyle(.plain).help(toggle)
+                        .accessibilityLabel(snapshot.root.lastPathComponent).accessibilityHint(toggle)
+                    Button { store.selection = snapshot.root.path } label: {
+                        Text(ControlConstants.repositorySummary).font(.caption2)
+                            .foregroundStyle(selected ? ControlTheme.railInk : ControlTheme.railMuted)
+                            .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                    }.buttonStyle(.plain).help(ControlConstants.openRepositoryScreen)
+                        .accessibilityLabel(ControlConstants.openRepositoryScreen)
+                        .accessibilityAddTraits(selected ? .isSelected : [])
+                }.transition(.opacity)
             }
-            Button { sidebarExpanded.toggle() } label: {
-                Image(systemName: ControlConstants.collapseSidebarIcon)
-                    .font(.system(size: sidebarExpanded ? 14 : 17, weight: .medium))
-                    .frame(width: sidebarExpanded ? 22 : ControlTheme.railIconSize, height: ControlTheme.railIconSize)
-                    .foregroundStyle(sidebarExpanded ? ControlTheme.railMuted : ControlTheme.railInk.opacity(0.82))
-                    .contentShape(Rectangle())
-            }.buttonStyle(.plain)
-                .help(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
-                .accessibilityLabel(sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation)
         }.frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Opens or closes the rail.
+    /// - Returns: Nothing; changes only local presentation state.
+    private func toggleRail() {
+        sidebarExpanded.toggle()
     }
 
     /// Animates every child row when its README-driven category opens or closes.

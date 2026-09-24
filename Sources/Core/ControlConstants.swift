@@ -121,6 +121,7 @@ internal enum ControlConstants {
     internal static let refresh = "Refresh now"
     internal static let repository = "REPOSITORY"
     internal static let repositorySummary = "Overview, history & activity"
+    internal static let openRepositoryScreen = "Open the repository overview, history and activity"
     internal static let noRepositoryOverview = "No repository overview documented. Open the README for more context."
     internal static let overview = "Overview"
     internal static let notes = "Work notes"
@@ -217,7 +218,6 @@ internal enum ControlConstants {
     internal static let menuIcon = "ellipsis"
     internal static let lockIcon = "lock"
     internal static let unlockIcon = "lock.open"
-    internal static let collapseSidebarIcon = "rectangle.leftthird.inset.filled"
     internal static let repositoryIcon = "square.grid.2x2"
     internal static let categoryIcons = ["brain.head.profile", "key", "chart.xyaxis.line", "books.vertical", "briefcase"]
     internal static let maxNoteLength = 4000
