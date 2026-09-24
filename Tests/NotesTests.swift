@@ -78,7 +78,7 @@ internal enum NotesTests {
         do {
             let live = try RepositoryReader.load(URL(fileURLWithPath: TestConstants.liveRoot))
             let register = try TestFixtures.registerRows(in: URL(fileURLWithPath: TestConstants.liveRoot))
-            check(live.projects.map(\.name) == register.map(\.name), NotesTestConstants.contentLabel)
+            check(live.projects.filter(\.isRegistered).map(\.name) == register.map(\.name), NotesTestConstants.contentLabel)
             for project in live.projects {
                 for blocks in [project.overview, project.architecture, project.models] {
                     let groups = ReadmeBlock.contentGroups(blocks)

@@ -33,13 +33,16 @@ internal enum RepositoryReader {
             root.resolvingSymlinksInPath().standardizedFileURL.path + ControlConstants.slash)
     }
 
-    /// Builds a repository snapshot from its Projects table and corresponding READMEs.
+    /// Builds a repository snapshot from its Projects table, then adds every other top-level folder that
+    /// carries a README, so a project appears before it is registered.
     /// - Parameter root: User-selected local repository folder.
     /// - Returns: The complete snapshot, or an error for an invalid register.
     internal static func load(_ root: URL) throws -> RepositorySnapshot {
         let canonical = root.resolvingSymlinksInPath().standardizedFileURL
         let rootReadme = canonical.appendingPathComponent(ControlConstants.readme)
-        var identities = [documentIdentity(rootReadme, within: canonical), GitActivityReader.fingerprint(canonical)]
+        let folders = discoveredFolders(canonical)
+        var identities = [documentIdentity(rootReadme, within: canonical), GitActivityReader.fingerprint(canonical),
+            folderListIdentity(folders)]
         let document = try read(rootReadme, within: canonical)
         let sections = try ReadmeParser.validatedSections(document)
         let explicitlyMapped = sections.contains { $0.mapping != nil }
@@ -53,7 +56,7 @@ internal enum RepositoryReader {
             throw ControlFailure(message: ControlConstants.invalidRepository)
         }
         var seen: Set<String> = []
-        let projects = try register.flatMap { lines -> [ProjectRecord] in
+        let registered = try register.flatMap { lines -> [ProjectRecord] in
             let headers = ReadmeParser.tableHeaders(lines).map { ReadmeParser.plain($0).lowercased() }
             return try ReadmeParser.table(lines).compactMap { row -> ProjectRecord? in
                 guard row.count >= 2,
@@ -81,6 +84,15 @@ internal enum RepositoryReader {
                 return record
             }
         }
+        // A folder the register already names keeps its register row; any other one is listed after the
+        // registered projects, under the folder's own name and with no register metadata.
+        let unregistered = folders.filter { seen.insert($0.path).inserted }.map { folder -> ProjectRecord in
+            identities += projectFingerprint(folder, within: canonical)
+            var record = project(name: folder.lastPathComponent, folder: folder, scope: ControlConstants.empty, root: canonical)
+            record.isRegistered = false
+            return record
+        }
+        let projects = registered + unregistered
         let commitActivity = GitActivityReader.load(canonical, projects: projects)
         return RepositorySnapshot(root: canonical, projects: projects, history: ReadmeParser.history(sections),
             readAt: Date(), fingerprint: identities,
@@ -147,12 +159,36 @@ internal enum RepositoryReader {
             applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning)
     }
 
+    /// Lists the real top-level folders that carry a README, in name order. Hidden folders and symlinks are
+    /// skipped, so a link can only be listed when the register names it and passes its containment check.
+    /// - Parameter root: Canonical repository root.
+    /// - Returns: Folder URLs directly inside the root, each holding a `README.md`.
+    private static func discoveredFolders(_ root: URL) -> [URL] {
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey]
+        let children = (try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: Array(keys),
+            options: [.skipsHiddenFiles])) ?? []
+        return children.compactMap { child -> URL? in
+            guard let values = try? child.resourceValues(forKeys: keys),
+                  values.isDirectory == true, values.isSymbolicLink != true else { return nil }
+            let folder = root.appendingPathComponent(child.lastPathComponent).standardizedFileURL
+            return FileManager.default.fileExists(atPath: folder.appendingPathComponent(ControlConstants.readme).path)
+                ? folder : nil
+        }.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+    }
+
+    /// Names the folder list itself, so adding or removing a project folder changes the fingerprint.
+    /// - Parameter folders: Top-level folders from `discoveredFolders(_:)`.
+    /// - Returns: Their names in order, one per line.
+    private static func folderListIdentity(_ folders: [URL]) -> String {
+        folders.map(\.lastPathComponent).joined(separator: ControlConstants.newline)
+    }
+
     /// Captures bounded README digests and metadata so unchanged files need not be parsed.
     /// - Parameter snapshot: Last successful snapshot.
     /// - Returns: Ordered content/metadata identities, including missing or unreadable files.
     internal static func fingerprint(_ snapshot: RepositorySnapshot) -> [String] {
         [documentIdentity(snapshot.root.appendingPathComponent(ControlConstants.readme), within: snapshot.root),
-            GitActivityReader.fingerprint(snapshot.root)]
+            GitActivityReader.fingerprint(snapshot.root), folderListIdentity(discoveredFolders(snapshot.root))]
             + snapshot.projects.flatMap { projectFingerprint($0.folder, within: snapshot.root) }
     }
 

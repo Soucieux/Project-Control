@@ -180,8 +180,8 @@ internal enum StoreTests {
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedProjectRow, with: ControlConstants.empty)
             .write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.snapshot?.projects.isEmpty == true && store.selection == store.snapshot?.root.path,
-              TestConstants.checkEmptyRegister)
+        check(store.snapshot?.projects.map(\.id) == [project.id] && store.snapshot?.projects.first?.isRegistered == false
+            && store.selection == project.id, TestConstants.checkEmptyRegister)
         check(store.notes(for: project.id) == [note], TestConstants.checkSyncNotes)
         try TestConstants.rootReadme.write(to: readme, atomically: true, encoding: .utf8)
         try TestConstants.projectReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
