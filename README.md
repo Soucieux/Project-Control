@@ -504,14 +504,16 @@ supply workflows and history. `make app` passed and promoted the signed v3.6/bui
 project root; the bundle passed strict signature verification and reports version 3.6 and build 36.
 Offscreen renders against the live repository at 1,440 × 900 and at the 1,120 × 720 minimum showed
 one header layout for every project — DayWright's six tags included — with a long name wrapping
-at the minimum width, the full-width summary strip, and the brand at the foot of the rail in both rail states; a disposable repository showed an
-unregistered folder under Uncategorized with its note. A collapsed category's list, opened by a
+at the minimum width, the full-width summary strip, and the brand at the foot of the rail in both
+rail states; a disposable repository showed an unregistered folder under Uncategorized with its
+note. A collapsed category's list, opened by a
 click and captured from its own popover window, reads in system label colors in light and dark
 appearance and opens at the icon's edge.
 Mouse clicks sent to the rail in an offscreen window collapsed it from the name, expanded it from
 the icon, opened the repository screen from the summary line, and opened a collapsed category's
 list without changing the selection; choosing a project there opened it with the rail still
-collapsed. Initially delivered uncommitted; publication was not requested.
+collapsed. Initially delivered uncommitted, then committed in `f04b15b` through `a44cd88`, with this
+record in `fb893ca`; publication was not requested.
 
 [Back to change history](#change-history)
 
@@ -539,7 +541,7 @@ block shown in full; each fails against the v3.4 parser. `make app` passed and p
 v3.5/build 35 app to the project root; the bundle passed strict signature verification and reports
 version 3.5 and build 35. Offscreen renders against the live register showed 28 titled routes across
 seven projects, including DayWright's and Knowledge Transfer's, which v3.4 could not draw. Initially
-delivered uncommitted; publication was not requested.
+delivered uncommitted, then committed in `5cd854f`.
 
 [Back to change history](#change-history)
 
@@ -573,7 +575,8 @@ against the live register showed the fixed brand label and the repository-row to
 states; the two-column card for Local Assistant at the default size and for DayWright and Python
 Accomplishments at the 1,120 × 620 minimum; and every project's Workflows tab, where the Local
 Assistant and Career Ledger diagrams that had lost their bottom padding keep it and Prospect
-Copilot's five-line nodes fit. Initially delivered uncommitted; publication was not requested.
+Copilot's five-line nodes fit. Initially delivered uncommitted, then committed in `987e9a0`,
+`f939ab9` and `9d8c5ac`, with this record in `deda6fe`.
 
 [Back to change history](#change-history)
 
@@ -606,7 +609,7 @@ signature verification, reports version 3.3 and build 33, and opened its window.
 the real `ControlWindow` against the live register showed the expanded rail on a project and on the
 repository screen, the collapsed rail, and the 1,120 × 620 minimum window, where every category
 header stays on one line and the project card's tags fit in one row. Initially delivered
-uncommitted; publication was not requested.
+uncommitted, then committed in `d220b09`.
 
 [Back to change history](#change-history)
 
