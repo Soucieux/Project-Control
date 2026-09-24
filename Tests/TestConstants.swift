@@ -184,6 +184,28 @@ internal enum TestConstants {
     internal static let checkDiscoveryStable = "an unchanged repository keeps the fingerprint it was loaded with"
     internal static let checkDiscoveryAdded = "a new project folder is noticed and listed on the next check"
     internal static let checkDiscoveryReadme = "a folder that gains a README is noticed on the next check"
+    internal static let componentRelease = "Observatory v2.7"
+    internal static let componentReadme = """
+    # Vault
+    <!-- project-control:section=release -->
+    ## Observatory web interface
+    **Observatory v2.7** adds a visual Library.
+    <!-- project-control:section=history -->
+    ## Change history
+    **Change-history numbering:** This project uses dated history for the vault and version-only
+    releases for Observatory.
+    | Record | Date | Highlights |
+    |---|---|---|
+    | Observatory v2.7 | 2026-09-24 | Added the Library. |
+    """
+    internal static let ignoredDeclaration = """
+    # Tool
+    <!-- project-control:section=ignore -->
+    ## Contributing
+    **Change-history numbering:** This project uses dated history.
+    """
+    internal static let checkComponentRelease = "a component's release keeps its name rather than passing as the project's version"
+    internal static let checkDatedHistory = "a dated-history declaration is read beside the release or history section and nowhere else"
     internal static let checkTechnologyRows = "each technology has exactly one individually named architecture row: "
     internal static let checkStaleProject = "invalid or missing project README retains visibly stale last-good content"
     internal static let checkProjectRecovery = "valid recovery clears warnings and applies section deletions"

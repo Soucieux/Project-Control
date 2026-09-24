@@ -82,7 +82,8 @@ internal struct ProjectScreen: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             HStack(alignment: .top, spacing: 12) {
-                Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
+                Text(project.version ?? (project.usesDatedHistory ? ControlConstants.datedHistory : ControlConstants.releaseUnknown))
+                    .font(.callout.monospaced())
                     .foregroundStyle(ControlTheme.mint).padding(.top, 3).fixedSize()
                 if !project.classification.technologies.isEmpty {
                     TechnologyTagLayout {

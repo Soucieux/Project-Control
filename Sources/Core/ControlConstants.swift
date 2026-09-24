@@ -64,6 +64,8 @@ internal enum ControlConstants {
     internal static let contentUnavailable = "README content unavailable."
     internal static let sourceWarning = "README needs attention"
     internal static let releaseValuePattern = #"(?i)\bv\d+\.\d+(?:\.\d+)?(?:\s*\(build\s+\d+\))?"#
+    internal static let componentReleasePattern = #"\*\*([A-Z][\w-]*(?: [A-Z][\w-]*)* v\d+\.\d+(?:\.\d+)?)\*\*"#
+    internal static let datedHistoryPattern = #"(?i)change-history numbering:\*\*\s+this project uses dated history"#
     internal static let overviewWords = ["overview", "what this does", "about"]
     internal static let architectureWords = ["architecture", "technology", "tech stack", "components", "project structure", "project layout"]
     internal static let modelHeadingWords = ["models", "language model", "llm", "model configuration"]
@@ -222,6 +224,7 @@ internal enum ControlConstants {
     internal static let noteLimit = "Write a nonempty note using up to \(maxNoteLength.formatted()) characters."
     internal static let synchronized = "README snapshot"
     internal static let releaseUnknown = "Release not specified"
+    internal static let datedHistory = "Dated history"
     internal static let notesLocked = "Notes are read-only until the saved workspace can be loaded."
     internal static let maxDiagramNodes = 32
     internal static let maxWorkflowRoutes = 16

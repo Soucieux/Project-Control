@@ -163,6 +163,8 @@ internal struct ProjectRecord: Identifiable {
     internal var classification = ProjectClassification()
     /// False for a folder found beside the registered projects; it has no register metadata to show.
     internal var isRegistered = true
+    /// True when the README declares dated history, so a missing release number is expected, not absent.
+    internal var usesDatedHistory = false
 
     /// True while the folder still resolves to the canonical identity captured with the snapshot, so a
     /// retargeted alias never lends another folder's icon or apps to this project.

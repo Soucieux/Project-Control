@@ -156,7 +156,8 @@ internal enum RepositoryReader {
             readmeAvailable: document != nil,
             overview: ReadmeParser.overview(sections, fallback: introduction.isEmpty ? ControlConstants.noIntroduction : introduction),
             models: ReadmeParser.models(sections),
-            applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning)
+            applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning,
+            usesDatedHistory: ReadmeParser.usesDatedHistory(sections))
     }
 
     /// Lists the real top-level folders that carry a README, in name order. Hidden folders and symlinks are
