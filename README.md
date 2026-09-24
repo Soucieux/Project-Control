@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.7%20build%2037-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.8%20build%2038-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -44,7 +44,7 @@ open "Project Control.app"
 ### Navigation and work notes
 
 - **Project views:** Overview, Architecture, Models, Workflows, and Project history reflect the selected README.
-- **Rail:** Click the repository's name or its icon at the top of the rail to collapse the rail to icons, and the icon again to expand it. The grey line under the name opens the repository's overview, history and commit activity.
+- **Rail:** Click the repository's name or its icon at the top of the rail to collapse the rail to icons, and the icon again to expand it. The grey line under the name opens the repository's overview, history and commit activity, and the number after the name is how many projects the repository holds.
 - **Collapsed rail:** A category icon lists that category's projects beside it; choosing one opens it and keeps the rail collapsed.
 - **Notes:** Use **Add note** or `Command-N` while Work notes is visible; save nonblank text with `Command-Return`, or cancel with Escape. Notes accept up to 4,000 characters; saved notes can be edited or deleted.
 - **Context:** Drafts remain attached to their selected project. Category expansion and navigation do not change saved notes.
@@ -400,7 +400,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.7 (build 37)** in source and in the signed local app. [Change and delivery evidence](#v3-7-build-37).
+**v3.8 (build 38)** in source and in the signed local app. [Change and delivery evidence](#v3-8-build-38).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -419,6 +419,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.8 / build 38 | 2026-09-24 | <ul><li><strong>Rail:</strong> The repository row shows how many projects the repository holds.</li><li><strong>Footer:</strong> The version and build, and the refresh cadence, each have one line under the Project Control name.</li></ul> | [Full record](#v3-8-build-38) |
 | v3.7 / build 37 | 2026-09-24 | <ul><li><strong>Tests:</strong> The store and notes checks keep their preferences inside their own temporary folder, so a run no longer leaves an empty preferences file behind.</li></ul> | [Full record](#v3-7-build-37) |
 | v3.6 / build 36 | 2026-09-24 | <ul><li><strong>Projects:</strong> Every top-level folder with a README appears, registered or not.</li><li><strong>Rail:</strong> The repository's name and icon collapse and expand the rail; the brand moves to the foot with the version; a collapsed category lists its projects.</li><li><strong>Project card:</strong> One layout for every project: the actions sit on the name's row and the summaries fill one full-width strip.</li></ul> | [Full record](#v3-6-build-36) |
 | v3.5 / build 35 | 2026-09-23 | <ul><li><strong>Workflows:</strong> One diagram style: titled routes of steps joined by ↓, with branches and merges, several routes per block.</li><li><strong>Parsing:</strong> Parentheses and semicolons in a step read as prose, and up to sixteen routes show instead of eight.</li></ul> | [Full record](#one-workflow-style) |
@@ -452,6 +453,31 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v3-8-build-38"></a>
+
+### v3.8 / build 38
+
+- **Recorded date:** 2026-09-24.
+- **Project count:** The repository row at the top of the rail ends in the number of projects the
+  repository holds, registered or not, in the same place and style as each category's count; its
+  tooltip and accessibility value read, for example, "8 projects". The collapsed rail keeps only its
+  icons.
+- **Footer lines:** Under the Project Control name, the version and build sit on one line and the
+  refresh cadence on the next, each kept to a single line, instead of one status line that wrapped.
+
+**Evidence and delivery status**
+
+`make test` passed: 371 core, 40 store, 47 note/presentation, and 12 version checks, leaving no
+preferences file or temporary folder behind. `make app` passed and promoted the signed v3.8/build 38
+app to the project root; the bundle passed strict signature verification and reports version 3.8
+and build 38. An offscreen render against the live repository showed "8" at the end of the
+repository row, level with the category counts, and the footer's three single lines, reading
+Project Control, v3.8 (38), and Auto-refresh every 2 s; the collapsed rail still shows only icons.
+Initially delivered uncommitted, then committed in `f0a33f9` and `2f90d61`, followed by this record;
+publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v3-7-build-37"></a>
 
