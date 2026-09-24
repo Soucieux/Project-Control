@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.5%20build%2035-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.6%20build%2036-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -25,7 +25,7 @@
 3. Select a project in the sidebar, then open its detail tabs.
 4. Use **Work notes → Add note** to save a private note, or **Open folder**, **Read README**, and **Open App** to open the selected item.
 
-**Success:** Every registered project appears; its documented content opens without a README warning.
+**Success:** Every project folder with a README appears; its documented content opens without a README warning.
 
 ### Build from source
 
@@ -44,14 +44,15 @@ open "Project Control.app"
 ### Navigation and work notes
 
 - **Project views:** Overview, Architecture, Models, Workflows, and Project history reflect the selected README.
-- **Rail:** The sidebar icon at the end of the repository row collapses the rail to icons; in the collapsed rail the same icon expands it again.
+- **Rail:** Click the repository's name or its icon at the top of the rail to collapse the rail to icons, and the icon again to expand it. The grey line under the name opens the repository's overview, history and commit activity.
+- **Collapsed rail:** A category icon lists that category's projects beside it; choosing one opens it and keeps the rail collapsed.
 - **Notes:** Use **Add note** or `Command-N` while Work notes is visible; save nonblank text with `Command-Return`, or cancel with Escape. Notes accept up to 4,000 characters; saved notes can be edited or deleted.
 - **Context:** Drafts remain attached to their selected project. Category expansion and navigation do not change saved notes.
-- **Lock:** Hides the workspace without adding password protection or changing data.
+- **Lock this window:** Hides the workspace without adding password protection or changing data.
 
 ### Refresh and recovery
 
-- **Automatic refresh:** Active views check the registered READMEs about every two seconds. **Refresh now** — the arrow at the end of the rail's status line, or `Command-R` — reloads immediately. **Change repository…** in the rail footer, or `Command-O`, chooses another repository.
+- **Automatic refresh:** Active views check the repository's READMEs and project folders about every two seconds. **Refresh now** — the arrow beside the version at the foot of the rail, or `Command-R` — reloads immediately. **Change repository…** in the rail footer, or `Command-O`, chooses another repository.
 - **Valid edits:** Replace the displayed content while preserving local notes and an existing selection.
 - **Unreadable files:** Keep the last good view with an out-of-date warning. Repair the README to recover on the next check.
 - **Last read:** Reports when documentation was read; runtime health remains unchecked.
@@ -90,7 +91,7 @@ open "Project Control.app"
 | Technology or concept | Use in this project |
 |---|---|
 | Markdown | Repository/project README files are the content baseline. Stable section markers select the app-visible subset. |
-| Git metadata | Complete local reachable-commit timestamps supply monthly activity; changed paths map commits to registered projects for hover details; ref object identities trigger refresh without reading messages, authors, or file contents. |
+| Git metadata | Complete local reachable-commit timestamps supply monthly activity; changed paths map commits to listed projects for hover details; ref object identities trigger refresh without reading messages, authors, or file contents. |
 | JSON | WorkspaceStorage atomically saves local work notes and app choices outside the repository; malformed data is never reset automatically. |
 | UserDefaults | Remembers the last successfully selected repository separately from work-note storage. |
 
@@ -131,9 +132,9 @@ mapped section parsing
 native screen update
 
 Project register
-Repository Projects table
+Projects table and top-level project folders
   ↓
-registered project READMEs
+project READMEs
   ↓
 project navigation and content
 
@@ -160,10 +161,10 @@ notes available / no notes summary
 
 ### Add a new project to Project Control
 
-- Putting a folder in the repository is only the first step.
-- Project Control does not scan arbitrary folders.
-- It displays the top-level folders registered in the repository root README's **Projects** table, then reads each registered folder's `README.md`.
-- Complete every step below so the project and its details appear.
+- A folder directly inside the repository root that holds a `README.md` appears on its own, after the registered projects, under **Uncategorized**; its card notes that it is not in the root register.
+- Project Control lists only those top-level folders. It never scans nested or hidden folders, and it lists a folder link only when the register names it.
+- Registered projects come first, in the order of the root README's **Projects** table, with their category, technical scope and technology tags; unregistered folders follow in name order, named after the folder.
+- Complete every step below so the project appears under its category and every detail tab fills.
 
 1. **Create one top-level project folder.** Put it directly inside the repository root, beside the
    existing project folders. For example, create `Example Project/`, not
@@ -236,7 +237,7 @@ notes available / no notes summary
 
    otherwise, **Open App** can remember a manually selected application.
 
-- If the project does not appear, check that its row is directly inside the selected Projects table, the link resolves to exactly one top-level folder, the folder and README names match letter-for-letter, and every section marker immediately precedes a heading.
+- If the project stays under **Uncategorized** with the unregistered note, check that its row is directly inside the selected Projects table, the link resolves to exactly that top-level folder, and the folder and README names match letter-for-letter. If a tab stays empty, check that every section marker immediately precedes a heading.
 - A malformed root register is rejected; an unavailable project README leaves the project visible from its root summary but cannot supply complete detail tabs.
 
 ### Select app-visible sections
@@ -265,6 +266,8 @@ Place a standalone marker immediately before the heading that owns the content; 
 | `history` | Repository history | Project history |
 | `release` | Not displayed | Current release/build label |
 | `ignore` | Excluded section and descendants | Excluded section and descendants |
+
+- The project card shows the `release` section's version. A version written in bold after a component name, such as `**Observatory v2.7**`, keeps that name, so a component's number is never shown as the whole project's. Without one, the card shows **Dated history** when the numbering declaration beside the release or history section says the project uses dated history, and **Release not specified** otherwise.
 
 In a README containing markers, only marked sections and their descendants are selected. A section ends at the next heading of the same or a higher level.
 
@@ -375,10 +378,10 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 
 ### Update and recovery behavior
 
-- While the app view is active, background checks run approximately every two seconds over the root README, registered project READMEs, and app metadata.
+- While the app view is active, background checks run approximately every two seconds over the root README, every listed project README, the list of top-level folders, and app metadata.
 - Bounded content digests detect edits even when file size and timestamps are unchanged.
 
-- A successful root register edit adds/removes sidebar projects and updates the monitored README set.
+- A successful root register edit regroups sidebar projects; adding or removing a top-level folder with a README adds or removes its project.
 - Parsing and digest work run off the interface thread; complete presentation data is published on the main actor.
 
 - A valid edit, including removal of a mapped section, replaces the old content.
@@ -397,7 +400,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.5 (build 35)** in source and in the signed local app. [Change and delivery evidence](#one-workflow-style).
+**v3.6 (build 36)** in source and in the signed local app. [Change and delivery evidence](#v3-6-build-36).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -416,6 +419,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.6 / build 36 | 2026-09-24 | <ul><li><strong>Projects:</strong> Every top-level folder with a README appears, registered or not.</li><li><strong>Rail:</strong> The repository's name and icon collapse and expand the rail; the brand moves to the foot with the version; a collapsed category lists its projects.</li><li><strong>Project card:</strong> One layout for every project: the actions sit on the name's row and the summaries fill one full-width strip.</li></ul> | [Full record](#v3-6-build-36) |
 | v3.5 / build 35 | 2026-09-23 | <ul><li><strong>Workflows:</strong> One diagram style: titled routes of steps joined by ↓, with branches and merges, several routes per block.</li><li><strong>Parsing:</strong> Parentheses and semicolons in a step read as prose, and up to sixteen routes show instead of eight.</li></ul> | [Full record](#one-workflow-style) |
 | v3.4 / build 34 | 2026-09-23 | <ul><li><strong>Rail:</strong> The Project Control name is a fixed label; the collapse control moved to the end of the repository row, which stays pinned while the projects scroll.</li><li><strong>Project card:</strong> Document Health and Notes sit beside the project name and the version shares a line with the tags, so the card has no empty half.</li><li><strong>Fix:</strong> A workflow diagram with a wrapped node no longer pushes its last node onto the card's edge, and a branch's connectors meet at one height.</li></ul> | [Full record](#rail-toggle-and-project-card) |
 | v3.3 / build 33 | 2026-09-23 | <ul><li><strong>Rail:</strong> Categories are quiet section headers and each project row is one line, so more of the register fits before scrolling.</li><li><strong>Footer:</strong> Repository README, Change repository…, and Lock are plain buttons; the Repository menu is gone, and Refresh now sits on the status line.</li><li><strong>Detail:</strong> Technology tags moved to the project card, and the header strip repeating the Project Control name was removed.</li></ul> | [Full record](#navigation-rail-layout) |
@@ -458,6 +462,58 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v3-6-build-36"></a>
+
+### v3.6 / build 36
+
+- **Recorded date:** 2026-09-24.
+- **Every project folder:** A folder directly inside the repository that holds a `README.md` now
+  appears without a register row. Registered projects keep their order, category and tags;
+  unregistered folders follow under **Uncategorized**, named after the folder, and their card says
+  the root register does not list them. Hidden folders, folders without a README, and folder links
+  the register does not name stay out, and a new folder appears within the two-second refresh.
+- **Rail toggle:** Clicking the repository's name or its icon collapses or expands the rail, and the
+  separate toggle icon is gone. The grey line under the name still opens the repository's overview,
+  history and commit activity.
+- **Brand:** The Project Control icon and name move from the top of the rail to its foot, below the
+  footer buttons, with the version and refresh cadence under the name and **Refresh now** beside
+  them, so the brand no longer reads as a navigation row. In the collapsed rail its icon stays on the
+  icon column.
+- **Collapsed categories:** A category icon in the collapsed rail opens a list of that category's
+  projects; choosing one opens it and keeps the rail collapsed, instead of jumping to the first
+  project.
+- **Project card:** Every project's card has the same layout. The actions sit on the name's row,
+  where a long name wraps rather than moving them, and the version and tags run beneath the name
+  across the card's full width. Below a divider, Document Health, Notes, and App share one
+  full-width strip of equal columns, so the card has no empty region at any width.
+- **Footer:** **Lock** is renamed **Lock this window**, matching the other footer labels in length.
+- **Release label:** A component's version keeps its name — Knowledge Transfer shows
+  **Observatory v2.7**, not v2.7 — and a project that declares dated history shows **Dated
+  history** instead of **Release not specified**.
+
+**Evidence and delivery status**
+
+`make test` passed: 371 core, 40 store, 47 note/presentation, and 12 version checks. New core checks
+cover unregistered folders listed after the register in name order with their README content,
+hidden folders, folders without a README and folder links left out, an unchanged repository keeping
+its fingerprint, a new folder or a new README noticed on the next check, a component's release
+name, and a dated-history declaration read only beside the release or history section. The live
+checks now require every top-level folder with a README to be listed and every listed project to
+supply workflows and history. `make app` passed and promoted the signed v3.6/build 36 app to the
+project root; the bundle passed strict signature verification and reports version 3.6 and build 36.
+Offscreen renders against the live repository at 1,440 × 900 and at the 1,120 × 720 minimum showed
+one header layout for every project — DayWright's six tags included — with a long name wrapping
+at the minimum width, the full-width summary strip, and the brand at the foot of the rail in both rail states; a disposable repository showed an
+unregistered folder under Uncategorized with its note. A collapsed category's list, opened by a
+click and captured from its own popover window, reads in system label colors in light and dark
+appearance and opens at the icon's edge.
+Mouse clicks sent to the rail in an offscreen window collapsed it from the name, expanded it from
+the icon, opened the repository screen from the summary line, and opened a collapsed category's
+list without changing the selection; choosing a project there opened it with the rail still
+collapsed. Initially delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="one-workflow-style"></a>
 
