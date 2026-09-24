@@ -171,6 +171,7 @@ internal enum ControlConstants {
     internal static let detectedApp = "Detected in project folder"
     internal static let appMissing = "No app detected · Open App lets you locate it"
     internal static let appAmbiguous = "Multiple apps detected · choose one with Open App"
+    internal static let applicationSummary = "APP"
     internal static let appContents = "Contents"
     internal static let appInfo = "Info.plist"
     internal static let appExecutableFolder = "MacOS"

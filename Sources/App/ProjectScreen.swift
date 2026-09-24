@@ -19,15 +19,7 @@ internal struct ProjectScreen: View {
                 if store.loading { ProgressView().controlSize(.small) }
                 Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
             }
-            GlassCard(contentPadding: 16) {
-                HStack(alignment: .top, spacing: 24) {
-                    VStack(alignment: .leading, spacing: 14) {
-                        identity
-                        actions
-                    }.frame(maxWidth: .infinity, alignment: .leading)
-                    summaries.padding(.top, 4)
-                }
-            }
+            card
             if project.isStale || store.syncFailure != nil {
                 Text(ControlConstants.staleContent).font(.callout).foregroundStyle(ControlTheme.amber)
             }
@@ -72,7 +64,29 @@ internal struct ProjectScreen: View {
 
     private var applicationTarget: URL? { store.application(for: project) }
 
-    private var identity: some View {
+    /// The project's card, laid out the same way for every project: the header, then one full-width strip
+    /// of equal columns, so no part of the card is left empty at any width.
+    private var card: some View {
+        let target = applicationTarget
+        return GlassCard(contentPadding: 16) {
+            VStack(alignment: .leading, spacing: 14) {
+                header(target: target)
+                Divider().overlay(ControlTheme.line)
+                HStack(alignment: .top, spacing: 24) {
+                    healthSummary.frame(maxWidth: .infinity, alignment: .leading)
+                    notesSummary.frame(maxWidth: .infinity, alignment: .leading)
+                    applicationSummary(target: target).frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+    }
+
+    /// Keeps one header layout whatever the name length or tag count: the icon, name, and actions share
+    /// the top row, where a long name wraps rather than moving the buttons, and the version and tags run
+    /// beneath the name across the card's full width, wrapping as needed.
+    /// - Parameter target: Launch target already resolved for this view update.
+    /// - Returns: The card's identity and action rows.
+    private func header(target: URL?) -> some View {
         let iconSize: CGFloat = 48
         let iconSpacing: CGFloat = 14
         return VStack(alignment: .leading, spacing: 4) {
@@ -80,6 +94,10 @@ internal struct ProjectScreen: View {
                 ProjectIcon(project: project, size: iconSize)
                 Text(project.name).font(.system(size: 32, weight: .light)).tracking(-1)
                     .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 10) { actionControls(target: target) }
+                    .controlSize(.large).buttonStyle(.bordered).fixedSize()
+                    .padding(.leading, 24 - iconSpacing)
             }
             HStack(alignment: .top, spacing: 12) {
                 Text(project.version ?? (project.usesDatedHistory ? ControlConstants.datedHistory : ControlConstants.releaseUnknown))
@@ -96,23 +114,9 @@ internal struct ProjectScreen: View {
         }
     }
 
-    private var actions: some View {
-        let target = applicationTarget
-        return VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) { actionControls(target: target) }
-                VStack(alignment: .leading, spacing: 10) { actionControls(target: target) }
-            }.controlSize(.large).buttonStyle(.bordered)
-            Text(target.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
-                + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
-                ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
-                .font(.caption).foregroundStyle(ControlTheme.muted)
-        }
-    }
-
     /// Builds the folder, README, and launch controls from one resolved launch target.
     /// - Parameter target: Launch target already resolved for this view update.
-    /// - Returns: The adaptive action row shared by both fitted layouts.
+    /// - Returns: The action buttons of the card's header row.
     @ViewBuilder private func actionControls(target: URL?) -> some View {
         Button { store.open(project.folder) } label: { Label(ControlConstants.folder, systemImage: ControlConstants.folderIcon) }
             .buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background).disabled(!project.folderAvailable)
@@ -201,16 +205,13 @@ internal struct ProjectScreen: View {
         }
     }
 
-    private var summaries: some View {
-        HStack(alignment: .top, spacing: 24) {
-            healthSummary
-            VStack(alignment: .leading, spacing: 6) {
-                InstrumentLabel(title: ControlConstants.notesSummary)
-                Label(notes.isEmpty ? ControlConstants.noNotes : ControlConstants.notesAvailable,
-                    systemImage: ControlConstants.noteIcon)
-                    .font(.caption.weight(.medium)).foregroundStyle(notes.isEmpty ? ControlTheme.muted : ControlTheme.mint)
-            }
-        }.fixedSize(horizontal: true, vertical: false)
+    private var notesSummary: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            InstrumentLabel(title: ControlConstants.notesSummary)
+            Label(notes.isEmpty ? ControlConstants.noNotes : ControlConstants.notesAvailable,
+                systemImage: ControlConstants.noteIcon)
+                .font(.caption.weight(.medium)).foregroundStyle(notes.isEmpty ? ControlTheme.muted : ControlTheme.mint)
+        }
     }
 
     private var healthSummary: some View {
@@ -218,14 +219,27 @@ internal struct ProjectScreen: View {
             InstrumentLabel(title: ControlConstants.documentHealth)
             Label(healthMessage, systemImage: project.folderAvailable && project.readmeAvailable
                 ? ControlConstants.completeIcon : ControlConstants.warningIcon)
-                .font(.caption.weight(.medium))
+                .font(.caption.weight(.medium)).fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(project.folderAvailable && project.readmeAvailable ? ControlTheme.mint : ControlTheme.amber)
             if !project.isRegistered {
                 Text(ControlConstants.unregisteredProject).font(.caption).foregroundStyle(ControlTheme.amber)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Text(ControlConstants.runtimeUnknown).font(.caption).foregroundStyle(ControlTheme.muted)
-        }.fixedSize(horizontal: true, vertical: false)
+        }
+    }
+
+    /// Reports which app Open App will use, or why it will ask.
+    /// - Parameter target: Launch target already resolved for this view update.
+    /// - Returns: The APP column of the card's summary strip.
+    private func applicationSummary(target: URL?) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            InstrumentLabel(title: ControlConstants.applicationSummary)
+            Text(target.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
+                + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
+                ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
+                .font(.caption).foregroundStyle(ControlTheme.muted).fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var healthMessage: String {
