@@ -53,24 +53,8 @@ internal struct ControlWindow: View {
 
     private var navigationRail: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Image(nsImage: NSApplication.shared.applicationIconImage)
-                    .resizable().interpolation(.high).scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
-                    .accessibilityHidden(true)
-                if sidebarExpanded {
-                    Text(ControlConstants.appName).font(.system(size: 14, weight: .semibold))
-                        .lineLimit(1).transition(.opacity)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(height: 46)
-            .accessibilityElement(children: .ignore).accessibilityLabel(ControlConstants.appName)
-            .accessibilityAddTraits(.isHeader)
-
             if let snapshot = store.snapshot {
-                repositoryRow(snapshot).padding(.top, 22)
+                repositoryRow(snapshot).padding(.top, 10)
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 8) {
                         ForEach(Array(snapshot.categories.enumerated()), id: \.element.id) { index, category in
@@ -94,29 +78,15 @@ internal struct ControlWindow: View {
                         footerActionLabel(icon: ControlConstants.lockIcon, title: ControlConstants.lock)
                     }.buttonStyle(.plain).help(ControlConstants.lockDisplay)
                         .accessibilityLabel(ControlConstants.lockDisplay)
-                    if sidebarExpanded {
-                        Rectangle().fill(ControlTheme.railMuted.opacity(0.20)).frame(height: 1)
-                            .padding(.vertical, 6).accessibilityHidden(true)
-                        HStack(spacing: 8) {
-                            Text([ControlConstants.readmeSyncCadence, bundleVersionLabel].compactMap { $0 }
-                                .joined(separator: ControlConstants.joined))
-                                .font(.caption2).foregroundStyle(ControlTheme.railMuted)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .help(ControlConstants.readmeSyncExplanation)
-                            Button { Task { await store.reload(snapshot.root) } } label: {
-                                Image(systemName: ControlConstants.refreshIcon).font(.system(size: 12, weight: .medium))
-                                    .frame(width: 24, height: 24).contentShape(Rectangle())
-                            }.buttonStyle(.plain).disabled(store.loading)
-                                .help(ControlConstants.refresh).accessibilityLabel(ControlConstants.refresh)
-                        }.padding(.leading, ControlTheme.footerMetadataInset).transition(.opacity)
-                    }
+                    Rectangle().fill(ControlTheme.railMuted.opacity(0.20)).frame(height: 1)
+                        .padding(.vertical, 6).accessibilityHidden(true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 12)
             } else {
                 Spacer(minLength: 0)
             }
+            brandFooter(store.snapshot)
         }
         .frame(width: ControlTheme.expandedRailWidth - ControlTheme.railLeadingInset - 18)
         .padding(.leading, ControlTheme.railLeadingInset)
@@ -227,6 +197,39 @@ internal struct ControlWindow: View {
                         .accessibilityLabel(ControlConstants.openRepositoryScreen)
                         .accessibilityAddTraits(selected ? .isSelected : [])
                 }.transition(.opacity)
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Signs the rail below its actions with the brand, the live bundle version and the refresh cadence.
+    /// The brand is a fixed mark, not a control; in rail mode only its icon remains, on the icon axis.
+    /// - Parameter snapshot: Current repository, or nil before one is chosen, when there is nothing to refresh.
+    /// - Returns: The brand icon, name, status line and Refresh now button.
+    private func brandFooter(_ snapshot: RepositorySnapshot?) -> some View {
+        HStack(spacing: 10) {
+            Image(nsImage: NSApplication.shared.applicationIconImage)
+                .resizable().interpolation(.high).scaledToFit()
+                .frame(width: 30, height: 30)
+                .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
+                .accessibilityHidden(true)
+            if sidebarExpanded {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(ControlConstants.appName).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                    Text([bundleVersionLabel, snapshot.map { _ in ControlConstants.readmeSyncCadence }].compactMap { $0 }
+                        .joined(separator: ControlConstants.joined))
+                        .font(.caption2).foregroundStyle(ControlTheme.railMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .help(ControlConstants.readmeSyncExplanation)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityElement(children: .combine).transition(.opacity)
+                if let snapshot {
+                    Button { Task { await store.reload(snapshot.root) } } label: {
+                        Image(systemName: ControlConstants.refreshIcon).font(.system(size: 12, weight: .medium))
+                            .frame(width: 24, height: 24).contentShape(Rectangle())
+                    }.buttonStyle(.plain).disabled(store.loading)
+                        .help(ControlConstants.refresh).accessibilityLabel(ControlConstants.refresh)
+                        .transition(.opacity)
+                }
             }
         }.frame(maxWidth: .infinity, alignment: .leading)
     }

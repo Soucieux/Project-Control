@@ -38,7 +38,6 @@ internal enum ControlTheme {
     internal static let expandedRailWidth: CGFloat = 250
     internal static let railLeadingInset: CGFloat = 16
     internal static let railIconSize: CGFloat = 40
-    internal static let footerMetadataInset: CGFloat = 11
     internal static let minimumWindowWidth: CGFloat = 1120
 }
 
