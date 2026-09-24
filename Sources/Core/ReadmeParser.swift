@@ -332,15 +332,29 @@ internal enum ReadmeParser {
     }
 
     /// Reads only the mapped release section, retaining the legacy register fallback for unmarked READMEs.
+    /// A release written in bold with a component name, such as `**Observatory v2.7**`, keeps that name,
+    /// so a component's version is never shown as the whole project's.
     /// - Parameters:
     ///   - sections: Parsed README.
     ///   - fallback: Root Projects summary.
     /// - Returns: The documented current release, or nil when none is supplied.
     internal static func release(_ sections: [ReadmeSection], fallback: String) -> String? {
-        let text = paragraphs(topicSections(sections, topic: .release)).joined(separator: ControlConstants.space)
+        let selected = topicSections(sections, topic: .release)
+        let source = selected.flatMap(\.lines).joined(separator: ControlConstants.space)
+        if let component = match(source, ControlConstants.componentReleasePattern, group: 1) { return component }
+        let text = paragraphs(selected).joined(separator: ControlConstants.space)
         if let value = match(text, ControlConstants.releaseValuePattern) { return value }
         guard !sections.contains(where: { $0.mapping != nil }) else { return nil }
         return match(fallback, ControlConstants.currentReleasePattern, group: 1)
+    }
+
+    /// Reads the change-history numbering declaration beside the release or history section.
+    /// - Parameter sections: Parsed README.
+    /// - Returns: Whether the README declares dated history, which assigns no project release number.
+    internal static func usesDatedHistory(_ sections: [ReadmeSection]) -> Bool {
+        let owned = topicSections(sections, topic: .release) + topicSections(sections, topic: .history)
+        return match(owned.flatMap(\.lines).joined(separator: ControlConstants.space),
+            ControlConstants.datedHistoryPattern) != nil
     }
 
     /// Selects model facts row by row without removing them from the original architecture table.

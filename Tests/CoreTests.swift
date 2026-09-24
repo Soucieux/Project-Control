@@ -355,6 +355,12 @@ internal enum CoreTests {
         check(ReadmeParser.workflows(sections).first?.steps == TestConstants.mixedSteps, TestConstants.checkMapping)
         check(ReadmeParser.history(sections).first?.detail == TestConstants.history, TestConstants.checkMapping)
         check(ReadmeParser.release(sections, fallback: TestConstants.version) == TestConstants.mappedVersion, TestConstants.checkMappedRelease)
+        let component = try ReadmeParser.validatedSections(TestConstants.componentReadme)
+        check(ReadmeParser.release(component, fallback: ControlConstants.empty) == TestConstants.componentRelease,
+              TestConstants.checkComponentRelease)
+        let ignoredDeclaration = try ReadmeParser.validatedSections(TestConstants.ignoredDeclaration)
+        check(ReadmeParser.usesDatedHistory(component) && !ReadmeParser.usesDatedHistory(sections)
+            && !ReadmeParser.usesDatedHistory(ignoredDeclaration), TestConstants.checkDatedHistory)
         for invalid in TestConstants.invalidMappings {
             checkThrows(TestConstants.checkMappingFailure) { _ = try ReadmeParser.validatedSections(invalid) }
         }
