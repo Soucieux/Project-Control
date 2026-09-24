@@ -122,6 +122,7 @@ internal enum ControlConstants {
     internal static let repository = "REPOSITORY"
     internal static let repositorySummary = "Overview, history & activity"
     internal static let openRepositoryScreen = "Open the repository overview, history and activity"
+    internal static let showCategoryProjects = "Lists this category's projects"
     internal static let noRepositoryOverview = "No repository overview documented. Open the README for more context."
     internal static let overview = "Overview"
     internal static let notes = "Work notes"
