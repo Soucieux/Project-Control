@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.4%20build%2034-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.5%20build%2035-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -121,10 +121,33 @@ Project Control/
 ## Workflow and data sources
 
 ```text
-README saved → background content check → mapped section parsing → native screen update
-Repository Projects table → registered project READMEs → project navigation and content
-Local Git refs → timestamps plus project-folder paths → monthly totals and hover distributions
-Local work notes → notes available / no notes summary
+README change
+README saved
+  ↓
+background content check
+  ↓
+mapped section parsing
+  ↓
+native screen update
+
+Project register
+Repository Projects table
+  ↓
+registered project READMEs
+  ↓
+project navigation and content
+
+Commit activity
+Local Git refs
+  ↓
+timestamps plus project-folder paths
+  ↓
+monthly totals and hover distributions
+
+Work notes
+Local work notes
+  ↓
+notes available / no notes summary
 ```
 
 <!-- project-control:section=ignore -->
@@ -316,8 +339,37 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
   concepts; distinguish source defaults from a verified running deployment. State absent
   technologies and runtime boundaries in prose, not as fake installed components.
 - Backend & Application Logic may describe on-device/browser logic; it does not assert a server.
-- Keep supported arrow-based workflow diagrams in mapped workflow sections. The renderer shows
-  documented branches/merges, not invented connections or arbitrary executable code.
+- Write every workflow diagram in one style, in a fenced `text` block inside a mapped workflow
+  section. The renderer shows documented branches and merges, never invented connections or
+  executable code.
+
+  ````markdown
+  ```text
+  Route title
+  First step
+    ↓
+  Next step
+    ├─→ One branch
+    └─→ Another branch
+    ↓
+  Step where the branches meet
+
+  Next route title
+  First step
+    ↓
+  Last step
+  ```
+  ````
+
+  - Start each route with a short title line, then its first step on the next line.
+  - Join steps with a `↓` line. List branches from the step above with `├─→`, the last one with
+    `└─→`, all at one indent; a `↓` after them merges the branches into the next step.
+  - Separate routes with a blank line; one block may hold several.
+  - Write steps in plain language. Parentheses, commas, and semicolons are fine; code, commands,
+    links, and backticks are not, and a route containing them stays in the README only.
+  - Put notes and exceptions in prose outside the block.
+  - Up to sixteen routes per project are shown, each with up to 32 steps. Older one-line routes
+    (`A → B → C`) still display, but new and edited routes use this style.
 - Put setup commands, operating instructions, and detailed maintenance outside mapped sections, or
   mark their subtree `ignore`. Read README remains the route to the complete document.
 
@@ -345,7 +397,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.4 (build 34)** in source and in the signed local app. [Change and delivery evidence](#rail-toggle-and-project-card).
+**v3.5 (build 35)** in source and in the signed local app. [Change and delivery evidence](#one-workflow-style).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -364,6 +416,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.5 / build 35 | 2026-09-23 | <ul><li><strong>Workflows:</strong> One diagram style: titled routes of steps joined by ↓, with branches and merges, several routes per block.</li><li><strong>Parsing:</strong> Parentheses and semicolons in a step read as prose, and up to sixteen routes show instead of eight.</li></ul> | [Full record](#one-workflow-style) |
 | v3.4 / build 34 | 2026-09-23 | <ul><li><strong>Rail:</strong> The Project Control name is a fixed label; the collapse control moved to the end of the repository row, which stays pinned while the projects scroll.</li><li><strong>Project card:</strong> Document Health and Notes sit beside the project name and the version shares a line with the tags, so the card has no empty half.</li><li><strong>Fix:</strong> A workflow diagram with a wrapped node no longer pushes its last node onto the card's edge, and a branch's connectors meet at one height.</li></ul> | [Full record](#rail-toggle-and-project-card) |
 | v3.3 / build 33 | 2026-09-23 | <ul><li><strong>Rail:</strong> Categories are quiet section headers and each project row is one line, so more of the register fits before scrolling.</li><li><strong>Footer:</strong> Repository README, Change repository…, and Lock are plain buttons; the Repository menu is gone, and Refresh now sits on the status line.</li><li><strong>Detail:</strong> Technology tags moved to the project card, and the header strip repeating the Project Control name was removed.</li></ul> | [Full record](#navigation-rail-layout) |
 | v3.2 / build 32 | 2026-09-23 | <ul><li><strong>Icons:</strong> Every project row, project header, and activity hover shows the project folder's own Finder icon instead of an app's icon, so projects without an app no longer show a generic symbol.</li><li><strong>Identity:</strong> A missing folder, or an alias that no longer points at the project, still shows the neutral symbol.</li><li><strong>Checks:</strong> The live checks follow the root register, so the full test suite runs again.</li></ul> | [Full record](#folder-icons) |
@@ -405,6 +458,34 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="one-workflow-style"></a>
+
+### v3.5 / build 35
+
+- **Recorded date:** 2026-09-23.
+- **One style:** The README contract now defines a single way to write a workflow diagram: a fenced
+  `text` block of routes separated by blank lines, each a title line followed by steps joined by
+  `↓`, with `├─→` and `└─→` branches and a `↓` merge. This README's own workflow section uses it.
+- **Titles:** A route's first line names its diagram, so a block of several routes shows each under
+  its own title instead of repeating the section heading.
+- **Prose, not code:** A step may contain parentheses, commas, and semicolons. Braces, backticks,
+  angle brackets, or a word directly followed by `(` still mark a route as code, which stays in the
+  README; a code-like route no longer hides the other routes in its block.
+- **Limit:** Up to sixteen routes per project are shown instead of eight.
+- **Compatibility:** Single-line `A → B → C` routes and untitled stacked diagrams still display.
+
+**Evidence and delivery status**
+
+`make test` passed: 354 core, 40 store, 47 note/presentation, and 12 version checks. Three new core
+checks cover titled routes sharing a block, parentheses and semicolons read as prose, and a ten-route
+block shown in full; each fails against the v3.4 parser. `make app` passed and promoted the signed
+v3.5/build 35 app to the project root; the bundle passed strict signature verification and reports
+version 3.5 and build 35. Offscreen renders against the live register showed 28 titled routes across
+seven projects, including DayWright's and Knowledge Transfer's, which v3.4 could not draw. Initially
+delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="rail-toggle-and-project-card"></a>
 

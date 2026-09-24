@@ -76,7 +76,7 @@ internal enum ControlConstants {
     internal static let diagramLanguages = ["", "text", "plaintext"]
     internal static let branchPattern = #"^(\s*)([├└])─+→\s*(\S.*)$"#
     internal static let downwardPattern = #"^\s*↓\s*$"#
-    internal static let unsafeDiagramPattern = #"[`{};<>]|\w\s*\("#
+    internal static let unsafeDiagramPattern = #"[`{}<>]|\w\("#
     internal static let finalBranch = "└"
     internal static let listItemPattern = #"^\s*(?:[-+*]\s+|\d+[.)]\s+)(.+)$"#
     internal static let imageLinePattern = #"^\s*!\["#
@@ -223,7 +223,7 @@ internal enum ControlConstants {
     internal static let releaseUnknown = "Release not specified"
     internal static let notesLocked = "Notes are read-only until the saved workspace can be loaded."
     internal static let maxDiagramNodes = 32
-    internal static let maxWorkflowRoutes = 8
+    internal static let maxWorkflowRoutes = 16
     internal static let maxHistoryEntries = 30
     internal static let monthCount = 12
     internal static let activityCompactBreakpoint: CGFloat = 940

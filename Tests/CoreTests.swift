@@ -406,6 +406,11 @@ internal enum CoreTests {
         check(WorkflowParser.diagrams(TestConstants.incompleteDiagram, label: ControlConstants.workflow).isEmpty
             && WorkflowParser.linear(TestConstants.incompleteRoute, label: ControlConstants.workflow) == nil, TestConstants.checkDiagramIncomplete)
         check(WorkflowParser.diagrams(TestConstants.asciiDiagram, label: ControlConstants.workflow).count == 2, TestConstants.checkAsciiDiagram)
+        let titled = ReadmeParser.workflows(ReadmeParser.sections(TestConstants.titledDiagram))
+        check(titled.map(\.label) == TestConstants.titledRouteNames, TestConstants.checkDiagramTitles)
+        check(titled.first?.nodes.last?.label == TestConstants.proseStage
+            && titled.last?.nodes.count == 4 && titled.last?.edges.count == 4, TestConstants.checkDiagramProse)
+        check(ReadmeParser.workflows(ReadmeParser.sections(TestConstants.manyRoutes)).count == 10, TestConstants.checkDiagramCount)
         let versioned = ReadmeParser.sections(TestConstants.versionedOverview)
         check(ReadmeParser.overview(versioned, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.overviewText
             && TestFixtures.text(ReadmeParser.architecture(versioned)).contains(TestConstants.architecture)

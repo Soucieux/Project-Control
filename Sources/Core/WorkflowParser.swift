@@ -25,20 +25,37 @@ internal enum WorkflowParser {
         return WorkflowRoute(label: name, nodes: nodes, edges: edges)
     }
 
-    /// Accepts independent horizontal arrows or vertical arrows with same-depth branch groups and merges.
+    /// Reads each blank-line-separated group of a text block as its own routes, so one block can hold
+    /// several titled routes.
     /// - Parameters:
     ///   - lines: Text-only fenced block.
-    ///   - label: Owning section title.
-    /// - Returns: Complete supported graphs; malformed or code-like blocks produce no diagram.
+    ///   - label: Owning section title, used by a route that has no title line.
+    /// - Returns: Complete supported graphs; a malformed or code-like group produces no diagram.
     internal static func diagrams(_ lines: [String], label: String) -> [WorkflowRoute] {
-        let source = lines.map { $0.replacingOccurrences(of: ControlConstants.asciiArrow, with: ControlConstants.arrow) }
-            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-        guard !source.isEmpty, source.count <= ControlConstants.maxDiagramNodes * 2,
-              source.allSatisfy({ ReadmeParser.match($0, ControlConstants.unsafeDiagramPattern) == nil }) else { return [] }
-        let routes = source.compactMap {
+        var groups: [[String]] = [[]]
+        for line in lines.map({ $0.replacingOccurrences(of: ControlConstants.asciiArrow, with: ControlConstants.arrow) }) {
+            if !line.trimmingCharacters(in: .whitespaces).isEmpty { groups[groups.count - 1].append(line) }
+            else if !(groups.last?.isEmpty ?? true) { groups.append([]) }
+        }
+        return groups.filter { !$0.isEmpty }.flatMap { routes(in: $0, label: label) }
+    }
+
+    /// Accepts independent horizontal arrows, or one vertical route with an optional title line,
+    /// downward stages, same-depth branch groups, and merges.
+    /// - Parameters:
+    ///   - group: Consecutive nonblank lines of one text block.
+    ///   - label: Name for a vertical route without a title line.
+    /// - Returns: The group's graphs, or none when it is malformed or code-like.
+    private static func routes(in group: [String], label: String) -> [WorkflowRoute] {
+        guard group.count <= ControlConstants.maxDiagramNodes * 2,
+              group.allSatisfy({ ReadmeParser.match($0, ControlConstants.unsafeDiagramPattern) == nil }) else { return [] }
+        let routes = group.compactMap {
             ReadmeParser.match($0, ControlConstants.branchPattern) == nil ? linear($0, label: label) : nil
         }
-        if routes.count == source.count { return routes }
+        if routes.count == group.count { return routes }
+        var source = group
+        var name = label
+        if source.count > 1, isStage(source[0]), isStage(source[1]) { name = ReadmeParser.plain(source.removeFirst()) }
         var nodes: [WorkflowNode] = []
         var edges: [WorkflowEdge] = []
         var frontier: [Int] = []
@@ -78,6 +95,13 @@ internal enum WorkflowParser {
         }
         guard !edges.isEmpty, !connector, branches.isEmpty || branchClosed,
               nodes.count <= ControlConstants.maxDiagramNodes else { return [] }
-        return [WorkflowRoute(label: label, nodes: nodes, edges: edges)]
+        return [WorkflowRoute(label: name, nodes: nodes, edges: edges)]
+    }
+
+    /// Recognizes a plain stage line, so two in a row mark the first as a route title.
+    /// - Parameter line: One nonblank line of a group.
+    /// - Returns: False for a downward connector, a branch, or an arrow route.
+    private static func isStage(_ line: String) -> Bool {
+        ReadmeParser.match(line, ControlConstants.downwardPattern) == nil && !line.contains(ControlConstants.arrow)
     }
 }

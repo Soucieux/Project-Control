@@ -435,6 +435,29 @@ internal enum TestConstants {
     internal static let checkStaleApp = "stale remembered apps are not returned as launch targets"
     internal static let checkClearApp = "forgetting a manually located app preserves the app itself"
     internal static let asciiDiagram = ["Read: Source -> Summary", "Write: Note -> Local storage"]
+    internal static let titledDiagram = """
+    ## Workflows
+    ```text
+    Plan the day
+    Open Today
+      ↓
+    report progress (Done / Partial); keep evidence
+
+    Answer a question
+    Your question
+      ├─→ Keyword search
+      └─→ Meaning search
+      ↓
+    Combined evidence
+    ```
+    """
+    internal static let titledRouteNames = ["Plan the day", "Answer a question"]
+    internal static let proseStage = "report progress (Done / Partial); keep evidence"
+    internal static let manyRoutes = "## Workflows\n```text\n"
+        + (1...10).map { "Route \($0): Start → Finish" }.joined(separator: "\n") + "\n```"
+    internal static let checkDiagramTitles = "blank-line-separated routes in one block keep their own title lines"
+    internal static let checkDiagramProse = "parentheses and semicolons inside plain stages are prose, not code"
+    internal static let checkDiagramCount = "all ten documented routes are shown rather than the first eight"
     internal static let versionedOverview = """
     # Example v1.0
     Opening fallback.
