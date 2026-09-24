@@ -20,12 +20,12 @@ internal struct ProjectScreen: View {
                 Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
             }
             GlassCard(contentPadding: 16) {
-                VStack(alignment: .leading, spacing: 14) {
-                    identity
-                    HStack(alignment: .top, spacing: 24) {
-                        actions.frame(maxWidth: .infinity, alignment: .leading)
-                        summaries
-                    }
+                HStack(alignment: .top, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        identity
+                        actions
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                    summaries.padding(.top, 4)
                 }
             }
             if project.isStale || store.syncFailure != nil {
@@ -81,15 +81,17 @@ internal struct ProjectScreen: View {
                 Text(project.name).font(.system(size: 32, weight: .light)).tracking(-1)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
-                .foregroundStyle(ControlTheme.mint).padding(.leading, iconSize + iconSpacing)
-            if !project.classification.technologies.isEmpty {
-                TechnologyTagLayout {
-                    ForEach(project.classification.technologies, id: \.self) { technology in
-                        ClassificationBadge(title: ControlConstants.technology, value: technology)
+            HStack(alignment: .top, spacing: 12) {
+                Text(project.version ?? ControlConstants.releaseUnknown).font(.callout.monospaced())
+                    .foregroundStyle(ControlTheme.mint).padding(.top, 3).fixedSize()
+                if !project.classification.technologies.isEmpty {
+                    TechnologyTagLayout {
+                        ForEach(project.classification.technologies, id: \.self) { technology in
+                            ClassificationBadge(title: ControlConstants.technology, value: technology)
+                        }
                     }
-                }.padding(.leading, iconSize + iconSpacing).padding(.top, 6)
-            }
+                }
+            }.padding(.leading, iconSize + iconSpacing)
         }
     }
 
