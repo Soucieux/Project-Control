@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.3%20build%2033-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.4%20build%2034-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -44,6 +44,7 @@ open "Project Control.app"
 ### Navigation and work notes
 
 - **Project views:** Overview, Architecture, Models, Workflows, and Project history reflect the selected README.
+- **Rail:** The sidebar icon at the end of the repository row collapses the rail to icons; in the collapsed rail the same icon expands it again.
 - **Notes:** Use **Add note** or `Command-N` while Work notes is visible; save nonblank text with `Command-Return`, or cancel with Escape. Notes accept up to 4,000 characters; saved notes can be edited or deleted.
 - **Context:** Drafts remain attached to their selected project. Category expansion and navigation do not change saved notes.
 - **Lock:** Hides the workspace without adding password protection or changing data.
@@ -344,7 +345,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.3 (build 33)** in source and in the signed local app. [Change and delivery evidence](#navigation-rail-layout).
+**v3.4 (build 34)** in source and in the signed local app. [Change and delivery evidence](#rail-toggle-and-project-card).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -363,6 +364,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.4 / build 34 | 2026-09-23 | <ul><li><strong>Rail:</strong> The Project Control name is a fixed label; the collapse control moved to the end of the repository row, which stays pinned while the projects scroll.</li><li><strong>Project card:</strong> Document Health and Notes sit beside the project name and the version shares a line with the tags, so the card has no empty half.</li><li><strong>Fix:</strong> A workflow diagram with a wrapped node no longer pushes its last node onto the card's edge, and a branch's connectors meet at one height.</li></ul> | [Full record](#rail-toggle-and-project-card) |
 | v3.3 / build 33 | 2026-09-23 | <ul><li><strong>Rail:</strong> Categories are quiet section headers and each project row is one line, so more of the register fits before scrolling.</li><li><strong>Footer:</strong> Repository README, Change repository…, and Lock are plain buttons; the Repository menu is gone, and Refresh now sits on the status line.</li><li><strong>Detail:</strong> Technology tags moved to the project card, and the header strip repeating the Project Control name was removed.</li></ul> | [Full record](#navigation-rail-layout) |
 | v3.2 / build 32 | 2026-09-23 | <ul><li><strong>Icons:</strong> Every project row, project header, and activity hover shows the project folder's own Finder icon instead of an app's icon, so projects without an app no longer show a generic symbol.</li><li><strong>Identity:</strong> A missing folder, or an alias that no longer points at the project, still shows the neutral symbol.</li><li><strong>Checks:</strong> The live checks follow the root register, so the full test suite runs again.</li></ul> | [Full record](#folder-icons) |
 | v3.1 / build 31 | 2026-09-21 | <ul><li><strong>Identity:</strong> Repository Atlas shows the root README branching to its projects, with one selected project, a work note, and Git activity.</li><li><strong>Packaging:</strong> The build now compiles the checked-in macOS asset catalog with Apple's asset tool.</li></ul> | [Full record](#repository-atlas-icon) |
@@ -403,6 +405,40 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="rail-toggle-and-project-card"></a>
+
+### v3.4 / build 34
+
+- **Recorded date:** 2026-09-23.
+- **Rail:** The Project Control icon and name at the top of the rail are a fixed label rather than a
+  button. The collapse control moved to the end of the repository row, and that row now stays
+  pinned above the scrolling categories, so the control is always in reach. In the collapsed rail
+  the row shows only the control, on the same icon axis, so the rail can always be expanded again.
+- **Project card:** The card has two columns. On the left are the icon and name, then the version
+  and technology tags on one line, then Open folder, Read README, and Open App. On the right,
+  Document Health and Notes sit level with the name instead of beside the buttons, so the card's
+  top-right half is no longer empty and the card is two rows shorter.
+- **Fix:** A workflow diagram measured each node as if its label fit on one line, while the label
+  wrapped when drawn. A diagram with a wrapped node therefore came out one text line short, and its
+  last node sat on the card's bottom edge — Local Assistant's *How local RAG works* and two Career
+  Ledger diagrams. Each label is now measured at the width it draws at. In the same diagrams a
+  branch's connectors bent at different heights when its nodes differed in height; they now bend at
+  one shared height between the rows.
+- **Scope:** No README parsing, selection, notes, activity, storage, or launching behavior changed.
+
+**Evidence and delivery status**
+
+`make test` passed: 351 core, 40 store, 47 note/presentation, and 12 version checks. `make app`
+passed and promoted the signed v3.4/build 34 app to the project root; the bundle passed strict
+signature verification and reports version 3.4 and build 34. Offscreen renders of the real views
+against the live register showed the fixed brand label and the repository-row toggle in both rail
+states; the two-column card for Local Assistant at the default size and for DayWright and Python
+Accomplishments at the 1,120 × 620 minimum; and every project's Workflows tab, where the Local
+Assistant and Career Ledger diagrams that had lost their bottom padding keep it and Prospect
+Copilot's five-line nodes fit. Initially delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="navigation-rail-layout"></a>
 
