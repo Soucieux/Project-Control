@@ -6,6 +6,8 @@ internal struct ControlWindow: View {
     @ObservedObject internal var store: ControlStore
     @State private var collapsedCategories: Set<String> = []
     @State private var sidebarExpanded = true
+    /// The category whose project list is open beside its collapsed-rail icon.
+    @State private var poppedCategory: String?
     @State private var displayLocked = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -234,9 +236,10 @@ internal struct ControlWindow: View {
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Opens or closes the rail.
+    /// Opens or closes the rail, closing any category list that belongs to the collapsed rail.
     /// - Returns: Nothing; changes only local presentation state.
     private func toggleRail() {
+        poppedCategory = nil
         sidebarExpanded.toggle()
     }
 
@@ -244,7 +247,8 @@ internal struct ControlWindow: View {
     /// - Parameters:
     ///   - category: Source-ordered project group.
     ///   - icon: Stable visual marker for this position, shown only in rail mode.
-    /// - Returns: A quiet disclosure header in expanded mode or one aligned category control in rail mode.
+    /// - Returns: A quiet disclosure header in expanded mode, or in rail mode one aligned category control
+    ///   that lists the category's projects beside it.
     private func categorySection(_ category: ProjectCategory, icon: String) -> some View {
         let collapsed = collapsedCategories.contains(category.name)
         return VStack(spacing: 5) {
@@ -252,7 +256,9 @@ internal struct ControlWindow: View {
                 if sidebarExpanded {
                     if collapsed { collapsedCategories.remove(category.name) }
                     else { collapsedCategories.insert(category.name) }
-                } else if let project = category.projects.first { store.selection = project.id }
+                } else {
+                    poppedCategory = poppedCategory == category.name ? nil : category.name
+                }
             } label: {
                 HStack(spacing: 10) {
                     if sidebarExpanded {
@@ -263,7 +269,11 @@ internal struct ControlWindow: View {
                             .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
                         Text(category.projects.count.formatted()).font(.caption2.monospaced())
                     } else {
+                        // Anchored to the icon, not the button, whose frame keeps the expanded rail's width.
                         railIcon(icon, selected: store.selectedProject?.classification.category == category.name)
+                            .popover(isPresented: popoverBinding(category.name), arrowEdge: .trailing) {
+                                categoryPopover(category)
+                            }
                     }
                 }
                 .foregroundStyle(sidebarExpanded ? ControlTheme.railMuted : ControlTheme.railInk)
@@ -271,7 +281,9 @@ internal struct ControlWindow: View {
             }.buttonStyle(.plain).accessibilityLabel(category.name + ControlConstants.joined
                 + String(category.projects.count))
                 .accessibilityValue(sidebarExpanded ? (collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
-                    : (category.projects.first?.name ?? ControlConstants.empty))
+                    : ControlConstants.empty)
+                .accessibilityHint(sidebarExpanded ? ControlConstants.empty : ControlConstants.showCategoryProjects)
+                .help(sidebarExpanded ? ControlConstants.empty : category.name)
             if sidebarExpanded && !collapsed {
                 ForEach(Array(category.projects.enumerated()), id: \.element.id) { index, project in
                     projectRow(project).transition(.opacity)
@@ -305,6 +317,50 @@ internal struct ControlWindow: View {
                 .background(store.selection == project.id ? Color.white.opacity(0.10) : .clear,
                     in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }.buttonStyle(.plain).accessibilityAddTraits(store.selection == project.id ? .isSelected : [])
+    }
+
+    /// Keeps at most one collapsed-rail category list open, and none while the rail is expanded.
+    /// - Parameter name: Category whose list the binding controls.
+    /// - Returns: A binding that is true only while that category's list is open.
+    private func popoverBinding(_ name: String) -> Binding<Bool> {
+        Binding(get: { !sidebarExpanded && poppedCategory == name },
+            set: { isPresented in if !isPresented && poppedCategory == name { poppedCategory = nil } })
+    }
+
+    /// Lists one category's projects beside its collapsed-rail icon, so every project stays one choice away.
+    /// - Parameter category: The category whose icon was clicked.
+    /// - Returns: A popover list; choosing a project selects it, closes the list and leaves the rail collapsed.
+    private func categoryPopover(_ category: ProjectCategory) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(category.name).font(.system(size: 11, weight: .semibold))
+                Spacer(minLength: 12)
+                Text(category.projects.count.formatted()).font(.caption2.monospaced())
+            }.foregroundStyle(Color.secondary).padding(.horizontal, 8).padding(.bottom, 4)
+                .accessibilityElement(children: .combine).accessibilityAddTraits(.isHeader)
+            ForEach(category.projects) { project in
+                Button {
+                    poppedCategory = nil
+                    store.selection = project.id
+                } label: {
+                    HStack(spacing: 10) {
+                        ProjectIcon(project: project, size: 20).frame(width: 24, height: 24)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(project.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                            if let scope = project.classification.technicalScope {
+                                Text(scope).font(.caption2).foregroundStyle(Color.secondary).lineLimit(1)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }.padding(.vertical, 5).padding(.horizontal, 8).contentShape(Rectangle())
+                        .background(store.selection == project.id ? Color.primary.opacity(0.08) : .clear,
+                            in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }.buttonStyle(.plain).accessibilityAddTraits(store.selection == project.id ? .isSelected : [])
+            }
+        }.padding(10).frame(width: 260, alignment: .leading)
+            // The popover sits on system material, not on the black rail. `Color.primary` is the system
+            // label color; the hierarchical `.primary` would resolve to the rail's light ink it inherits.
+            .foregroundStyle(Color.primary)
     }
 
     /// Centers every collapsed marker on the same rail axis.
