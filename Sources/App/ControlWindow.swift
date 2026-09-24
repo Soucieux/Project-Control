@@ -216,7 +216,7 @@ internal struct ControlWindow: View {
     /// Signs the rail below its actions with the brand, the live bundle version and the refresh cadence.
     /// The brand is a fixed mark, not a control; in rail mode only its icon remains, on the icon axis.
     /// - Parameter snapshot: Current repository, or nil before one is chosen, when there is nothing to refresh.
-    /// - Returns: The brand icon, name, status line and Refresh now button.
+    /// - Returns: The brand icon, name, version and refresh lines, and the Refresh now button.
     private func brandFooter(_ snapshot: RepositorySnapshot?) -> some View {
         HStack(spacing: 10) {
             Image(nsImage: NSApplication.shared.applicationIconImage)
@@ -225,13 +225,16 @@ internal struct ControlWindow: View {
                 .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
                 .accessibilityHidden(true)
             if sidebarExpanded {
+                // One line each: the name, the version and build, then the refresh cadence.
                 VStack(alignment: .leading, spacing: 2) {
                     Text(ControlConstants.appName).font(.system(size: 12, weight: .semibold)).lineLimit(1)
-                    Text([bundleVersionLabel, snapshot.map { _ in ControlConstants.readmeSyncCadence }].compactMap { $0 }
-                        .joined(separator: ControlConstants.joined))
-                        .font(.caption2).foregroundStyle(ControlTheme.railMuted)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .help(ControlConstants.readmeSyncExplanation)
+                    if let bundleVersionLabel {
+                        Text(bundleVersionLabel).font(.caption2).foregroundStyle(ControlTheme.railMuted).lineLimit(1)
+                    }
+                    if snapshot != nil {
+                        Text(ControlConstants.readmeSyncCadence).font(.caption2).foregroundStyle(ControlTheme.railMuted)
+                            .lineLimit(1).help(ControlConstants.readmeSyncExplanation)
+                    }
                 }.frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityElement(children: .combine).transition(.opacity)
                 if let snapshot {
