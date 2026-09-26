@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.9%20build%2039-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.0%20build%2040-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -403,7 +403,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.9 (build 39)** in source and in the signed local app. [Change and delivery evidence](#v3-9-build-39).
+**v4.0 (build 40)** in source and in the signed local app. [Change and delivery evidence](#v4-0-build-40).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -422,6 +422,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.0 / build 40 | 2026-09-26 | <ul><li><strong>Icon:</strong> Redrew the Repository Atlas icon in the macOS icon shape, so the app and the project folder show one icon at the standard size.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing, drawn-icon, and launch checks.</li></ul> | [Full record](#v4-0-build-40) |
 | v3.9 / build 39 | 2026-09-25 | <ul><li><strong>Open App:</strong> A choice from the detected-app menu is refused when that bundle is no longer a current candidate, so a bundle replaced by a link since the last check cannot open an app outside the project.</li><li><strong>Git reads:</strong> Git runs with a fixed environment, without system or personal Git settings, so a personal setting cannot change the activity the app shows.</li><li><strong>Source:</strong> The README parser compiles each pattern once, both screens share one tab strip, the three test suites share one assertion helper, the history list lives beside the other README content views, the minimum window height is named beside the width, and a test-only Git constant, a redundant container and a no-op modifier are gone.</li><li><strong>Documentation:</strong> The project structure lists Scripts, history and the guide, the build folder is described as staging only, and every history record's link target is named after its version and build or its subject.</li></ul> | [Full record](#v3-9-build-39) |
 | v3.8 / build 38 | 2026-09-24 | <ul><li><strong>Rail:</strong> The repository row shows how many projects the repository holds.</li><li><strong>Footer:</strong> The version and build, and the refresh cadence, each have one line under the Project Control name.</li></ul> | [Full record](#v3-8-build-38) |
 | v3.7 / build 37 | 2026-09-24 | <ul><li><strong>Tests:</strong> The store and notes checks keep their preferences inside their own temporary folder, so a run no longer leaves an empty preferences file behind.</li></ul> | [Full record](#v3-7-build-37) |
@@ -457,6 +458,26 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-0-build-40"></a>
+
+### v4.0 / build 40
+
+- **Recorded date:** 2026-09-26.
+- **Icon:** The Repository Atlas master, `Resources/ProjectControl.png`, keeps the same artwork,
+  cropped to the inside of its own bordered tile and clipped to the rounded square macOS draws for
+  app icons, 824 of 1024 pixels. Before, the folder showed the bordered tile at 936 pixels while the
+  app drew it at the standard size, so the two did not match. Every asset-catalog size was
+  regenerated from the new master and `make icons` compiled `ProjectControl.icns` from them.
+- **Folder:** The project folder's Finder icon, which the rail and project card show, was set from
+  the same master.
+- **Evidence:** `make test` passed all four suites: 371 core, 41 store, 47 notes and presentation,
+  and 12 version checks. `make app` built, signed, and promoted v4.0/build 40, which passed strict
+  signature verification. Rendered through macOS's own icon lookup, the app's outline matches the
+  folder icon to within 0.2% of pixels. The app launched from the project root, ran without a crash
+  report, and quit. Delivered uncommitted; the public mirror still carries v3.9.
+
+[Back to change history](#change-history)
 
 <a id="v3-9-build-39"></a>
 
