@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.8%20build%2038-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v3.9%20build%2039-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -112,10 +112,13 @@ Project Control/
 ├── Sources/Core/       # README extraction, models, constants, local storage
 ├── Sources/App/        # Native state, layered interface, shared detail/lock artwork
 ├── Resources/          # Bundle identity, version, Repository Atlas master, and icon catalog
+├── Scripts/            # Version and build pair check run before packaging
 ├── Tests/              # Focused synthetic and read-only repository checks
+├── history/            # Archived change-history periods
 ├── Makefile            # Local build, focused checks, launch
+├── CONTRIBUTING.md     # Project-facing contribution and numbering rules
 ├── Project Control.app # Latest completed app; ignored by Git
-└── build/              # Staging, caches, recovery copies; ignored by Git
+└── build/              # Staging and caches; ignored by Git
 ```
 
 <!-- project-control:section=workflows -->
@@ -400,7 +403,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v3.8 (build 38)** in source and in the signed local app. [Change and delivery evidence](#v3-8-build-38).
+**v3.9 (build 39)** in source and in the signed local app. [Change and delivery evidence](#v3-9-build-39).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -419,40 +422,86 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v3.9 / build 39 | 2026-09-25 | <ul><li><strong>Open App:</strong> A choice from the detected-app menu is refused when that bundle is no longer a current candidate, so a bundle replaced by a link since the last check cannot open an app outside the project.</li><li><strong>Git reads:</strong> Git runs with a fixed environment, without system or personal Git settings, so a personal setting cannot change the activity the app shows.</li><li><strong>Source:</strong> The README parser compiles each pattern once, both screens share one tab strip, the three test suites share one assertion helper, the history list lives beside the other README content views, the minimum window height is named beside the width, and a test-only Git constant, a redundant container and a no-op modifier are gone.</li><li><strong>Documentation:</strong> The project structure lists Scripts, history and the guide, the build folder is described as staging only, and every history record's link target is named after its version and build or its subject.</li></ul> | [Full record](#v3-9-build-39) |
 | v3.8 / build 38 | 2026-09-24 | <ul><li><strong>Rail:</strong> The repository row shows how many projects the repository holds.</li><li><strong>Footer:</strong> The version and build, and the refresh cadence, each have one line under the Project Control name.</li></ul> | [Full record](#v3-8-build-38) |
 | v3.7 / build 37 | 2026-09-24 | <ul><li><strong>Tests:</strong> The store and notes checks keep their preferences inside their own temporary folder, so a run no longer leaves an empty preferences file behind.</li></ul> | [Full record](#v3-7-build-37) |
 | v3.6 / build 36 | 2026-09-24 | <ul><li><strong>Projects:</strong> Every top-level folder with a README appears, registered or not.</li><li><strong>Rail:</strong> The repository's name and icon collapse and expand the rail; the brand moves to the foot with the version; a collapsed category lists its projects.</li><li><strong>Project card:</strong> One layout for every project: the actions sit on the name's row and the summaries fill one full-width strip.</li></ul> | [Full record](#v3-6-build-36) |
-| v3.5 / build 35 | 2026-09-23 | <ul><li><strong>Workflows:</strong> One diagram style: titled routes of steps joined by ↓, with branches and merges, several routes per block.</li><li><strong>Parsing:</strong> Parentheses and semicolons in a step read as prose, and up to sixteen routes show instead of eight.</li></ul> | [Full record](#one-workflow-style) |
-| v3.4 / build 34 | 2026-09-23 | <ul><li><strong>Rail:</strong> The Project Control name is a fixed label; the collapse control moved to the end of the repository row, which stays pinned while the projects scroll.</li><li><strong>Project card:</strong> Document Health and Notes sit beside the project name and the version shares a line with the tags, so the card has no empty half.</li><li><strong>Fix:</strong> A workflow diagram with a wrapped node no longer pushes its last node onto the card's edge, and a branch's connectors meet at one height.</li></ul> | [Full record](#rail-toggle-and-project-card) |
-| v3.3 / build 33 | 2026-09-23 | <ul><li><strong>Rail:</strong> Categories are quiet section headers and each project row is one line, so more of the register fits before scrolling.</li><li><strong>Footer:</strong> Repository README, Change repository…, and Lock are plain buttons; the Repository menu is gone, and Refresh now sits on the status line.</li><li><strong>Detail:</strong> Technology tags moved to the project card, and the header strip repeating the Project Control name was removed.</li></ul> | [Full record](#navigation-rail-layout) |
-| v3.2 / build 32 | 2026-09-23 | <ul><li><strong>Icons:</strong> Every project row, project header, and activity hover shows the project folder's own Finder icon instead of an app's icon, so projects without an app no longer show a generic symbol.</li><li><strong>Identity:</strong> A missing folder, or an alias that no longer points at the project, still shows the neutral symbol.</li><li><strong>Checks:</strong> The live checks follow the root register, so the full test suite runs again.</li></ul> | [Full record](#folder-icons) |
-| v3.1 / build 31 | 2026-09-21 | <ul><li><strong>Identity:</strong> Repository Atlas shows the root README branching to its projects, with one selected project, a work note, and Git activity.</li><li><strong>Packaging:</strong> The build now compiles the checked-in macOS asset catalog with Apple's asset tool.</li></ul> | [Full record](#repository-atlas-icon) |
+| v3.5 / build 35 | 2026-09-23 | <ul><li><strong>Workflows:</strong> One diagram style: titled routes of steps joined by ↓, with branches and merges, several routes per block.</li><li><strong>Parsing:</strong> Parentheses and semicolons in a step read as prose, and up to sixteen routes show instead of eight.</li></ul> | [Full record](#v3-5-build-35) |
+| v3.4 / build 34 | 2026-09-23 | <ul><li><strong>Rail:</strong> The Project Control name is a fixed label; the collapse control moved to the end of the repository row, which stays pinned while the projects scroll.</li><li><strong>Project card:</strong> Document Health and Notes sit beside the project name and the version shares a line with the tags, so the card has no empty half.</li><li><strong>Fix:</strong> A workflow diagram with a wrapped node no longer pushes its last node onto the card's edge, and a branch's connectors meet at one height.</li></ul> | [Full record](#v3-4-build-34) |
+| v3.3 / build 33 | 2026-09-23 | <ul><li><strong>Rail:</strong> Categories are quiet section headers and each project row is one line, so more of the register fits before scrolling.</li><li><strong>Footer:</strong> Repository README, Change repository…, and Lock are plain buttons; the Repository menu is gone, and Refresh now sits on the status line.</li><li><strong>Detail:</strong> Technology tags moved to the project card, and the header strip repeating the Project Control name was removed.</li></ul> | [Full record](#v3-3-build-33) |
+| v3.2 / build 32 | 2026-09-23 | <ul><li><strong>Icons:</strong> Every project row, project header, and activity hover shows the project folder's own Finder icon instead of an app's icon, so projects without an app no longer show a generic symbol.</li><li><strong>Identity:</strong> A missing folder, or an alias that no longer points at the project, still shows the neutral symbol.</li><li><strong>Checks:</strong> The live checks follow the root register, so the full test suite runs again.</li></ul> | [Full record](#v3-2-build-32) |
+| v3.1 / build 31 | 2026-09-21 | <ul><li><strong>Identity:</strong> Repository Atlas shows the root README branching to its projects, with one selected project, a work note, and Git activity.</li><li><strong>Packaging:</strong> The build now compiles the checked-in macOS asset catalog with Apple's asset tool.</li></ul> | [Full record](#v3-1-build-31) |
 | Documentation | 2026-09-13 | <ul><li><strong>License:</strong> Added the approved Soucieux proprietary-software notice.</li></ul> | [Full record](#soucieux-proprietary-license) |
-| v3.0 / build 30 | 2026-09-12 | <ul><li><strong>Register:</strong> A row linking to another repository is skipped instead of making the whole register unreadable.</li></ul> | [Full record](#external-register-rows) |
-| v2.9 / build 29 | 2026-09-12 | <ul><li><strong>Delivery:</strong> The promotion step deletes the set-aside bundle once the new app is in place, so a build no longer leaves an older release behind.</li></ul> | [Full record](#single-delivered-bundle) |
+| v3.0 / build 30 | 2026-09-12 | <ul><li><strong>Register:</strong> A row linking to another repository is skipped instead of making the whole register unreadable.</li></ul> | [Full record](#v3-0-build-30) |
+| v2.9 / build 29 | 2026-09-12 | <ul><li><strong>Delivery:</strong> The promotion step deletes the set-aside bundle once the new app is in place, so a build no longer leaves an older release behind.</li></ul> | [Full record](#v2-9-build-29) |
 | Documentation | 2026-09-12 | <ul><li><strong>Contributing:</strong> Added a standalone project guide so the source carries its own contribution and numbering rules.</li><li><strong>Links:</strong> Removed the README's dependencies on parent-only repository files.</li></ul> | [Full record](#standalone-contributor-guide) |
 | v2.8 / build 28 | 2026-09-11 | <ul><li><strong>Source:</strong> Restored the header icon's alignment with the project name, removed per-render bundle reads and repeated measurement from the interface layer, named the documented parsing limits, and removed unused code.</li><li><strong>Documentation:</strong> Each change-history record now states its change once, and unused link anchors were removed.</li></ul> | [Full record](#v2-8-build-28) |
 | Documentation | 2026-09-06 | <ul><li><strong>Structure:</strong> User guide first; one history table.</li><li><strong>Rules:</strong> Scoped contributor guidance under AGENTS.</li></ul> | [Full record](#readme-organization) |
-| Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Reorganized long paragraphs and table cells without dropping details.</li></ul> | [Full record](#change-1) |
-| Documentation | 2026-09-06 | <ul><li><strong>Change:</strong> Moved complete project descriptions, register details, and repository-origin history into this README.</li></ul> | [Full record](#change-2) |
-| Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Removed the entire build folder and stale Finder metadata.</li></ul> | [Full record](#change-3) |
-| v2.7 / build 27 | 2026-09-05 | <ul><li><strong>Change:</strong> Restores source-derived sidebar tags and notes availability.</li></ul> | [Full record](#change-4) |
-| Maintenance | 2026-09-04 | <ul><li><strong>Change:</strong> Removed the superseded v2.6 candidates from build/previous.FdBli0, build/previous.GtF7qQ, and build/previous.uqRg60.</li></ul> | [Full record](#change-5) |
-| Maintenance | 2026-09-03 | <ul><li><strong>Change:</strong> Kept sidebar content at its expanded layout width while the outer rail reveals it, replaced lazy category layout with stable eager layout.</li></ul> | [Full record](#change-6) |
-| Maintenance | 2026-09-03 | <ul><li><strong>Change:</strong> Raised the minimum window width from 980 to 1,120 points and removed the header's stacked action/status layout after the user identified it during live delivery checks.</li></ul> | [Full record](#change-7) |
-| v2.6 / build 26 | 2026-09-02 | <ul><li><strong>Change:</strong> Implemented v2.6/build 26.</li></ul> | [Full record](#change-8) |
-| v2.5 / build 16 | 2026-09-02 | <ul><li><strong>Change:</strong> Combined project identity, actions, and Document Health in one compact pre-tab glass card.</li></ul> | [Full record](#change-9) |
-| Documentation | 2026-09-02 | <ul><li><strong>Change:</strong> Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here.</li></ul> | [Full record](#change-10) |
-| v2.4 / build 15 | 2026-09-02 | <ul><li><strong>Change:</strong> Removed the competing whole-shell SwiftUI clip and outline so the native macOS window owns the outer corners without light wedges.</li></ul> | [Full record](#change-11) |
-| v2.3 / build 14 | 2026-09-01 | <ul><li><strong>Change:</strong> Added repository Commit activity with newest-first years, twelve responsive month cells, fixed absolute intensities, concealed future values, complete unique-commit totals.</li></ul> | [Full record](#change-12) |
-| v2.2 / build 13 | 2026-09-01 | <ul><li><strong>Change:</strong> Moved Category, Technical scope.</li></ul> | [Full record](#change-13) |
-| v2.1 / build 12 | 2026-09-01 | <ul><li><strong>Change:</strong> Delivered the approved edge-to-edge glass correction.</li></ul> | [Full record](#change-14) |
-| v2.0 / build 11 | 2026-09-01 | <ul><li><strong>Change:</strong> Delivered the complete cinematic glass redesign.</li></ul> | [Full record](#change-15) |
-| v1.0 / build 10 | 2026-08-31 | <ul><li><strong>Change:</strong> Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate.</li></ul> | [Full record](#change-16) |
-| v0.9 / build 9 | 2026-08-31 | <ul><li><strong>Change:</strong> Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap.</li></ul> | [Full record](#change-17) |
+| Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Reorganized long paragraphs and table cells without dropping details.</li></ul> | [Full record](#readability-maintenance) |
+| Documentation | 2026-09-06 | <ul><li><strong>Change:</strong> Moved complete project descriptions, register details, and repository-origin history into this README.</li></ul> | [Full record](#project-descriptions-moved) |
+| Maintenance | 2026-09-06 | <ul><li><strong>Change:</strong> Removed the entire build folder and stale Finder metadata.</li></ul> | [Full record](#build-folder-cleanup) |
+| v2.7 / build 27 | 2026-09-05 | <ul><li><strong>Change:</strong> Restores source-derived sidebar tags and notes availability.</li></ul> | [Full record](#v2-7-build-27) |
+| Maintenance | 2026-09-04 | <ul><li><strong>Change:</strong> Removed the superseded v2.6 candidates from build/previous.FdBli0, build/previous.GtF7qQ, and build/previous.uqRg60.</li></ul> | [Full record](#superseded-candidates-removed) |
+| Maintenance | 2026-09-03 | <ul><li><strong>Change:</strong> Kept sidebar content at its expanded layout width while the outer rail reveals it, replaced lazy category layout with stable eager layout.</li></ul> | [Full record](#sidebar-reveal-width) |
+| Maintenance | 2026-09-03 | <ul><li><strong>Change:</strong> Raised the minimum window width from 980 to 1,120 points and removed the header's stacked action/status layout after the user identified it during live delivery checks.</li></ul> | [Full record](#minimum-window-width) |
+| v2.6 / build 26 | 2026-09-02 | <ul><li><strong>Change:</strong> Implemented v2.6/build 26.</li></ul> | [Full record](#v2-6-build-26) |
+| v2.5 / build 16 | 2026-09-02 | <ul><li><strong>Change:</strong> Combined project identity, actions, and Document Health in one compact pre-tab glass card.</li></ul> | [Full record](#v2-5-build-16) |
+| Documentation | 2026-09-02 | <ul><li><strong>Change:</strong> Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here.</li></ul> | [Full record](#numbering-rules-moved) |
+| v2.4 / build 15 | 2026-09-02 | <ul><li><strong>Change:</strong> Removed the competing whole-shell SwiftUI clip and outline so the native macOS window owns the outer corners without light wedges.</li></ul> | [Full record](#v2-4-build-15) |
+| v2.3 / build 14 | 2026-09-01 | <ul><li><strong>Change:</strong> Added repository Commit activity with newest-first years, twelve responsive month cells, fixed absolute intensities, concealed future values, complete unique-commit totals.</li></ul> | [Full record](#v2-3-build-14) |
+| v2.2 / build 13 | 2026-09-01 | <ul><li><strong>Change:</strong> Moved Category, Technical scope.</li></ul> | [Full record](#v2-2-build-13) |
+| v2.1 / build 12 | 2026-09-01 | <ul><li><strong>Change:</strong> Delivered the approved edge-to-edge glass correction.</li></ul> | [Full record](#v2-1-build-12) |
+| v2.0 / build 11 | 2026-09-01 | <ul><li><strong>Change:</strong> Delivered the complete cinematic glass redesign.</li></ul> | [Full record](#v2-0-build-11) |
+| v1.0 / build 10 | 2026-08-31 | <ul><li><strong>Change:</strong> Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate.</li></ul> | [Full record](#v1-0-build-10) |
+| v0.9 / build 9 | 2026-08-31 | <ul><li><strong>Change:</strong> Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap.</li></ul> | [Full record](#v0-9-build-9) |
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v3-9-build-39"></a>
+
+### v3.9 / build 39
+
+- **Recorded date:** 2026-09-25.
+- **Open App:** A choice from the detected-app menu is an automatic candidate, so it must still be one
+  when it is opened. A bundle that became a link to an app outside the project after the last check
+  is now refused with the invalid-application message instead of being opened and remembered. A
+  manually located app is unaffected.
+- **Git reads:** Git runs with a fixed environment: no system or personal Git configuration, lazy
+  fetching disabled and no transport. A personal setting, such as one that hides the first commit's
+  paths, can no longer change the commit activity or the refresh identity the app reads, and a
+  setting that starts a helper program cannot slow the two-second check.
+- **Source:** The README parser compiles each of its patterns once and reuses it across every line
+  of every README; the project and repository screens share one tab strip; the three test suites
+  share one assertion helper, so a failed notes check reports the same FAILED prefix as the others;
+  the history list moved from the window shell to the README content views it belongs with; the
+  documented 620-point minimum window height has a name beside the 1,120-point width; the NUL
+  record prefix that only the tests use moved into the test fixtures; the card's action row no
+  longer nests a second container around the launch controls; the rail no longer applies a clear
+  background; a project's introduction fallback is computed once; and the workflow parser's comment
+  states the sixteen-route limit that v3.5 set.
+- **Documentation:** The project structure names `Scripts/`, `history/` and `CONTRIBUTING.md`, and
+  `build/` is described as staging and caches, which is all that remains there since v2.9 stopped
+  keeping recovery copies.
+- **Records:** Every history record's link target is now named after its version and build, or
+  after its subject for a documentation or maintenance record, in this README and the August
+  archive alike; the repository change log's links follow, so nothing that pointed at a record
+  stops resolving.
+- **Scope:** No README parsing, navigation, notes or storage behaviour changed; commit activity
+  differs only where a personal Git setting used to alter it, and the card's action row and tab
+  strips lay out as before.
+
+**Evidence and delivery status**
+
+`make test` passed: 371 core, 41 store, 47 note/presentation, and 12 version checks, leaving no
+preferences file or temporary folder behind. The new store check builds a detected app, replaces it
+with a link to an app outside the project, and requires the launch to be refused without opening
+anything; the Git fixture check now also sets a personal Git configuration that hides the first
+commit's paths and requires the reader to ignore it. `make app` passed and promoted the signed v3.9/build 39 app to the project root; the
+bundle passed strict signature verification and reports version 3.9 and build 39. Initially
+delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v3-8-build-38"></a>
 
@@ -556,7 +605,7 @@ record in `fb893ca`; publication was not requested.
 
 [Back to change history](#change-history)
 
-<a id="one-workflow-style"></a>
+<a id="v3-5-build-35"></a>
 
 ### v3.5 / build 35
 
@@ -584,7 +633,7 @@ delivered uncommitted, then committed in `5cd854f`.
 
 [Back to change history](#change-history)
 
-<a id="rail-toggle-and-project-card"></a>
+<a id="v3-4-build-34"></a>
 
 ### v3.4 / build 34
 
@@ -619,7 +668,7 @@ Copilot's five-line nodes fit. Initially delivered uncommitted, then committed i
 
 [Back to change history](#change-history)
 
-<a id="navigation-rail-layout"></a>
+<a id="v3-3-build-33"></a>
 
 ### v3.3 / build 33
 
@@ -652,7 +701,7 @@ uncommitted, then committed in `d220b09`.
 
 [Back to change history](#change-history)
 
-<a id="folder-icons"></a>
+<a id="v3-2-build-32"></a>
 
 ### v3.2 / build 32
 
@@ -681,7 +730,7 @@ Publication was not requested.
 
 [Back to change history](#change-history)
 
-<a id="repository-atlas-icon"></a>
+<a id="v3-1-build-31"></a>
 
 ### v3.1 / build 31
 
@@ -721,7 +770,7 @@ Publication was not requested.
 
 [Back to change history](#change-history)
 
-<a id="external-register-rows"></a>
+<a id="v3-0-build-30"></a>
 
 ### v3.0 / build 30
 
@@ -736,7 +785,7 @@ v3.0/build 30 source; `make app` rebuilt and promoted the bundle to the project 
 
 [Back to change history](#change-history)
 
-<a id="single-delivered-bundle"></a>
+<a id="v2-9-build-29"></a>
 
 ### v2.9 / build 29
 
@@ -825,7 +874,6 @@ v2.8/build 28 source; 432 native checks passed (339 core, 40 store, 41 note/pres
 
 [Back to change history](#change-history)
 
-<a id="change-1"></a>
 <a id="readability-maintenance"></a>
 
 ### Documentation readability
@@ -842,7 +890,7 @@ Local documentation changes; initially delivered uncommitted and recorded in thi
 
 [Back to change history](#change-history)
 
-<a id="change-2"></a>
+<a id="project-descriptions-moved"></a>
 
 ### Documentation
 
@@ -858,7 +906,7 @@ Local documentation update; initially delivered uncommitted and recorded in `07f
 
 [Back to change history](#change-history)
 
-<a id="change-3"></a>
+<a id="build-folder-cleanup"></a>
 
 ### Maintenance
 
@@ -877,7 +925,7 @@ User-authorized complete build-folder cleanup; package and asset checks passed; 
 
 [Back to change history](#change-history)
 
-<a id="change-4"></a>
+<a id="v2-7-build-27"></a>
 
 ### v2.7 / build 27
 
@@ -907,7 +955,7 @@ Source `f8a858a`, `9590feb`, `561878c`, `cf12d65`, `b6ada81`, `81f0824`, `17184b
 
 [Back to change history](#change-history)
 
-<a id="change-5"></a>
+<a id="superseded-candidates-removed"></a>
 
 ### Maintenance
 
@@ -924,7 +972,7 @@ Local cleanup; registration guide `ceb01aeb`; this history reconciliation
 
 [Back to change history](#change-history)
 
-<a id="change-6"></a>
+<a id="sidebar-reveal-width"></a>
 
 ### Maintenance
 
@@ -945,7 +993,7 @@ Source `330cb4b`; project record `265e76c`; signed project-root app; live expans
 
 [Back to change history](#change-history)
 
-<a id="change-7"></a>
+<a id="minimum-window-width"></a>
 
 ### Maintenance
 
@@ -964,7 +1012,7 @@ Source `e44c740`; project record `265e76c`; signed project-root app; expansion/e
 
 [Back to change history](#change-history)
 
-<a id="change-8"></a>
+<a id="v2-6-build-26"></a>
 
 ### v2.6 / build 26
 
@@ -992,7 +1040,7 @@ Source `e44c740`; navigation `330cb4b`; project record `265e76c`; this documenta
 
 [Back to change history](#change-history)
 
-<a id="change-9"></a>
+<a id="v2-5-build-16"></a>
 
 ### v2.5 / build 16
 
@@ -1014,7 +1062,7 @@ Source `9c6756a`; this documentation checkpoint; signed project-root app
 
 [Back to change history](#change-history)
 
-<a id="change-10"></a>
+<a id="numbering-rules-moved"></a>
 
 ### Documentation
 
@@ -1029,7 +1077,7 @@ This documentation commit
 
 [Back to change history](#change-history)
 
-<a id="change-11"></a>
+<a id="v2-4-build-15"></a>
 
 ### v2.4 / build 15
 
@@ -1051,7 +1099,7 @@ Source `d26cb65`; project documentation `12fe707`; this documentation checkpoint
 
 [Back to change history](#change-history)
 
-<a id="change-12"></a>
+<a id="v2-3-build-14"></a>
 
 ### v2.3 / build 14
 
@@ -1072,7 +1120,7 @@ Activity `b5358ab`; shell `dc612a8`; project documentation `920a9bb`; this docum
 
 [Back to change history](#change-history)
 
-<a id="change-13"></a>
+<a id="v2-2-build-13"></a>
 
 ### v2.2 / build 13
 
@@ -1094,7 +1142,7 @@ Source `5ab1b93`; this project documentation and delivery checkpoint
 
 [Back to change history](#change-history)
 
-<a id="change-14"></a>
+<a id="v2-1-build-12"></a>
 
 ### v2.1 / build 12
 
@@ -1115,7 +1163,7 @@ Source `f4fca5b`; project source record `ad48ff1`; root source record `41593c8`;
 
 [Back to change history](#change-history)
 
-<a id="change-15"></a>
+<a id="v2-0-build-11"></a>
 
 ### v2.0 / build 11
 
@@ -1135,7 +1183,7 @@ Initial source `f317ff0`; desktop glass `c4ef97a`; project records `13e395f`, `0
 
 [Back to change history](#change-history)
 
-<a id="change-16"></a>
+<a id="v1-0-build-10"></a>
 
 ### v1.0 / build 10
 
@@ -1165,7 +1213,7 @@ make test-core test-store TEST_ARGS=--classification
 
 [Back to change history](#change-history)
 
-<a id="change-17"></a>
+<a id="v0-9-build-9"></a>
 
 ### v0.9 / build 9
 
