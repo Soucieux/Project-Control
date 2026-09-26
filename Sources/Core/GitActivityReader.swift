@@ -142,10 +142,13 @@ internal enum GitActivityReader {
         let pipe = Pipe()
         process.executableURL = URL(fileURLWithPath: ControlConstants.gitExecutable)
         process.arguments = [ControlConstants.gitCurrentDirectory, root.path] + arguments
-        var environment = ProcessInfo.processInfo.environment
-        environment[ControlConstants.gitNoLazyFetchEnvironment] = ControlConstants.gitEnvironmentEnabled
-        environment[ControlConstants.gitAllowedProtocolsEnvironment] = ControlConstants.empty
-        process.environment = environment
+        // A fixed environment: no system or personal Git configuration, no lazy fetch and no transport,
+        // so a personal setting cannot change what the app reads.
+        process.environment = [ControlConstants.pathEnvironment: ControlConstants.gitSearchPath,
+            ControlConstants.gitNoSystemConfigEnvironment: ControlConstants.gitEnvironmentEnabled,
+            ControlConstants.gitGlobalConfigEnvironment: ControlConstants.gitNoConfigFile,
+            ControlConstants.gitNoLazyFetchEnvironment: ControlConstants.gitEnvironmentEnabled,
+            ControlConstants.gitAllowedProtocolsEnvironment: ControlConstants.empty]
         process.standardOutput = pipe
         process.standardError = FileHandle.nullDevice
         do { try process.run() }

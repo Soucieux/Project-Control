@@ -28,21 +28,7 @@ internal struct RepositoryScreen: View {
                 Text(ControlConstants.staleContent + ControlConstants.space + warning)
                     .font(.callout).foregroundStyle(ControlTheme.amber)
             }
-            HStack(spacing: 20) {
-                ForEach(RepositoryTab.allCases) { item in
-                    Button { tab = item } label: {
-                        Text(item.label)
-                            .font(.system(size: 13, weight: tab == item ? .semibold : .regular))
-                            .foregroundStyle(tab == item ? ControlTheme.ink : ControlTheme.muted)
-                            .padding(.vertical, 12).contentShape(Rectangle())
-                            .overlay(alignment: .bottom) {
-                                if tab == item { Rectangle().fill(ControlTheme.signal).frame(height: 2) }
-                            }
-                    }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
-                }
-                Spacer(minLength: 0)
-            }.padding(.horizontal, 14)
-                .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            TabStrip(tabs: RepositoryTab.allCases, label: \.label, selection: $tab)
             Group {
                 switch tab {
                 case .overview: ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview)

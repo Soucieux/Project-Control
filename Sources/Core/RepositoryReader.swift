@@ -144,17 +144,19 @@ internal enum RepositoryReader {
             catch { warning = ControlConstants.mappingFailure }
         } else { warning = ControlConstants.sourceUnavailable }
         let mapped = sections.contains { $0.mapping != nil }
+        // A parsed paragraph is never empty, so only an empty register summary needs the placeholder.
         let introduction = (mapped
             ? ReadmeParser.paragraphs(ReadmeParser.topicSections(sections, topic: .overview)).first
-            : ReadmeParser.paragraphs(Array(sections.prefix(2))).first) ?? (mapped ? ControlConstants.noIntroduction : scope)
+            : ReadmeParser.paragraphs(Array(sections.prefix(2))).first)
+            ?? (mapped || scope.isEmpty ? ControlConstants.noIntroduction : scope)
         var isDirectory: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath: folder.path, isDirectory: &isDirectory)
         return ProjectRecord(id: folder.resolvingSymlinksInPath().standardizedFileURL.path, name: name, folder: folder, readme: readme,
-            introduction: introduction.isEmpty ? ControlConstants.noIntroduction : introduction,
+            introduction: introduction,
             version: ReadmeParser.release(sections, fallback: scope), architecture: ReadmeParser.architecture(sections), workflows: ReadmeParser.workflows(sections),
             history: ReadmeParser.history(sections), folderAvailable: exists && isDirectory.boolValue,
             readmeAvailable: document != nil,
-            overview: ReadmeParser.overview(sections, fallback: introduction.isEmpty ? ControlConstants.noIntroduction : introduction),
+            overview: ReadmeParser.overview(sections, fallback: introduction),
             models: ReadmeParser.models(sections),
             applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning,
             usesDatedHistory: ReadmeParser.usesDatedHistory(sections))

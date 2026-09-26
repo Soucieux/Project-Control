@@ -27,20 +27,7 @@ internal struct ProjectScreen: View {
                 Text(warning).font(.caption).foregroundStyle(ControlTheme.amber)
             }
             VStack(alignment: .leading, spacing: 8) {
-                ScrollView(.horizontal) {
-                    HStack(spacing: 20) {
-                        ForEach(ProjectTab.allCases) { item in
-                            Button { tab = item } label: {
-                                Text(item.label).font(.system(size: 13, weight: tab == item ? .semibold : .regular))
-                                    .foregroundStyle(tab == item ? ControlTheme.ink : ControlTheme.muted)
-                                    .padding(.vertical, 12).contentShape(Rectangle())
-                                    .overlay(alignment: .bottom) { if tab == item { Rectangle().fill(ControlTheme.signal).frame(height: 2) } }
-                            }.buttonStyle(.plain).accessibilityAddTraits(tab == item ? .isSelected : [])
-                        }
-                    }
-                }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 14)
-                    .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                TabStrip(tabs: ProjectTab.allCases, label: \.label, selection: $tab)
                 Group {
                     switch tab {
                     case .overview: ReadmeContent(blocks: project.overview, empty: ControlConstants.noIntroduction)
@@ -122,9 +109,7 @@ internal struct ProjectScreen: View {
             .buttonStyle(.borderedProminent).foregroundStyle(ControlTheme.background).disabled(!project.folderAvailable)
         Button { store.open(project.readme) } label: { Label(ControlConstants.read, systemImage: ControlConstants.readIcon) }
             .disabled(!project.readmeAvailable)
-        HStack(spacing: 10) {
-            launchControls(target: target)
-        }
+        launchControls(target: target)
     }
 
     /// Offers ambiguous candidates as a menu and keeps the forget-app control beside them.

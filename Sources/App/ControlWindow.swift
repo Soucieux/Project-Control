@@ -99,7 +99,6 @@ internal struct ControlWindow: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .contentShape(Rectangle()).clipped()
         .foregroundStyle(ControlTheme.railInk)
-        .background(Color.clear)
         .zIndex(0)
     }
 
@@ -416,24 +415,5 @@ internal struct ControlWindow: View {
     /// - Returns: Nothing; changes only the local presentation state.
     private func setLocked(_ locked: Bool) {
         withAnimation(reduceMotion ? nil : ControlTheme.motion) { displayLocked = locked }
-    }
-}
-
-/// Readable, expandable summaries rather than raw Markdown or source files.
-internal struct HistoryList: View {
-    internal let entries: [HistoryEntry]
-    internal var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if entries.isEmpty {
-                ContentSurface { Text(ControlConstants.noHistory).foregroundStyle(ControlTheme.muted) }
-            }
-            ForEach(entries) { entry in
-                DisclosureGroup {
-                    Text(entry.detail).font(.callout).lineSpacing(4).textSelection(.enabled)
-                        .foregroundStyle(ControlTheme.muted).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
-                } label: { Text(entry.heading).font(.callout.weight(.medium)) }
-                    .padding(14).background(Color.white.opacity(0.34), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            }
-        }.padding(.vertical, 10)
     }
 }

@@ -2,14 +2,30 @@ import Foundation
 
 /// A deliberately limited Markdown extractor, not an HTML renderer or code viewer.
 internal enum ReadmeParser {
+    /// Compiled patterns, reused because the same few expressions run against every line of every
+    /// README on each reload; the cache is thread-safe and evicts under memory pressure.
+    private static let expressions = NSCache<NSString, NSRegularExpression>()
+
+    /// Compiles a trusted pattern once and reuses it afterwards.
+    /// - Parameter pattern: Trusted expression.
+    /// - Returns: The compiled expression, or nil for an invalid pattern.
+    private static func compiled(_ pattern: String) -> NSRegularExpression? {
+        if let cached = expressions.object(forKey: pattern as NSString) { return cached }
+        guard let expression = try? NSRegularExpression(pattern: pattern) else { return nil }
+        expressions.setObject(expression, forKey: pattern as NSString)
+        return expression
+    }
+
     /// Replaces regular-expression matches with plain text.
     /// - Parameters:
     ///   - value: Input text.
     ///   - pattern: Trusted expression.
     ///   - replacement: Replacement template.
-    /// - Returns: The transformed text.
+    /// - Returns: The transformed text, or the input unchanged for an invalid pattern.
     internal static func replace(_ value: String, _ pattern: String, _ replacement: String) -> String {
-        value.replacingOccurrences(of: pattern, with: replacement, options: .regularExpression)
+        guard let expression = compiled(pattern) else { return value }
+        return expression.stringByReplacingMatches(in: value, range: NSRange(value.startIndex..., in: value),
+            withTemplate: replacement)
     }
 
     /// Extracts a capture group from the first expression match.
@@ -19,7 +35,7 @@ internal enum ReadmeParser {
     ///   - group: Capture index.
     /// - Returns: Matched text, or nil when absent.
     internal static func match(_ value: String, _ pattern: String, group: Int = 0) -> String? {
-        guard let expression = try? NSRegularExpression(pattern: pattern),
+        guard let expression = compiled(pattern),
               let result = expression.firstMatch(in: value, range: NSRange(value.startIndex..., in: value)),
               let range = Range(result.range(at: group), in: value) else { return nil }
         return String(value[range])
@@ -30,10 +46,10 @@ internal enum ReadmeParser {
     /// - Returns: Noninteractive readable text.
     internal static func plain(_ value: String) -> String {
         let linked = replace(value, ControlConstants.linkPattern, ControlConstants.linkLabelReplacement)
-        let expression = try? NSRegularExpression(pattern: ControlConstants.inlineCodePattern)
+        let codeSpans = compiled(ControlConstants.inlineCodePattern)
         var result = ControlConstants.empty
         var cursor = linked.startIndex
-        for match in expression?.matches(in: linked, range: NSRange(linked.startIndex..., in: linked)) ?? [] {
+        for match in codeSpans?.matches(in: linked, range: NSRange(linked.startIndex..., in: linked)) ?? [] {
             guard let range = Range(match.range, in: linked), let literal = Range(match.range(at: 2), in: linked) else { continue }
             result += plainProse(String(linked[cursor..<range.lowerBound])) + String(linked[literal])
             cursor = range.upperBound
@@ -380,7 +396,7 @@ internal enum ReadmeParser {
 
     /// Converts explicit arrow lines to routes without inferring links from bullet order.
     /// - Parameter sections: Parsed README sections.
-    /// - Returns: At most eight independent routes, each retaining every written step.
+    /// - Returns: At most sixteen independent routes, each retaining every written step.
     internal static func workflows(_ sections: [ReadmeSection]) -> [WorkflowRoute] {
         let selected = topicSections(sections, topic: .workflows)
         return Array(selected.flatMap { section in

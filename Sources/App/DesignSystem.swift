@@ -39,6 +39,7 @@ internal enum ControlTheme {
     internal static let railLeadingInset: CGFloat = 16
     internal static let railIconSize: CGFloat = 40
     internal static let minimumWindowWidth: CGFloat = 1120
+    internal static let minimumWindowHeight: CGFloat = 620
 }
 
 /// A compact section label with semantic hierarchy, not decorative telemetry.
@@ -94,5 +95,32 @@ internal struct ContentSurface<Content: View>: View {
                 RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous)
                     .stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false)
             }
+    }
+}
+
+/// One row of a screen's tabs; the selected tab carries the signal underline, and a strip wider than
+/// its space scrolls sideways without an indicator.
+internal struct TabStrip<Tab: Identifiable & Equatable>: View {
+    internal let tabs: [Tab]
+    internal let label: KeyPath<Tab, String>
+    @Binding internal var selection: Tab
+
+    internal var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 20) {
+                ForEach(tabs) { tab in
+                    Button { selection = tab } label: {
+                        Text(tab[keyPath: label]).font(.system(size: 13, weight: selection == tab ? .semibold : .regular))
+                            .foregroundStyle(selection == tab ? ControlTheme.ink : ControlTheme.muted)
+                            .padding(.vertical, 12).contentShape(Rectangle())
+                            .overlay(alignment: .bottom) {
+                                if selection == tab { Rectangle().fill(ControlTheme.signal).frame(height: 2) }
+                            }
+                    }.buttonStyle(.plain).accessibilityAddTraits(selection == tab ? .isSelected : [])
+                }
+            }
+        }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 14)
+            .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
     }
 }

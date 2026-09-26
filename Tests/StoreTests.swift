@@ -4,8 +4,6 @@ import Foundation
 @main
 @MainActor
 internal enum StoreTests {
-    private static var count = 0
-
     /// Exercises queued reloads and atomic note mutations with disposable local state.
     /// - Returns: Nothing; exits unsuccessfully on a failed check or fixture error.
     internal static func main() async throws {
@@ -26,12 +24,12 @@ internal enum StoreTests {
         let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
         if CommandLine.arguments.contains(TestConstants.activityOnly) {
             await activityPublishingCheck(secondRoot, storage: storage, preferences: preferences)
-            print(TestConstants.storePassed + String(count))
+            print(TestConstants.storePassed + String(TestSupport.count))
             return
         }
         if CommandLine.arguments.contains(TestConstants.classificationOnly) {
             try await classificationRecoveryCheck(secondRoot, storage: storage, preferences: preferences)
-            print(TestConstants.storePassed + String(count))
+            print(TestConstants.storePassed + String(TestSupport.count))
             return
         }
         let started = DispatchSemaphore(value: 0)
@@ -51,13 +49,13 @@ internal enum StoreTests {
                 continuation.resume(returning: started.wait(timeout: .now() + 5) == .success)
             }
         }
-        check(didStart, TestConstants.checkReaderStarted)
+        TestSupport.check(didStart, TestConstants.checkReaderStarted)
         await store.reload(secondRoot)
         release.signal()
         await first.value
-        check(store.snapshot?.root == secondRoot.resolvingSymlinksInPath(), TestConstants.checkStoreQueue)
-        check(!store.loading && store.error == nil, TestConstants.checkStoreLoading)
-        check(preferences.string(forKey: ControlConstants.folderPreference) == secondRoot.resolvingSymlinksInPath().path, TestConstants.checkStorePreference)
+        TestSupport.check(store.snapshot?.root == secondRoot.resolvingSymlinksInPath(), TestConstants.checkStoreQueue)
+        TestSupport.check(!store.loading && store.error == nil, TestConstants.checkStoreLoading)
+        TestSupport.check(preferences.string(forKey: ControlConstants.folderPreference) == secondRoot.resolvingSymlinksInPath().path, TestConstants.checkStorePreference)
         try await refreshCheck(secondRoot, storage: storage, preferences: preferences)
         await navigationChecks(secondRoot, storage: storage, preferences: preferences)
         await activityPublishingCheck(secondRoot, storage: storage, preferences: preferences)
@@ -66,22 +64,23 @@ internal enum StoreTests {
         try await initialRecoveryCheck(root, storage: storage, preferences: preferences)
         try await pollingRaceCheck(root, storage: storage, preferences: preferences)
         try applicationChecks(secondRoot, storage: storage, preferences: preferences)
+        try await launchGuardCheck(secondRoot, storage: storage, preferences: preferences)
         let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
-        check(try store.save(note, for: TestConstants.project) && storage.load().notes[TestConstants.project] == [note], TestConstants.checkStoreSave)
+        TestSupport.check(try store.save(note, for: TestConstants.project) && storage.load().notes[TestConstants.project] == [note], TestConstants.checkStoreSave)
         var edited = note
         edited.text = TestConstants.detail
-        check(store.save(edited, for: TestConstants.project) && store.notes(for: TestConstants.project) == [edited], TestConstants.checkStoreEdit)
+        TestSupport.check(store.save(edited, for: TestConstants.project) && store.notes(for: TestConstants.project) == [edited], TestConstants.checkStoreEdit)
         store.delete(edited, for: TestConstants.project)
-        check(try storage.load().notes[TestConstants.project] == [], TestConstants.checkStoreDelete)
+        TestSupport.check(try storage.load().notes[TestConstants.project] == [], TestConstants.checkStoreDelete)
         try TestConstants.corrupt.write(to: storage.file, atomically: true, encoding: .utf8)
         let locked = ControlStore(storage: storage, preferences: preferences)
-        check(try !locked.storageReady && !locked.save(note, for: TestConstants.project)
+        TestSupport.check(try !locked.storageReady && !locked.save(note, for: TestConstants.project)
             && String(contentsOf: storage.file, encoding: .utf8) == TestConstants.corrupt, TestConstants.checkStoreCorrupt)
         let blocked = root.appendingPathComponent(TestConstants.blockedFile)
         try TestConstants.corrupt.write(to: blocked, atomically: true, encoding: .utf8)
         let failing = ControlStore(storage: WorkspaceStorage(file: blocked.appendingPathComponent(ControlConstants.stateFile)), preferences: preferences)
-        check(!failing.save(note, for: TestConstants.project) && failing.notes(for: TestConstants.project).isEmpty, TestConstants.checkStoreFailedSave)
-        print(TestConstants.storePassed + String(count))
+        TestSupport.check(!failing.save(note, for: TestConstants.project) && failing.notes(for: TestConstants.project).isEmpty, TestConstants.checkStoreFailedSave)
+        print(TestConstants.storePassed + String(TestSupport.count))
     }
 
     /// Confirms that store publication preserves the complete activity supplied by the repository reader.
@@ -97,7 +96,7 @@ internal enum StoreTests {
             projects: [], history: [], readAt: Date(), fingerprint: [], commitActivity: expected)
         let store = ControlStore(storage: storage, preferences: preferences, readRepository: { _ in result })
         await store.reload(root)
-        check(store.snapshot?.commitActivity == expected, TestConstants.checkActivityStore)
+        TestSupport.check(store.snapshot?.commitActivity == expected, TestConstants.checkActivityStore)
     }
 
     /// Preserves project identity and notes while root-owned classification changes over stale content.
@@ -118,21 +117,21 @@ internal enum StoreTests {
         store.selection = project.id
         let existingNotes = store.notes(for: project.id)
         let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
-        check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
+        TestSupport.check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
         try TestConstants.invalidMappings[0].write(to: projectReadme, atomically: true, encoding: .utf8)
         try TestConstants.classifiedRoot.replacingOccurrences(of: TestConstants.managementCategory, with: TestConstants.renamedCategory)
             .replacingOccurrences(of: TestConstants.readmeDriven, with: TestConstants.hostedAI)
             .write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.selectedProject?.isStale == true && store.selectedProject?.architecture.isEmpty == false
+        TestSupport.check(store.selectedProject?.isStale == true && store.selectedProject?.architecture.isEmpty == false
             && store.selectedProject?.classification.category == TestConstants.renamedCategory
             && store.selectedProject?.classification.technologies == [TestConstants.swiftUI, TestConstants.hostedAI], TestConstants.checkClassificationStale)
-        check(store.selection == project.id && store.notes(for: project.id) == existingNotes + [note], TestConstants.checkSyncNotes)
+        TestSupport.check(store.selection == project.id && store.notes(for: project.id) == existingNotes + [note], TestConstants.checkSyncNotes)
         try TestConstants.mappedRoot.write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.selectedProject?.isStale == true && store.selectedProject?.classification == ProjectClassification(),
+        TestSupport.check(store.selectedProject?.isStale == true && store.selectedProject?.classification == ProjectClassification(),
             TestConstants.checkClassificationStale)
-        check(store.selection == project.id && store.notes(for: project.id) == existingNotes + [note], TestConstants.checkSyncNotes)
+        TestSupport.check(store.selection == project.id && store.notes(for: project.id) == existingNotes + [note], TestConstants.checkSyncNotes)
     }
 
     /// Keeps failures isolated while applying valid edits, removals, and source recovery.
@@ -151,40 +150,40 @@ internal enum StoreTests {
         guard let project = store.snapshot?.projects.first else { fatalError(TestConstants.checkMappedRoot) }
         store.selection = project.id
         let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
-        check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
+        TestSupport.check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
         try TestConstants.invalidMappings[0].write(to: projectReadme, atomically: true, encoding: .utf8)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.repositoryOverview, with: TestConstants.updatedRepositoryOverview)
             .write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.selectedProject?.isStale == true && store.selectedProject?.sourceWarning == ControlConstants.mappingFailure
+        TestSupport.check(store.selectedProject?.isStale == true && store.selectedProject?.sourceWarning == ControlConstants.mappingFailure
             && store.selectedProject?.architecture.isEmpty == false, TestConstants.checkStaleProject)
-        check(store.snapshot?.overview.first?.text == TestConstants.updatedRepositoryOverview, TestConstants.checkIndependentSync)
-        check(store.selection == project.id && store.notes(for: project.id) == [note], TestConstants.checkSyncNotes)
+        TestSupport.check(store.snapshot?.overview.first?.text == TestConstants.updatedRepositoryOverview, TestConstants.checkIndependentSync)
+        TestSupport.check(store.selection == project.id && store.notes(for: project.id) == [note], TestConstants.checkSyncNotes)
         try FileManager.default.removeItem(at: projectReadme)
         await store.reload(root)
-        check(store.selectedProject?.isStale == true && store.selectedProject?.readmeAvailable == false,
+        TestSupport.check(store.selectedProject?.isStale == true && store.selectedProject?.readmeAvailable == false,
               TestConstants.checkStaleProject)
         try TestConstants.mappedWithoutArchitecture.write(to: projectReadme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.selectedProject?.architecture.isEmpty == true && store.selectedProject?.isStale == false
+        TestSupport.check(store.selectedProject?.architecture.isEmpty == true && store.selectedProject?.isStale == false
             && store.selectedProject?.sourceWarning == nil, TestConstants.checkProjectRecovery)
         await store.reload(root.appendingPathComponent(TestConstants.external))
-        check(store.syncFailure == nil && store.error != nil && store.selectedProject?.id == project.id,
+        TestSupport.check(store.syncFailure == nil && store.error != nil && store.selectedProject?.id == project.id,
               TestConstants.checkWrongRootWarning)
         try TestConstants.invalidMappings[0].write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.syncFailure != nil && store.selectedProject?.id == project.id, TestConstants.checkStaleRoot)
+        TestSupport.check(store.syncFailure != nil && store.selectedProject?.id == project.id, TestConstants.checkStaleRoot)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedProjectRow,
             with: TestConstants.mappedProjectRow + TestConstants.mappedSecondRow)
             .write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.syncFailure == nil && store.snapshot?.projects.count == 2, TestConstants.checkMappedRoot)
+        TestSupport.check(store.syncFailure == nil && store.snapshot?.projects.count == 2, TestConstants.checkMappedRoot)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedProjectRow, with: ControlConstants.empty)
             .write(to: readme, atomically: true, encoding: .utf8)
         await store.reload(root)
-        check(store.snapshot?.projects.map(\.id) == [project.id] && store.snapshot?.projects.first?.isRegistered == false
+        TestSupport.check(store.snapshot?.projects.map(\.id) == [project.id] && store.snapshot?.projects.first?.isRegistered == false
             && store.selection == project.id, TestConstants.checkEmptyRegister)
-        check(store.notes(for: project.id) == [note], TestConstants.checkSyncNotes)
+        TestSupport.check(store.notes(for: project.id) == [note], TestConstants.checkSyncNotes)
         try TestConstants.rootReadme.write(to: readme, atomically: true, encoding: .utf8)
         try TestConstants.projectReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
     }
@@ -223,19 +222,19 @@ internal enum StoreTests {
         let polling = await withCheckedContinuation { continuation in
             DispatchQueue.global().async { continuation.resume(returning: pollStarted.wait(timeout: .now() + 5) == .success) }
         }
-        check(polling, TestConstants.checkPollingRace)
+        TestSupport.check(polling, TestConstants.checkPollingRace)
         let switchTask = Task { await store.reload(newRoot) }
         let switching = await withCheckedContinuation { continuation in
             DispatchQueue.global().async { continuation.resume(returning: readStarted.wait(timeout: .now() + 5) == .success) }
         }
-        check(switching, TestConstants.checkPollingRace)
+        TestSupport.check(switching, TestConstants.checkPollingRace)
         pollRelease.signal()
         try await Task.sleep(for: .milliseconds(250))
         readRelease.signal()
         await switchTask.value
         observer.cancel()
         await observer.value
-        check(store.snapshot?.root == newRoot.resolvingSymlinksInPath().standardizedFileURL, TestConstants.checkPollingRace)
+        TestSupport.check(store.snapshot?.root == newRoot.resolvingSymlinksInPath().standardizedFileURL, TestConstants.checkPollingRace)
     }
 
     /// Exercises automatic recovery when the remembered root README initially cannot be read.
@@ -250,14 +249,14 @@ internal enum StoreTests {
         preferences.set(repository.path, forKey: ControlConstants.folderPreference)
         let store = ControlStore(storage: storage, preferences: preferences)
         await store.reload(repository)
-        check(store.snapshot == nil && store.syncFailure != nil, TestConstants.checkInitialRecovery)
+        TestSupport.check(store.snapshot == nil && store.syncFailure != nil, TestConstants.checkInitialRecovery)
         let observer = Task { await store.observe() }
         try TestConstants.mappedRoot.write(to: repository.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
         let deadline = ContinuousClock.now.advanced(by: .seconds(5))
         while store.snapshot == nil && ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(50)) }
         observer.cancel()
         await observer.value
-        check(store.snapshot?.projects.count == 1 && store.syncFailure == nil, TestConstants.checkInitialRecovery)
+        TestSupport.check(store.snapshot?.projects.count == 1 && store.syncFailure == nil, TestConstants.checkInitialRecovery)
     }
 
     /// Keeps parent and child selections stable across repository refreshes.
@@ -270,17 +269,17 @@ internal enum StoreTests {
         let store = ControlStore(storage: storage, preferences: preferences)
         await store.reload(root)
         let parent = root.resolvingSymlinksInPath().standardizedFileURL.path
-        check(store.selection == parent && store.selectedProject == nil, TestConstants.checkRepositorySelection)
+        TestSupport.check(store.selection == parent && store.selectedProject == nil, TestConstants.checkRepositorySelection)
         let child = store.snapshot?.projects.first?.id
         store.selection = child
         await store.reload(root)
-        check(child != nil && store.selectedProject?.id == child, TestConstants.checkProjectSelection)
+        TestSupport.check(child != nil && store.selectedProject?.id == child, TestConstants.checkProjectSelection)
         store.selection = parent
         await store.reload(root)
-        check(store.selection == parent && store.selectedProject == nil, TestConstants.checkRepositorySelection)
+        TestSupport.check(store.selection == parent && store.selectedProject == nil, TestConstants.checkRepositorySelection)
         store.selection = TestConstants.external
         await store.reload(root)
-        check(store.selection == parent, TestConstants.checkSelectionFallback)
+        TestSupport.check(store.selection == parent, TestConstants.checkSelectionFallback)
     }
 
     /// Reproduces an edit between snapshot parsing and delivery to the main actor.
@@ -311,7 +310,7 @@ internal enum StoreTests {
         }
         observer.cancel()
         await observer.value
-        check(store.snapshot?.projects.first?.introduction == TestConstants.updatedIntroduction, TestConstants.checkConcurrentRefresh)
+        TestSupport.check(store.snapshot?.projects.first?.introduction == TestConstants.updatedIntroduction, TestConstants.checkConcurrentRefresh)
     }
 
     /// Checks manual fallback resolution and automatic precedence without executing applications.
@@ -327,26 +326,38 @@ internal enum StoreTests {
         state.applications[project.id] = manual.path
         try storage.save(state)
         let store = ControlStore(storage: storage, preferences: preferences)
-        check(store.application(for: project) == manual, TestConstants.checkManualApp)
+        TestSupport.check(store.application(for: project) == manual, TestConstants.checkManualApp)
         let automatic = try TestFixtures.application(in: project.folder, name: project.name)
         project.applications = [automatic]
-        check(store.application(for: project) == automatic, TestConstants.checkAutomaticApp)
+        TestSupport.check(store.application(for: project) == automatic, TestConstants.checkAutomaticApp)
         store.clearApplication(for: project.id)
-        check(try storage.load().applications[project.id] == nil && FileManager.default.fileExists(atPath: manual.path), TestConstants.checkClearApp)
+        TestSupport.check(try storage.load().applications[project.id] == nil && FileManager.default.fileExists(atPath: manual.path), TestConstants.checkClearApp)
         try storage.save(state)
         try FileManager.default.removeItem(at: automatic)
         try FileManager.default.removeItem(at: manual)
         let stale = ControlStore(storage: storage, preferences: preferences)
-        check(stale.application(for: project) == nil, TestConstants.checkStaleApp)
+        TestSupport.check(stale.application(for: project) == nil, TestConstants.checkStaleApp)
     }
 
-    /// Records a deterministic state assertion.
+    /// Refuses a detected-menu choice whose bundle became a link to an app outside the project after the
+    /// snapshot, without opening anything.
     /// - Parameters:
-    ///   - condition: Expected truth value.
-    ///   - label: Failure explanation.
-    /// - Returns: Nothing; terminates unsuccessfully if the condition is false.
-    private static func check(_ condition: Bool, _ label: String) {
-        guard condition else { fatalError(TestConstants.failed + label) }
-        count += 1
+    ///   - root: Disposable repository whose first project owns the replaced bundle.
+    ///   - storage: Isolated workspace file.
+    ///   - preferences: Isolated preference suite.
+    /// - Returns: Nothing; fails if the stale detected choice is accepted as a launch target.
+    private static func launchGuardCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
+        let store = ControlStore(storage: storage, preferences: preferences)
+        await store.reload(root)
+        guard var project = store.snapshot?.projects.first else { fatalError(TestConstants.checkLaunchGuard) }
+        let detected = try TestFixtures.application(in: project.folder, name: TestConstants.replacedApp)
+        let elsewhere = try TestFixtures.application(in: root, name: TestConstants.elsewhereApp)
+        project.applications = [detected]
+        try FileManager.default.removeItem(at: detected)
+        try FileManager.default.createSymbolicLink(at: detected, withDestinationURL: elsewhere)
+        store.launch(project, selectedApp: detected)
+        TestSupport.check(store.error == ControlConstants.invalidApplication, TestConstants.checkLaunchGuard)
+        try FileManager.default.removeItem(at: detected)
+        try FileManager.default.removeItem(at: elsewhere)
     }
 }

@@ -224,7 +224,8 @@ internal final class ControlStore: ObservableObject {
     /// - Parameters:
     ///   - project: Owning project.
     ///   - selectedApp: Explicit choice from detected candidates or a native picker.
-    /// - Returns: Nothing; missing apps offer location, and launch/save errors remain visible.
+    /// - Returns: Nothing; missing apps offer location, a detected app that is no longer a current candidate is
+    ///   refused, and launch/save errors remain visible.
     internal func launch(_ project: ProjectRecord, selectedApp: URL? = nil) {
         guard let root = snapshot?.root,
               project.folder.resolvingSymlinksInPath().standardizedFileURL.path == project.id,
@@ -232,6 +233,11 @@ internal final class ControlStore: ObservableObject {
             error = ControlConstants.unsafeProject; return
         }
         let candidates = ApplicationLocator.candidates(in: project.folder, within: root).filter(ApplicationLocator.isApplication)
+        // A choice from the detected list is an automatic candidate: it must still be one now, so a bundle
+        // replaced by a link since the last check cannot open an app outside the project.
+        if let selectedApp, project.applications.contains(selectedApp), !candidates.contains(selectedApp) {
+            error = ControlConstants.invalidApplication; return
+        }
         guard let url = selectedApp ?? application(for: project, candidates: candidates) else {
             chooseApplication(for: project)
             return

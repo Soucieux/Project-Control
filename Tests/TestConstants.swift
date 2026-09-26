@@ -44,6 +44,7 @@ internal enum TestConstants {
     internal static let activityOnly = "--activity"
     internal static let activityTimestamps = ["1705276800", "1705708800", "1714521600", "1796083200", "invalid"]
     internal static let activityNow = "2026-09-01T00:00:00Z"
+    internal static let gitRecordPrefix = "\0"
     internal static let hostedTechnologyTags = ["Next.js", "LangGraph", "Hosted AI"]
     internal static let literalTechnologyTags = ["Local AI", "RAG", "C++", "model_name-v1"]
     internal static let registerRowPrefix = "| ["
@@ -471,6 +472,9 @@ internal enum TestConstants {
     internal static let checkManualApp = "a valid manually located app is restored when no automatic app exists"
     internal static let checkAutomaticApp = "a newly discovered project app takes priority over a manual fallback"
     internal static let checkStaleApp = "stale remembered apps are not returned as launch targets"
+    internal static let replacedApp = "Replaced"
+    internal static let elsewhereApp = "Elsewhere"
+    internal static let checkLaunchGuard = "a detected app replaced by a link since the last check is refused rather than opened"
     internal static let checkClearApp = "forgetting a manually located app preserves the app itself"
     internal static let asciiDiagram = ["Read: Source -> Summary", "Write: Note -> Local storage"]
     internal static let titledDiagram = """
