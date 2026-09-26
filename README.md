@@ -475,7 +475,8 @@ One record per change; complete details and evidence are below. Older work dates
   and 12 version checks. `make app` built, signed, and promoted v4.0/build 40, which passed strict
   signature verification. Rendered through macOS's own icon lookup, the app's outline matches the
   folder icon to within 0.2% of pixels. The app launched from the project root, ran without a crash
-  report, and quit. Delivered uncommitted; the public mirror still carries v3.9.
+  report, and quit. Delivered uncommitted and recorded in `f5430af`; the public mirror still carries
+  v3.9.
 
 [Back to change history](#change-history)
 
