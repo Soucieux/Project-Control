@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.0%20build%2040-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.1%20build%2041-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -55,7 +55,7 @@ open "Project Control.app"
 - **Automatic refresh:** Active views check the repository's READMEs and project folders about every two seconds. **Refresh now** — the arrow beside the version at the foot of the rail, or `Command-R` — reloads immediately. **Change repository…** in the rail footer, or `Command-O`, chooses another repository.
 - **Valid edits:** Replace the displayed content while preserving local notes and an existing selection.
 - **Unreadable files:** Keep the last good view with an out-of-date warning. Repair the README to recover on the next check.
-- **Last read:** Reports when documentation was read; runtime health remains unchecked.
+- **Last read:** The pill in the top corner of the repository screen reports when documentation was read; on a project's screen it shows the README's state and folder instead. Runtime health remains unchecked.
 
 ### Local storage and app opening
 
@@ -74,7 +74,7 @@ open "Project Control.app"
 
 | Technology or concept | Use in this project |
 |---|---|
-| SwiftUI | Builds the black chassis, shared-artwork detail layer, animated hierarchy rail, artwork lock, project screens, work-note editor, History, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
+| SwiftUI | Builds the black chassis, the sky-and-cloud detail layer, smoked-glass content, animated hierarchy rail, artwork lock, project screens, work-note editor, expandable History cards, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
 | AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon shows each project folder's own Finder icon, with a neutral fallback. |
 
 ### Backend & Application Logic
@@ -110,7 +110,7 @@ No LLM, embedding service, RAG index, network client, or automatic project execu
 ```text
 Project Control/
 ├── Sources/Core/       # README extraction, models, constants, local storage
-├── Sources/App/        # Native state, layered interface, shared detail/lock artwork
+├── Sources/App/        # Native state, layered interface, sky backdrop and lock artwork
 ├── Resources/          # Bundle identity, version, Repository Atlas master, and icon catalog
 ├── Scripts/            # Version and build pair check run before packaging
 ├── Tests/              # Focused synthetic and read-only repository checks
@@ -270,7 +270,7 @@ Place a standalone marker immediately before the heading that owns the content; 
 | `release` | Not displayed | Current release/build label |
 | `ignore` | Excluded section and descendants | Excluded section and descendants |
 
-- The project card shows the `release` section's version. A version written in bold after a component name, such as `**Observatory v2.7**`, keeps that name, so a component's number is never shown as the whole project's. Without one, the card shows **Dated history** when the numbering declaration beside the release or history section says the project uses dated history, and **Release not specified** otherwise.
+- The project's title shows the `release` section's version under its name. A version written in bold after a component name, such as `**Observatory v2.7**`, keeps that name, so a component's number is never shown as the whole project's. Without one, the title shows **Dated history** when the numbering declaration beside the release or history section says the project uses dated history, and **Release not specified** otherwise.
 
 In a README containing markers, only marked sections and their descendants are selected. A section ends at the next heading of the same or a higher level.
 
@@ -295,7 +295,7 @@ A child's explicit marker can select a different destination, except inside `ign
 - Project Control reads the labels case-insensitively, removes presentation markup, and leaves later project-specific bullets available as the professional summary.
 - Categories and their projects retain first-appearance/source order.
 
-- Missing or blank Category values use **Uncategorized**; a missing or blank Technical scope is omitted from the sidebar row, and missing or blank Technologies from the project card.
+- Missing or blank Category values use **Uncategorized**; a missing or blank Technical scope is omitted from the sidebar row and the project's title, and missing or blank Technologies from the project card.
 - Custom category labels are supported without changing code.
 
 - Use short, factual labels: native UI with local logic is **Native desktop**, not a server-based full-stack app; AI educational content is not an AI runtime.
@@ -403,7 +403,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.0 (build 40)** in source and in the signed local app. [Change and delivery evidence](#v4-0-build-40).
+**v4.1 (build 41)** in source and in the signed local app. [Change and delivery evidence](#v4-1-build-41).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -422,6 +422,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.1 / build 41 | 2026-09-26 | <ul><li><strong>Look:</strong> Content sits on dark smoked glass over a sharp sky with pixel-dithered clouds, in place of the blurred artwork.</li><li><strong>Layout:</strong> Each screen reads in a centered column under a title set on the sky, and a small pill in the top corner shows the read time or README state.</li><li><strong>Details:</strong> The card's summaries read as a small label over a larger value, tags are plain text, history rows open into a panel inside their card, and the rail folds its labels away before it narrows.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-1-build-41) |
 | v4.0 / build 40 | 2026-09-26 | <ul><li><strong>Icon:</strong> Redrew the Repository Atlas icon in the macOS icon shape, so the app and the project folder show one icon at the standard size.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing, drawn-icon, and launch checks.</li></ul> | [Full record](#v4-0-build-40) |
 | v3.9 / build 39 | 2026-09-25 | <ul><li><strong>Open App:</strong> A choice from the detected-app menu is refused when that bundle is no longer a current candidate, so a bundle replaced by a link since the last check cannot open an app outside the project.</li><li><strong>Git reads:</strong> Git runs with a fixed environment, without system or personal Git settings, so a personal setting cannot change the activity the app shows.</li><li><strong>Source:</strong> The README parser compiles each pattern once, both screens share one tab strip, the three test suites share one assertion helper, the history list lives beside the other README content views, the minimum window height is named beside the width, and a test-only Git constant, a redundant container and a no-op modifier are gone.</li><li><strong>Documentation:</strong> The project structure lists Scripts, history and the guide, the build folder is described as staging only, and every history record's link target is named after its version and build or its subject.</li></ul> | [Full record](#v3-9-build-39) |
 | v3.8 / build 38 | 2026-09-24 | <ul><li><strong>Rail:</strong> The repository row shows how many projects the repository holds.</li><li><strong>Footer:</strong> The version and build, and the refresh cadence, each have one line under the Project Control name.</li></ul> | [Full record](#v3-8-build-38) |
@@ -458,6 +459,46 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-1-build-41"></a>
+
+### v4.1 / build 41
+
+- **Recorded date:** 2026-09-26.
+- **Surfaces:** Cards, tables, tab strips and prose planes are dark smoked glass with light text,
+  and the system controls on them use the dark appearance. Behind them, the blurred fortress artwork
+  gives way to a sharp sky with pixel-dithered cloud banks in the lower corners. The sky is fixed to
+  the window, so closing the rail uncovers the clouds beneath it. The lock screen's artwork is
+  unchanged. With Reduce Transparency, the glass and the sky are solid colours.
+- **Layout:** Every screen reads in one centered column about 870 points wide, which re-centers
+  rather than stretching when the rail opens or closes. Above the tabs, the title sits directly on
+  the sky: the repository's name over its project count and summary, or a project's icon and name
+  over its release and technical scope. The project card keeps the tags and actions on one row above
+  its summary strip. The label lines at the top of each screen become one small pill in the top
+  corner — Last read on the repository screen, the README state and folder on a project's — and
+  content scrolled up to it passes over it.
+- **Details:** Document health, Notes and App each show a small label over a larger value, Document
+  health with its green check or amber warning. Technology tags are plain monospaced text after a
+  small square mark instead of pills. Repository README in the rail footer ends in an arrow, because
+  it opens another application.
+- **History:** Each history row is a card with a round chevron that opens a darker panel inside the
+  same card. The card grows first, then the panel and its lines fade in from the top, in about half a
+  second; closing runs in reverse, and Reduce Motion opens and closes it at once.
+- **Rail:** Closing the rail fades its labels in about 0.12 seconds before it narrows in about 0.32;
+  opening widens it first and then brings the labels back. This replaces the single 0.78-second
+  motion. The expanded rail is 236 points wide instead of 250, and the project rows keep their two
+  lines.
+- **Scope:** No README parsing, notes, storage, Git reading or app-opening behaviour changed.
+
+**Evidence and delivery status**
+
+`make test` passed: 371 core, 41 store, 47 note/presentation, and 12 version checks. `make app`
+built and signed v4.1/build 41, which passed strict signature verification and reports version 4.1
+and build 41. It was installed at the project root in place of v4.0, launched on the repository
+screen showing the new design, and quit without a crash report. Delivered uncommitted; publication
+was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v4-0-build-40"></a>
 

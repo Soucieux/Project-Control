@@ -12,13 +12,7 @@ internal struct ProjectScreen: View {
 
     internal var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            HStack {
-                InstrumentLabel(title: (store.syncFailure == nil && project.sourceWarning == nil
-                    ? ControlConstants.synchronized : ControlConstants.sourceWarning).uppercased())
-                Spacer()
-                if store.loading { ProgressView().controlSize(.small) }
-                Text(project.folder.lastPathComponent).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
-            }
+            hero
             card
             if project.isStale || store.syncFailure != nil {
                 Text(ControlConstants.staleContent).font(.callout).foregroundStyle(ControlTheme.amber)
@@ -60,44 +54,42 @@ internal struct ProjectScreen: View {
                 header(target: target)
                 Divider().overlay(ControlTheme.line)
                 HStack(alignment: .top, spacing: 24) {
-                    healthSummary.frame(maxWidth: .infinity, alignment: .leading)
-                    notesSummary.frame(maxWidth: .infinity, alignment: .leading)
-                    applicationSummary(target: target).frame(maxWidth: .infinity, alignment: .leading)
+                    healthSummary
+                    notesSummary
+                    applicationSummary(target: target)
                 }
             }
         }
     }
 
-    /// Keeps one header layout whatever the name length or tag count: the icon, name, and actions share
-    /// the top row, where a long name wraps rather than moving the buttons, and the version and tags run
-    /// beneath the name across the card's full width, wrapping as needed.
+    /// The project's identity on the sky itself, centered above the column: its icon, its name, and the
+    /// release with the documented technical scope beneath.
+    private var hero: some View {
+        let release = project.version ?? (project.usesDatedHistory ? ControlConstants.datedHistory
+            : ControlConstants.releaseUnknown)
+        return VStack(spacing: 10) {
+            ProjectIcon(project: project, size: 52)
+            Text(project.name).font(.system(size: 38, weight: .light)).tracking(-1)
+                .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
+            Text(release + (project.classification.technicalScope.map { ControlConstants.joined + $0 }
+                ?? ControlConstants.empty))
+                .font(.callout.monospaced()).foregroundStyle(ControlTheme.muted)
+        }.multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.bottom, 4)
+    }
+
+    /// Keeps one header layout whatever the tag count: the tags wrap on the leading side and the actions
+    /// hold the trailing side, so the buttons never move.
     /// - Parameter target: Launch target already resolved for this view update.
-    /// - Returns: The card's identity and action rows.
+    /// - Returns: The card's tag and action row.
     private func header(target: URL?) -> some View {
-        let iconSize: CGFloat = 48
-        let iconSpacing: CGFloat = 14
-        return VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .center, spacing: iconSpacing) {
-                ProjectIcon(project: project, size: iconSize)
-                Text(project.name).font(.system(size: 32, weight: .light)).tracking(-1)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                HStack(spacing: 10) { actionControls(target: target) }
-                    .controlSize(.large).buttonStyle(.bordered).fixedSize()
-                    .padding(.leading, 24 - iconSpacing)
-            }
-            HStack(alignment: .top, spacing: 12) {
-                Text(project.version ?? (project.usesDatedHistory ? ControlConstants.datedHistory : ControlConstants.releaseUnknown))
-                    .font(.callout.monospaced())
-                    .foregroundStyle(ControlTheme.mint).padding(.top, 3).fixedSize()
-                if !project.classification.technologies.isEmpty {
-                    TechnologyTagLayout {
-                        ForEach(project.classification.technologies, id: \.self) { technology in
-                            ClassificationBadge(title: ControlConstants.technology, value: technology)
-                        }
-                    }
+        HStack(alignment: .center, spacing: 16) {
+            TechnologyTagLayout {
+                ForEach(project.classification.technologies, id: \.self) { technology in
+                    ClassificationBadge(title: ControlConstants.technology, value: technology)
                 }
-            }.padding(.leading, iconSize + iconSpacing)
+            }.frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 10) { actionControls(target: target) }
+                .controlSize(.large).buttonStyle(.bordered).fixedSize()
         }
     }
 
@@ -191,45 +183,53 @@ internal struct ProjectScreen: View {
     }
 
     private var notesSummary: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            InstrumentLabel(title: ControlConstants.notesSummary)
-            Label(notes.isEmpty ? ControlConstants.noNotes : ControlConstants.notesAvailable,
-                systemImage: ControlConstants.noteIcon)
-                .font(.caption.weight(.medium)).foregroundStyle(notes.isEmpty ? ControlTheme.muted : ControlTheme.mint)
-        }
+        metric(ControlConstants.notesSummary, value: notes.isEmpty ? ControlConstants.noNotes : ControlConstants.notesAvailable,
+            tint: notes.isEmpty ? ControlTheme.ink : ControlTheme.mint) { EmptyView() }
     }
 
     private var healthSummary: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            InstrumentLabel(title: ControlConstants.documentHealth)
-            Label(healthMessage, systemImage: project.folderAvailable && project.readmeAvailable
-                ? ControlConstants.completeIcon : ControlConstants.warningIcon)
-                .font(.caption.weight(.medium)).fixedSize(horizontal: false, vertical: true)
-                .foregroundStyle(project.folderAvailable && project.readmeAvailable ? ControlTheme.mint : ControlTheme.amber)
-            if !project.isRegistered {
-                Text(ControlConstants.unregisteredProject).font(.caption).foregroundStyle(ControlTheme.amber)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Text(ControlConstants.runtimeUnknown).font(.caption).foregroundStyle(ControlTheme.muted)
+        let available = project.folderAvailable && project.readmeAvailable
+        let value = !project.folderAvailable ? ControlConstants.healthFolderMissing
+            : project.readmeAvailable ? ControlConstants.healthAvailable : ControlConstants.healthReadmeMissing
+        return metric(ControlConstants.documentHealth, value: value, tint: available ? ControlTheme.mint : ControlTheme.amber,
+            icon: available ? ControlConstants.completeIcon : ControlConstants.warningIcon) {
+            if !project.folderAvailable { Text(ControlConstants.folderMissing) }
+            else if !project.readmeAvailable { Text(ControlConstants.noReadme) }
+            if !project.isRegistered { Text(ControlConstants.unregisteredProject).foregroundStyle(ControlTheme.amber) }
+            Text(ControlConstants.runtimeUnknown)
         }
     }
 
     /// Reports which app Open App will use, or why it will ask.
     /// - Parameter target: Launch target already resolved for this view update.
-    /// - Returns: The APP column of the card's summary strip.
+    /// - Returns: The App column of the card's summary strip.
     private func applicationSummary(target: URL?) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            InstrumentLabel(title: ControlConstants.applicationSummary)
-            Text(target.map { (project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice)
-                + ControlConstants.colon + ControlConstants.space + $0.lastPathComponent }
+        metric(ControlConstants.applicationSummary, value: target?.lastPathComponent ?? ControlConstants.noValue,
+            tint: ControlTheme.ink) {
+            Text(target.map { project.applications.contains($0) ? ControlConstants.detectedApp : ControlConstants.appChoice }
                 ?? (project.applications.count > 1 ? ControlConstants.appAmbiguous : ControlConstants.appMissing))
-                .font(.caption).foregroundStyle(ControlTheme.muted).fixedSize(horizontal: false, vertical: true)
         }
     }
 
-    private var healthMessage: String {
-        !project.folderAvailable ? ControlConstants.folderMissing
-            : project.readmeAvailable ? ControlConstants.available : ControlConstants.noReadme
+    /// Builds one column of the card's summary strip: a small label over a larger value, then any detail.
+    /// - Parameters:
+    ///   - label: What the column reports.
+    ///   - value: The short current value.
+    ///   - tint: Colour of the value and its icon.
+    ///   - icon: Optional SF Symbol before the value, for a state such as available or missing.
+    ///   - detail: Quiet explanatory lines beneath the value.
+    /// - Returns: The column, filling its share of the strip.
+    private func metric<Detail: View>(_ label: String, value: String, tint: Color, icon: String? = nil,
+                                      @ViewBuilder detail: () -> Detail) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label).font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+            HStack(spacing: 6) {
+                if let icon { Image(systemName: icon).font(.system(size: 14)).accessibilityHidden(true) }
+                Text(value).font(.system(size: 17)).lineLimit(1).truncationMode(.middle)
+            }.foregroundStyle(tint)
+            VStack(alignment: .leading, spacing: 2) { detail() }
+                .font(.caption).foregroundStyle(ControlTheme.muted).fixedSize(horizontal: false, vertical: true)
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -239,11 +239,12 @@ private struct ClassificationBadge: View {
     internal let value: String
 
     internal var body: some View {
-        Text(value).font(.system(size: 11, weight: .medium)).foregroundStyle(ControlTheme.ink)
-            .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, 8).padding(.vertical, 4)
-            .background(Color.white.opacity(0.45), in: Capsule())
-            .overlay { Capsule().stroke(ControlTheme.line, lineWidth: 0.7) }
+        // Inline, as plain monospaced text after a small square mark; no pill, so it never reads as a button.
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 1.5).fill(ControlTheme.muted.opacity(0.6)).frame(width: 6, height: 6)
+            Text(value).font(.system(size: 11, design: .monospaced)).foregroundStyle(ControlTheme.muted)
+                .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
+        }.padding(.vertical, 3).padding(.trailing, 10)
             .help(title + ControlConstants.colon + ControlConstants.space + value)
             .accessibilityElement(children: .ignore).accessibilityLabel(title).accessibilityValue(value)
     }
@@ -261,7 +262,7 @@ private struct NoteEditor: View {
         VStack(alignment: .leading, spacing: 10) {
             TextEditor(text: $note.text).font(.body).scrollContentBackground(.hidden)
                 .padding(10).frame(minHeight: 150, maxHeight: 220)
-                .background(Color.white.opacity(0.34), in: RoundedRectangle(cornerRadius: 12))
+                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(ControlTheme.line, lineWidth: 1))
                 .accessibilityLabel(ControlConstants.noteText).focused($focused)
             Text(ControlConstants.noteLimit).font(.caption)

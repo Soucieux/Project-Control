@@ -207,7 +207,7 @@ internal struct CommitActivityView: View {
                     .fill(future ? ControlTheme.activityFuture : ControlTheme.activityLevels[intensity])
                 Text(showsCount ? String(count) : ControlConstants.empty)
                     .font(.system(size: metrics.countFont, weight: .bold))
-                    .foregroundStyle(intensity >= 3 ? Color.white : ControlTheme.ink)
+                    .foregroundStyle(intensity >= 3 ? Color.white : ControlTheme.sceneInk)
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
         }.buttonStyle(.plain).disabled(!showsCount)
             .overlay {

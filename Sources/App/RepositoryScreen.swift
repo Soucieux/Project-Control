@@ -9,21 +9,15 @@ internal struct RepositoryScreen: View {
 
     internal var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            HStack {
-                InstrumentLabel(title: ControlConstants.repository)
-                Spacer()
-                if store.loading { ProgressView().controlSize(.small) }
-                Text(ControlConstants.lastRead + ControlConstants.space + snapshot.readAt.formatted(date: .omitted, time: .standard))
-                    .font(.caption.monospaced()).foregroundStyle(ControlTheme.muted)
-            }
-            GlassCard {
-                HStack(spacing: 18) {
-                    Image(systemName: ControlConstants.folderIcon).font(.system(size: 36, weight: .light))
-                        .foregroundStyle(ControlTheme.mint).accessibilityHidden(true)
-                    Text(snapshot.root.lastPathComponent).font(.system(size: 38, weight: .light))
-                        .tracking(-1).fixedSize(horizontal: false, vertical: true)
-                }
-            }
+            // The title sits on the sky itself, centered above the column, with the project count beneath.
+            VStack(spacing: 8) {
+                Text(snapshot.root.lastPathComponent).font(.system(size: 40, weight: .light)).tracking(-1)
+                    .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
+                Text(String(format: snapshot.projects.count == 1 ? ControlConstants.singleProjectCountFormat
+                    : ControlConstants.projectCountFormat, snapshot.projects.count)
+                    + ControlConstants.joined + ControlConstants.repositorySummary)
+                    .font(.callout).foregroundStyle(ControlTheme.muted)
+            }.multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.vertical, 12)
             if let warning = store.syncFailure {
                 Text(ControlConstants.staleContent + ControlConstants.space + warning)
                     .font(.callout).foregroundStyle(ControlTheme.amber)

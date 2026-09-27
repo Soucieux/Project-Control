@@ -3,17 +3,28 @@ import SwiftUI
 /// Cinematic glass materials with a restrained sage, lime, ink, and cloud palette.
 internal enum ControlTheme {
     internal static let background = Color(red: 0.025, green: 0.031, blue: 0.029)
-    internal static let surface = Color(red: 0.94, green: 0.955, blue: 0.93)
-    internal static let surfaceStrong = Color(red: 0.975, green: 0.982, blue: 0.965)
     internal static let rail = Color(red: 0.018, green: 0.024, blue: 0.022)
-    internal static let ink = Color(red: 0.08, green: 0.105, blue: 0.095)
+    /// Text on the smoked glass and on the sky; the artwork keeps its own dark `sceneInk`.
+    internal static let ink = Color(red: 0.95, green: 0.96, blue: 0.94)
+    internal static let sceneInk = Color(red: 0.08, green: 0.105, blue: 0.095)
     internal static let railInk = Color(red: 0.91, green: 0.925, blue: 0.89)
-    internal static let muted = Color(red: 0.32, green: 0.37, blue: 0.35)
+    internal static let muted = Color(red: 0.78, green: 0.81, blue: 0.79)
     internal static let railMuted = Color(red: 0.61, green: 0.64, blue: 0.60)
     internal static let signal = Color(red: 0.79, green: 0.98, blue: 0.39)
-    internal static let line = Color.black.opacity(0.13)
-    internal static let amber = Color(red: 0.67, green: 0.43, blue: 0.14)
-    internal static let mint = Color(red: 0.20, green: 0.50, blue: 0.39)
+    internal static let line = Color.white.opacity(0.12)
+    internal static let amber = Color(red: 0.97, green: 0.74, blue: 0.40)
+    internal static let mint = Color(red: 0.49, green: 0.82, blue: 0.64)
+    /// The smoked tint laid over the dark material of every content plane.
+    internal static let glass = Color(red: 0.11, green: 0.14, blue: 0.14)
+    internal static let glassOpacity = 0.10
+    /// An opaque stand-in for the glass when Reduce Transparency is on.
+    internal static let glassSolid = Color(red: 0.27, green: 0.32, blue: 0.31)
+    internal static let skyTop = Color(red: 0.55, green: 0.64, blue: 0.64)
+    internal static let skyBottom = Color(red: 0.67, green: 0.74, blue: 0.71)
+    internal static let cloudLight = Color(red: 0.97, green: 0.93, blue: 0.80)
+    internal static let cloudMid = Color(red: 0.88, green: 0.82, blue: 0.66)
+    internal static let cloudShade = Color(red: 0.66, green: 0.66, blue: 0.58)
+    internal static let cloudPixel: CGFloat = 4
     internal static let sceneTop = Color(red: 0.67, green: 0.76, blue: 0.78)
     internal static let sceneBottom = Color(red: 0.82, green: 0.78, blue: 0.66)
     internal static let sceneWater = Color(red: 0.28, green: 0.48, blue: 0.51)
@@ -27,28 +38,28 @@ internal enum ControlTheme {
     ]
     internal static let activityFuture = Color.white.opacity(0.08)
     internal static let motion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.62)
-    internal static let navigationMotion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.78)
+    /// The rail's width change; its labels fade for `railLabelFade` before it narrows, and return
+    /// `railLabelDelay` after it starts to widen.
+    internal static let navigationMotion = Animation.timingCurve(0.4, 0, 0.2, 1, duration: 0.32)
+    internal static let railLabelFade = 0.12
+    internal static let railLabelDelay = 0.22
+    /// A history card grows for `historyGrowDuration`; `historyRevealDelay` after it starts, its panel
+    /// fades in and each line follows `historyLineStagger` after the one above.
+    internal static let historyGrowDuration = 0.24
+    internal static let historyRevealDelay = 0.2
+    internal static let historyLineStagger = 0.1
     internal static let cardRadius: CGFloat = 18
     internal static let detailFrameInset: CGFloat = 3
     internal static let detailCornerRadius: CGFloat = 18
     internal static let detailFrameWidth: CGFloat = 1
-    internal static let detailBackdropBlur: CGFloat = 10
-    internal static let detailHalftoneOpacity = 0.48
     internal static let collapsedRailWidth: CGFloat = 72
-    internal static let expandedRailWidth: CGFloat = 250
+    internal static let expandedRailWidth: CGFloat = 236
     internal static let railLeadingInset: CGFloat = 16
     internal static let railIconSize: CGFloat = 40
+    /// The centered column every detail screen reads in; it keeps its width while the rail moves.
+    internal static let readingColumnWidth: CGFloat = 870
     internal static let minimumWindowWidth: CGFloat = 1120
     internal static let minimumWindowHeight: CGFloat = 620
-}
-
-/// A compact section label with semantic hierarchy, not decorative telemetry.
-internal struct InstrumentLabel: View {
-    internal let title: String
-    internal var body: some View {
-        Text(title).font(.system(size: 11, weight: .medium, design: .monospaced))
-            .tracking(1.4).foregroundStyle(ControlTheme.muted)
-    }
 }
 
 /// A rounded, softly elevated information surface shared by project content.
@@ -68,13 +79,38 @@ internal struct GlassCard<Content: View>: View {
     internal var body: some View {
         content.padding(contentPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ControlTheme.surfaceStrong.opacity(0.72), in: RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous)
-                    .stroke(Color.white.opacity(0.42), lineWidth: 1)
-                    .allowsHitTesting(false)
+            .glassPlane()
+    }
+}
+
+/// The smoked-glass plane behind content: a dark material that samples the sky, a tint and a faint rim.
+private struct GlassBackground: ViewModifier {
+    internal let radius: CGFloat
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    /// Places the plane behind the content.
+    /// - Parameter content: The content drawn on the glass.
+    /// - Returns: The content over the glass, or over an opaque stand-in when Reduce Transparency is on.
+    internal func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        return content
+            .background {
+                if reduceTransparency { shape.fill(ControlTheme.glassSolid) }
+                else {
+                    shape.fill(.ultraThinMaterial).environment(\.colorScheme, .dark)
+                        .overlay { shape.fill(ControlTheme.glass.opacity(ControlTheme.glassOpacity)) }
+                }
             }
-            .shadow(color: Color.black.opacity(0.08), radius: 18, y: 8)
+            .overlay { shape.strokeBorder(Color.white.opacity(0.07), lineWidth: 1).allowsHitTesting(false) }
+    }
+}
+
+extension View {
+    /// Sets the view on the shared smoked-glass plane.
+    /// - Parameter radius: Corner radius of the plane.
+    /// - Returns: The view over the glass.
+    internal func glassPlane(radius: CGFloat = ControlTheme.cardRadius) -> some View {
+        modifier(GlassBackground(radius: radius))
     }
 }
 
@@ -88,13 +124,7 @@ internal struct ContentSurface<Content: View>: View {
     internal init(@ViewBuilder content: () -> Content) { self.content = content() }
 
     internal var body: some View {
-        content.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-            .background(ControlTheme.surface.opacity(0.54), in:
-                RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous)
-                    .stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false)
-            }
+        content.padding(20).frame(maxWidth: .infinity, alignment: .leading).glassPlane()
     }
 }
 
@@ -121,6 +151,6 @@ internal struct TabStrip<Tab: Identifiable & Equatable>: View {
             }
         }.scrollIndicators(.hidden).fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 14)
-            .background(Color.white.opacity(0.30), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .glassPlane(radius: 13)
     }
 }

@@ -101,7 +101,7 @@ private struct CinematicBackdrop: View {
                     let opacity = phase.isMultiple(of: 5) ? 0.24 : 0.10
                     context.fill(
                         Path(ellipseIn: CGRect(x: x, y: y, width: diameter, height: diameter)),
-                        with: .color(ControlTheme.ink.opacity(opacity))
+                        with: .color(ControlTheme.sceneInk.opacity(opacity))
                     )
                     x += spacing
                 }
@@ -131,7 +131,7 @@ internal struct CinematicArtwork: View {
         HStack(alignment: .bottom, spacing: 7) {
             ForEach(0..<9, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(ControlTheme.ink.opacity(index.isMultiple(of: 2) ? 0.48 : 0.34))
+                    .fill(ControlTheme.sceneInk.opacity(index.isMultiple(of: 2) ? 0.48 : 0.34))
                     .frame(width: size.width * 0.055, height: size.height * (0.16 + CGFloat((index * 3) % 5) * 0.035))
             }
         }.offset(y: size.height * 0.10).accessibilityHidden(true)
@@ -143,7 +143,7 @@ internal struct CinematicArtwork: View {
     private func shore(in size: CGSize) -> some View {
         UnevenRoundedRectangle(topLeadingRadius: size.width * 0.04, bottomLeadingRadius: size.width * 0.02,
             bottomTrailingRadius: size.width * 0.20, topTrailingRadius: size.width * 0.30, style: .continuous)
-            .fill(ControlTheme.ink.opacity(0.34))
+            .fill(ControlTheme.sceneInk.opacity(0.34))
             .frame(width: size.width * 0.72, height: size.height * 0.20)
             .blur(radius: 3).offset(x: -size.width * 0.22, y: size.height * 0.35)
             .accessibilityHidden(true)
@@ -222,6 +222,101 @@ private struct CinematicLockTexture: View {
             }
         }
         .accessibilityHidden(true)
+    }
+}
+
+/// The detail surface's backdrop: a clear sky with pixel-dithered cloud banks in the lower corners, drawn
+/// crisp so the glass above it has something to sample. The caller anchors it to the window, so the
+/// clouds stay put while the rail opens and closes over them.
+internal struct SkyBackdrop: View {
+    /// One round puff of a cloud bank, placed inwards and upwards from the bank's corner, in points.
+    private struct Puff {
+        internal let x: CGFloat
+        internal let y: CGFloat
+        internal let radius: CGFloat
+    }
+
+    /// A wide base of low puffs, a middle tier, and smaller domes on top, as a cumulus bank.
+    private static let leadingBank = [
+        Puff(x: 40, y: 10, radius: 190), Puff(x: 200, y: 0, radius: 150), Puff(x: 330, y: -20, radius: 110),
+        Puff(x: 430, y: -40, radius: 80), Puff(x: 70, y: 170, radius: 120), Puff(x: 190, y: 140, radius: 100),
+        Puff(x: 110, y: 260, radius: 80), Puff(x: 30, y: 270, radius: 90)
+    ]
+    private static let trailingBank = [
+        Puff(x: 40, y: 20, radius: 200), Puff(x: 220, y: 10, radius: 170), Puff(x: 380, y: -10, radius: 130),
+        Puff(x: 500, y: -30, radius: 90), Puff(x: 80, y: 190, radius: 150), Puff(x: 220, y: 170, radius: 120),
+        Puff(x: 330, y: 120, radius: 100), Puff(x: 120, y: 330, radius: 100), Puff(x: 40, y: 360, radius: 110),
+        Puff(x: 210, y: 290, radius: 80)
+    ]
+    /// A 4×4 ordered-dither matrix scaled into 0...1, which breaks tone boundaries into pixels.
+    private static let dither: [CGFloat] = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map { ($0 + 0.5) / 16 }
+
+    internal var body: some View {
+        ZStack {
+            LinearGradient(colors: [ControlTheme.skyTop, ControlTheme.skyBottom], startPoint: .top, endPoint: .bottom)
+            Canvas { context, size in
+                var tones = [Path(), Path(), Path()]
+                Self.addBank(Self.leadingBank, leading: true, size: size, into: &tones)
+                Self.addBank(Self.trailingBank, leading: false, size: size, into: &tones)
+                context.fill(tones[0], with: .color(ControlTheme.cloudShade))
+                context.fill(tones[1], with: .color(ControlTheme.cloudMid))
+                context.fill(tones[2], with: .color(ControlTheme.cloudLight))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// Adds one bank's pixels to the shade, middle and light tone paths. The puffs merge into one soft
+    /// field, so the bank has a single bumpy outline; a pixel is lit where the field thins just above it,
+    /// shaded towards the bank's base, and the outline is dithered so the edge breaks into single pixels.
+    /// - Parameters:
+    ///   - puffs: The bank's puffs, measured from its corner.
+    ///   - leading: True for the lower-leading corner, false for the lower-trailing one.
+    ///   - size: Canvas size.
+    ///   - tones: Shade, middle and light paths, in that order.
+    /// - Returns: Nothing; appends squares to `tones`.
+    private static func addBank(_ puffs: [Puff], leading: Bool, size: CGSize, into tones: inout [Path]) {
+        let pixel = ControlTheme.cloudPixel
+        let outline: CGFloat = 0.5
+        let centers = puffs.map { puff in
+            (CGPoint(x: leading ? puff.x : size.width - puff.x, y: size.height - puff.y), puff.radius)
+        }
+        /// The merged field at a point: each puff adds a smooth bump that falls to zero at its radius.
+        /// - Parameters:
+        ///   - x: Horizontal canvas position.
+        ///   - y: Vertical canvas position.
+        /// - Returns: The summed field; the cloud's outline is where it crosses `outline`.
+        func field(_ x: CGFloat, _ y: CGFloat) -> CGFloat {
+            centers.reduce(0) { total, puff in
+                let dx = x - puff.0.x
+                let dy = y - puff.0.y
+                let bump = max(0, 1 - (dx * dx + dy * dy) / (puff.1 * puff.1))
+                return total + bump * bump
+            }
+        }
+        let left = max(0, centers.map { $0.0.x - $0.1 }.min() ?? 0)
+        let right = min(size.width, centers.map { $0.0.x + $0.1 }.max() ?? 0)
+        let top = max(0, centers.map { $0.0.y - $0.1 }.min() ?? 0)
+        let height = max(size.height - top, 1)
+        var y = (top / pixel).rounded(.down) * pixel
+        while y < size.height {
+            var x = (left / pixel).rounded(.down) * pixel
+            while x < right {
+                let centerX = x + pixel / 2
+                let centerY = y + pixel / 2
+                let density = field(centerX, centerY)
+                let threshold = dither[Int(x / pixel) % 4 + (Int(y / pixel) % 4) * 4]
+                if density > outline || density > outline * (0.55 + 0.45 * threshold) {
+                    let lit = min(max((density - field(centerX, centerY - pixel * 4)) / 0.45, 0), 1)
+                    let depth = (centerY - top) / height
+                    let tone = 0.42 + lit * 0.75 - depth * 0.28 + (threshold - 0.5) * 0.30
+                    let square = CGRect(x: x + 0.4, y: y + 0.4, width: pixel - 0.8, height: pixel - 0.8)
+                    tones[tone > 0.55 ? 2 : tone > 0.25 ? 1 : 0].addRect(square)
+                }
+                x += pixel
+            }
+            y += pixel
+        }
     }
 }
 

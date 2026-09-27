@@ -54,9 +54,8 @@ internal struct ReadmeTableView: View {
                 ScrollView(.horizontal) { grid(width: 240) }.fixedSize(horizontal: false, vertical: true)
             } else { grid(width: nil) }
         }
-        .background(ControlTheme.surfaceStrong.opacity(0.68))
         .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
+        .glassPlane(radius: 13)
     }
 
     /// Aligns source headers and data in one grid, preserving empty cells and source row order.
@@ -108,13 +107,75 @@ internal struct HistoryList: View {
             if entries.isEmpty {
                 ContentSurface { Text(ControlConstants.noHistory).foregroundStyle(ControlTheme.muted) }
             }
-            ForEach(entries) { entry in
-                DisclosureGroup {
-                    Text(entry.detail).font(.callout).lineSpacing(4).textSelection(.enabled)
-                        .foregroundStyle(ControlTheme.muted).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
-                } label: { Text(entry.heading).font(.callout.weight(.medium)) }
-                    .padding(14).background(Color.white.opacity(0.34), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            }
+            ForEach(entries) { entry in HistoryCard(entry: entry) }
         }.padding(.vertical, 10)
+    }
+}
+
+/// One history record as a glass card: its title and date beside a round disclosure button, opening a darker
+/// panel inside the same card. The card grows first, then the panel fades in and its lines follow from the
+/// top; closing runs the other way. Reduce Motion opens and closes it at once.
+private struct HistoryCard: View {
+    internal let entry: HistoryEntry
+    @State private var expanded = false
+    @State private var revealed = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The detail's source cells, one per line of the panel.
+    private var lines: [String] {
+        entry.detail.components(separatedBy: ControlConstants.joined).filter { !$0.isEmpty }
+    }
+
+    internal var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button(action: toggle) {
+                HStack(spacing: 12) {
+                    Text(entry.heading).font(.callout.weight(.medium)).multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Image(systemName: ControlConstants.expandedIcon).font(.system(size: 10, weight: .semibold))
+                        .rotationEffect(.degrees(expanded ? 180 : 0))
+                        .frame(width: 26, height: 26)
+                        .background(Color.white.opacity(0.10), in: Circle())
+                        .overlay { Circle().stroke(Color.white.opacity(0.12), lineWidth: 1) }
+                        .accessibilityHidden(true)
+                }.contentShape(Rectangle())
+            }.buttonStyle(.plain)
+                .accessibilityValue(expanded ? ControlConstants.expanded : ControlConstants.collapsed)
+            if expanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
+                        Text(line).font(.callout).lineSpacing(4).foregroundStyle(ControlTheme.muted)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .opacity(revealed ? 1 : 0).offset(y: revealed ? 0 : 4)
+                            .animation(reduceMotion ? nil : .easeOut(duration: 0.3)
+                                .delay(0.08 + Double(index) * ControlTheme.historyLineStagger),
+                                value: revealed)
+                    }
+                }
+                .textSelection(.enabled).padding(14)
+                .background(Color.black.opacity(revealed ? 0.24 : 0),
+                    in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.24), value: revealed)
+                .transition(.identity)
+            }
+        }
+        .padding(14).glassPlane(radius: 14)
+    }
+
+    /// Opens in two steps — the card grows, then the panel and its lines appear — and closes in reverse.
+    /// - Returns: Nothing; changes only local presentation state.
+    private func toggle() {
+        if reduceMotion {
+            expanded.toggle()
+            revealed = expanded
+        } else if expanded {
+            withAnimation(.easeIn(duration: 0.12)) { revealed = false }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                withAnimation(.easeInOut(duration: 0.2)) { expanded = false }
+            }
+        } else {
+            withAnimation(.easeOut(duration: ControlTheme.historyGrowDuration)) { expanded = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + ControlTheme.historyRevealDelay) { revealed = true }
+        }
     }
 }

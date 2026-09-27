@@ -18,8 +18,7 @@ internal struct WorkflowDiagram: View {
             ScrollView(.horizontal) { graph }.scrollIndicators(.hidden)
         }.fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .center)
-            .background(ControlTheme.surface.opacity(0.54), in: RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: ControlTheme.cardRadius, style: .continuous).stroke(ControlTheme.line, lineWidth: 1).allowsHitTesting(false))
+            .glassPlane()
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(route.label).accessibilityValue(accessibleConnections)
     }
@@ -33,7 +32,7 @@ internal struct WorkflowDiagram: View {
                             Text(node.label).font(.system(size: 13)).lineSpacing(4)
                                 .multilineTextAlignment(.center).foregroundStyle(ControlTheme.ink)
                         }.padding(14)
-                            .background(ControlTheme.surfaceStrong.opacity(0.72), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .background(Color.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(ControlTheme.mint.opacity(0.5), lineWidth: 1))
                             .anchorPreference(key: WorkflowBounds.self, value: .bounds) { [node.id: $0] }
                     }

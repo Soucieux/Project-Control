@@ -6,6 +6,8 @@ internal struct ControlWindow: View {
     @ObservedObject internal var store: ControlStore
     @State private var collapsedCategories: Set<String> = []
     @State private var sidebarExpanded = true
+    /// Whether the rail's text is shown; it fades before the rail narrows and after it widens.
+    @State private var labelsVisible = true
     /// The category whose project list is open beside its collapsed-rail icon.
     @State private var poppedCategory: String?
     @State private var displayLocked = false
@@ -17,6 +19,8 @@ internal struct ControlWindow: View {
         else { return nil }
         return String(format: ControlConstants.bundleVersionFormat, version, build)
     }
+    /// The rail's expanded-only content: labels, category headers and project rows.
+    private var showsLabels: Bool { sidebarExpanded && labelsVisible }
 
     internal var body: some View {
         ZStack {
@@ -69,7 +73,7 @@ internal struct ControlWindow: View {
                         .padding(.bottom, 7).accessibilityHidden(true)
                     Button { store.open(snapshot.root.appendingPathComponent(ControlConstants.readme)) } label: {
                         footerActionLabel(icon: ControlConstants.repositoryReadIcon,
-                            title: ControlConstants.repositoryRead)
+                            title: ControlConstants.repositoryRead, opensOutside: true)
                     }.buttonStyle(.plain).help(ControlConstants.openRepositoryReadme)
                         .accessibilityLabel(ControlConstants.openRepositoryReadme)
                     Button { store.chooseRepository() } label: {
@@ -103,25 +107,33 @@ internal struct ControlWindow: View {
     }
 
     private var contentSurface: some View {
-        VStack(spacing: 0) {
-            if let message = store.error { errorBanner(message) }
-            if let snapshot = store.snapshot { selectedContent(snapshot) }
-            else { connectionPrompt }
+        ZStack(alignment: .topTrailing) {
+            // Beneath the content, so content scrolled up to it passes over the pill rather than under it.
+            if let snapshot = store.snapshot { statusPill(snapshot).padding(14) }
+            VStack(spacing: 0) {
+                if let message = store.error { errorBanner(message) }
+                if let snapshot = store.snapshot { selectedContent(snapshot) }
+                else { connectionPrompt }
+            }
         }
+        // Light text and dark system controls, to suit the smoked glass.
+        .environment(\.colorScheme, .dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
-            ZStack {
-                if reduceTransparency {
-                    RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius, style: .continuous)
-                        .fill(ControlTheme.surfaceStrong.opacity(0.98))
-                } else {
-                    CinematicArtwork()
-                        .scaleEffect(1.025)
-                        .blur(radius: ControlTheme.detailBackdropBlur)
-                        .overlay { CinematicHalftone().opacity(ControlTheme.detailHalftoneOpacity) }
-                        .clipShape(RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius,
-                            style: .continuous))
+            if reduceTransparency {
+                RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius, style: .continuous)
+                    .fill(ControlTheme.skyTop)
+            } else {
+                // Anchored to the window rather than the surface, so the rail uncovers the clouds as it closes.
+                GeometryReader { proxy in
+                    let frame = proxy.frame(in: .global)
+                    SkyBackdrop()
+                        .frame(width: frame.maxX + ControlTheme.detailFrameInset,
+                            height: frame.maxY + ControlTheme.detailFrameInset)
+                        .offset(x: -frame.minX, y: -frame.minY)
                 }
+                // Clipping hides the part under the rail but would not stop it taking the rail's clicks.
+                .allowsHitTesting(false)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: ControlTheme.detailCornerRadius, style: .continuous))
@@ -141,8 +153,29 @@ internal struct ControlWindow: View {
             Group {
                 if let project = store.selectedProject { ProjectScreen(store: store, project: project).id(project.id) }
                 else { RepositoryScreen(store: store, snapshot: snapshot).id(snapshot.root.path) }
-            }.padding(28).frame(maxWidth: 1050).frame(maxWidth: .infinity)
+            }.padding(.horizontal, 28).padding(.top, 56).padding(.bottom, 28)
+                .frame(maxWidth: ControlTheme.readingColumnWidth).frame(maxWidth: .infinity)
         }
+    }
+
+    /// Reports what the detail shows — the read time on the repository screen, the README state and folder on
+    /// a project's — in a small read-only pill pinned to the top corner, beneath the content that scrolls over it.
+    /// - Parameter snapshot: Current repository snapshot.
+    /// - Returns: The status pill, with a spinner while a read is in progress.
+    private func statusPill(_ snapshot: RepositorySnapshot) -> some View {
+        let status: String
+        if let project = store.selectedProject {
+            status = (store.syncFailure == nil && project.sourceWarning == nil
+                ? ControlConstants.synchronized : ControlConstants.sourceWarning)
+                + ControlConstants.joined + project.folder.lastPathComponent
+        } else {
+            status = ControlConstants.lastRead + ControlConstants.space
+                + snapshot.readAt.formatted(date: .omitted, time: .standard)
+        }
+        return HStack(spacing: 6) {
+            if store.loading { ProgressView().controlSize(.mini) }
+            Text(status).font(.caption.monospaced()).foregroundStyle(ControlTheme.muted).lineLimit(1)
+        }.padding(.horizontal, 12).padding(.vertical, 6).glassPlane(radius: 13)
     }
 
     private var connectionPrompt: some View {
@@ -166,7 +199,7 @@ internal struct ControlWindow: View {
             Spacer()
             Button(ControlConstants.dismiss) { store.error = nil }
         }.font(.callout).foregroundStyle(ControlTheme.amber).padding(14)
-            .background(ControlTheme.surfaceStrong.opacity(0.82), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .glassPlane(radius: 12)
             .padding(.horizontal, 18).padding(.top, 12)
     }
 
@@ -186,8 +219,8 @@ internal struct ControlWindow: View {
                 railIcon(ControlConstants.repositoryIcon, selected: selected).contentShape(Rectangle())
             }.buttonStyle(.plain).help(toggle).accessibilityLabel(toggle)
                 // Expanded, the name below carries the same action for assistive technologies.
-                .accessibilityHidden(sidebarExpanded)
-            if sidebarExpanded {
+                .accessibilityHidden(showsLabels)
+            if showsLabels {
                 VStack(alignment: .leading, spacing: 3) {
                     Button(action: toggleRail) {
                         // The total of every listed project, styled like each category's count below it.
@@ -223,7 +256,7 @@ internal struct ControlWindow: View {
                 .frame(width: 30, height: 30)
                 .frame(width: ControlTheme.railIconSize, height: ControlTheme.railIconSize)
                 .accessibilityHidden(true)
-            if sidebarExpanded {
+            if showsLabels {
                 // One line each: the name, the version and build, then the refresh cadence.
                 VStack(alignment: .leading, spacing: 2) {
                     Text(ControlConstants.appName).font(.system(size: 12, weight: .semibold)).lineLimit(1)
@@ -248,11 +281,25 @@ internal struct ControlWindow: View {
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Opens or closes the rail, closing any category list that belongs to the collapsed rail.
+    /// Opens or closes the rail in two steps, closing any category list that belongs to the collapsed rail:
+    /// closing fades the labels before the rail narrows, and opening widens the rail before they return.
     /// - Returns: Nothing; changes only local presentation state.
     private func toggleRail() {
         poppedCategory = nil
-        sidebarExpanded.toggle()
+        if reduceMotion {
+            sidebarExpanded.toggle()
+            labelsVisible = sidebarExpanded
+        } else if sidebarExpanded {
+            withAnimation(.easeOut(duration: ControlTheme.railLabelFade)) { labelsVisible = false }
+            DispatchQueue.main.asyncAfter(deadline: .now() + ControlTheme.railLabelFade) {
+                withAnimation(ControlTheme.navigationMotion) { sidebarExpanded = false }
+            }
+        } else {
+            withAnimation(ControlTheme.navigationMotion) { sidebarExpanded = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + ControlTheme.railLabelDelay) {
+                withAnimation(.easeIn(duration: ControlTheme.railLabelFade)) { labelsVisible = true }
+            }
+        }
     }
 
     /// Animates every child row when its README-driven category opens or closes.
@@ -265,7 +312,7 @@ internal struct ControlWindow: View {
         let collapsed = collapsedCategories.contains(category.name)
         return VStack(spacing: 5) {
             Button {
-                if sidebarExpanded {
+                if showsLabels {
                     if collapsed { collapsedCategories.remove(category.name) }
                     else { collapsedCategories.insert(category.name) }
                 } else {
@@ -273,7 +320,7 @@ internal struct ControlWindow: View {
                 }
             } label: {
                 HStack(spacing: 10) {
-                    if sidebarExpanded {
+                    if showsLabels {
                         Image(systemName: collapsed ? ControlConstants.collapsedIcon : ControlConstants.expandedIcon)
                             .font(.system(size: 9, weight: .semibold)).frame(width: ControlTheme.railIconSize)
                             .accessibilityHidden(true)
@@ -288,15 +335,15 @@ internal struct ControlWindow: View {
                             }
                     }
                 }
-                .foregroundStyle(sidebarExpanded ? ControlTheme.railMuted : ControlTheme.railInk)
+                .foregroundStyle(showsLabels ? ControlTheme.railMuted : ControlTheme.railInk)
                 .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityLabel(category.name + ControlConstants.joined
                 + String(category.projects.count))
-                .accessibilityValue(sidebarExpanded ? (collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
+                .accessibilityValue(showsLabels ? (collapsed ? ControlConstants.collapsed : ControlConstants.expanded)
                     : ControlConstants.empty)
-                .accessibilityHint(sidebarExpanded ? ControlConstants.empty : ControlConstants.showCategoryProjects)
-                .help(sidebarExpanded ? ControlConstants.empty : category.name)
-            if sidebarExpanded && !collapsed {
+                .accessibilityHint(showsLabels ? ControlConstants.empty : ControlConstants.showCategoryProjects)
+                .help(showsLabels ? ControlConstants.empty : category.name)
+            if showsLabels && !collapsed {
                 ForEach(Array(category.projects.enumerated()), id: \.element.id) { index, project in
                     projectRow(project).transition(.opacity)
                         .animation(reduceMotion ? nil : ControlTheme.motion.delay(Double(index) * 0.045), value: collapsed)
@@ -335,7 +382,7 @@ internal struct ControlWindow: View {
     /// - Parameter name: Category whose list the binding controls.
     /// - Returns: A binding that is true only while that category's list is open.
     private func popoverBinding(_ name: String) -> Binding<Bool> {
-        Binding(get: { !sidebarExpanded && poppedCategory == name },
+        Binding(get: { !showsLabels && poppedCategory == name },
             set: { isPresented in if !isPresented && poppedCategory == name { poppedCategory = nil } })
     }
 
@@ -391,13 +438,19 @@ internal struct ControlWindow: View {
     /// - Parameters:
     ///   - icon: SF Symbol name rendered in the fixed rail icon column.
     ///   - title: Visible action label shown only while navigation is expanded.
+    ///   - opensOutside: True when the action opens another application, marked by a trailing arrow.
     /// - Returns: A full-width footer label with consistent spacing and alignment.
-    private func footerActionLabel(icon: String, title: String) -> some View {
+    private func footerActionLabel(icon: String, title: String, opensOutside: Bool = false) -> some View {
         HStack(spacing: 10) {
             railIcon(icon, selected: false)
-            if sidebarExpanded {
+            if showsLabels {
                 Text(title).font(.system(size: 12, weight: .medium))
                     .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading).transition(.opacity)
+                if opensOutside {
+                    Image(systemName: ControlConstants.readIcon).font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(ControlTheme.railMuted).padding(.trailing, 6)
+                        .accessibilityHidden(true).transition(.opacity)
+                }
             }
         }.frame(maxWidth: .infinity, alignment: .leading)
             .foregroundStyle(ControlTheme.railInk).contentShape(Rectangle())
