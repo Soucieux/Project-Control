@@ -479,7 +479,8 @@ built and signed v4.2/build 42, which passed strict signature verification and r
 and build 42. Rendered side by side with v4.1, Project Control's and Local Assistant's workflow
 diagrams show the gaps and straight connectors, with the branch and merge elbows unchanged. The
 running v4.1 app was quit, v4.2 was installed at the project root in its place, and it relaunched
-without a crash report. Delivered uncommitted; publication was not requested.
+without a crash report. Delivered uncommitted and recorded in `e01c706`; publication was not
+requested.
 
 [Back to change history](#change-history)
 
