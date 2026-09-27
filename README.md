@@ -495,8 +495,8 @@ One record per change; complete details and evidence are below. Older work dates
 `make test` passed: 371 core, 41 store, 47 note/presentation, and 12 version checks. `make app`
 built and signed v4.1/build 41, which passed strict signature verification and reports version 4.1
 and build 41. It was installed at the project root in place of v4.0, launched on the repository
-screen showing the new design, and quit without a crash report. Delivered uncommitted; publication
-was not requested.
+screen showing the new design, and quit without a crash report. Delivered uncommitted and recorded
+in `e64168e`; publication was not requested.
 
 [Back to change history](#change-history)
 
