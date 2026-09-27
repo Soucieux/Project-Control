@@ -51,8 +51,9 @@ internal struct WorkflowDiagram: View {
     /// - Parameters:
     ///   - anchors: Current node bounds.
     ///   - proxy: Shared diagram coordinate space.
-    /// - Returns: Orthogonal connectors and arrowheads, beneath the node surfaces. Each elbow sits midway
-    ///   between the two rows, so a branch or merge shares one line even when its nodes differ in height.
+    /// - Returns: Orthogonal connectors and arrowheads, beneath the node surfaces, each stopping a small gap
+    ///   short of both nodes. Each elbow sits midway between the two rows, so a branch or merge shares one
+    ///   line even when its nodes differ in height; nodes that line up get one straight line instead.
     private func connections(_ anchors: [Int: Anchor<CGRect>], proxy: GeometryProxy) -> Path {
         var rows: [Int: (top: CGFloat, bottom: CGFloat)] = [:]
         for node in route.nodes {
@@ -61,6 +62,10 @@ internal struct WorkflowDiagram: View {
             let row = rows[node.layer]
             rows[node.layer] = (min(row?.top ?? frame.minY, frame.minY), max(row?.bottom ?? frame.maxY, frame.maxY))
         }
+        // Centered nodes of different widths can land a pixel apart once positions are rounded; closer than
+        // this, two nodes count as lined up and share one straight connector.
+        let alignmentTolerance: CGFloat = 2
+        let gap = ControlTheme.diagramConnectorGap
         var path = Path()
         for edge in route.edges {
             guard let source = anchors[edge.source], let target = anchors[edge.target],
@@ -68,14 +73,22 @@ internal struct WorkflowDiagram: View {
                   let below = rows[route.nodes[edge.target].layer] else { continue }
             let from = proxy[source]
             let to = proxy[target]
-            let middle = (above.bottom + below.top) / 2
-            path.move(to: CGPoint(x: from.midX, y: from.maxY))
-            path.addLine(to: CGPoint(x: from.midX, y: middle))
-            path.addLine(to: CGPoint(x: to.midX, y: middle))
-            path.addLine(to: CGPoint(x: to.midX, y: to.minY))
-            path.move(to: CGPoint(x: to.midX - 4, y: to.minY - 7))
-            path.addLine(to: CGPoint(x: to.midX, y: to.minY))
-            path.addLine(to: CGPoint(x: to.midX + 4, y: to.minY - 7))
+            let top = from.maxY + gap
+            let tip = to.minY - gap
+            var endX = to.midX
+            if abs(from.midX - to.midX) < alignmentTolerance {
+                endX = ((from.midX + to.midX) / 2).rounded()
+                path.move(to: CGPoint(x: endX, y: top))
+            } else {
+                let middle = (above.bottom + below.top) / 2
+                path.move(to: CGPoint(x: from.midX, y: top))
+                path.addLine(to: CGPoint(x: from.midX, y: middle))
+                path.addLine(to: CGPoint(x: endX, y: middle))
+            }
+            path.addLine(to: CGPoint(x: endX, y: tip))
+            path.move(to: CGPoint(x: endX - 4, y: tip - 7))
+            path.addLine(to: CGPoint(x: endX, y: tip))
+            path.addLine(to: CGPoint(x: endX + 4, y: tip - 7))
         }
         return path
     }

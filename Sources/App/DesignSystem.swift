@@ -56,6 +56,8 @@ internal enum ControlTheme {
     internal static let expandedRailWidth: CGFloat = 236
     internal static let railLeadingInset: CGFloat = 16
     internal static let railIconSize: CGFloat = 40
+    /// The space a workflow connector leaves between itself and each node it joins.
+    internal static let diagramConnectorGap: CGFloat = 5
     /// The centered column every detail screen reads in; it keeps its width while the rail moves.
     internal static let readingColumnWidth: CGFloat = 870
     internal static let minimumWindowWidth: CGFloat = 1120

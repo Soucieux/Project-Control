@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.1%20build%2041-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.2%20build%2042-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -403,7 +403,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.1 (build 41)** in source and in the signed local app. [Change and delivery evidence](#v4-1-build-41).
+**v4.2 (build 42)** in source and in the signed local app. [Change and delivery evidence](#v4-2-build-42).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -422,6 +422,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.2 / build 42 | 2026-09-27 | <ul><li><strong>Diagrams:</strong> Every workflow arrow stops a small gap short of the rectangles it joins, and nodes that line up are joined by one straight line instead of one with a slight sideways jog.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-2-build-42) |
 | v4.1 / build 41 | 2026-09-26 | <ul><li><strong>Look:</strong> Content sits on dark smoked glass over a sharp sky with pixel-dithered clouds, in place of the blurred artwork.</li><li><strong>Layout:</strong> Each screen reads in a centered column under a title set on the sky, and a small pill in the top corner shows the read time or README state.</li><li><strong>Details:</strong> The card's summaries read as a small label over a larger value, tags are plain text, history rows open into a panel inside their card, and the rail folds its labels away before it narrows.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-1-build-41) |
 | v4.0 / build 40 | 2026-09-26 | <ul><li><strong>Icon:</strong> Redrew the Repository Atlas icon in the macOS icon shape, so the app and the project folder show one icon at the standard size.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing, drawn-icon, and launch checks.</li></ul> | [Full record](#v4-0-build-40) |
 | v3.9 / build 39 | 2026-09-25 | <ul><li><strong>Open App:</strong> A choice from the detected-app menu is refused when that bundle is no longer a current candidate, so a bundle replaced by a link since the last check cannot open an app outside the project.</li><li><strong>Git reads:</strong> Git runs with a fixed environment, without system or personal Git settings, so a personal setting cannot change the activity the app shows.</li><li><strong>Source:</strong> The README parser compiles each pattern once, both screens share one tab strip, the three test suites share one assertion helper, the history list lives beside the other README content views, the minimum window height is named beside the width, and a test-only Git constant, a redundant container and a no-op modifier are gone.</li><li><strong>Documentation:</strong> The project structure lists Scripts, history and the guide, the build folder is described as staging only, and every history record's link target is named after its version and build or its subject.</li></ul> | [Full record](#v3-9-build-39) |
@@ -459,6 +460,28 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-2-build-42"></a>
+
+### v4.2 / build 42
+
+- **Recorded date:** 2026-09-27.
+- **Diagrams:** Every workflow connector and its arrowhead now stop 5 points short of the rectangles
+  they join, instead of touching them. Two nodes that line up, with centers within two points, are
+  joined by one straight line. Before, a node whose width left its center half a point off drew a
+  small sideways jog halfway down. Branches and merges keep their shared elbow.
+- **Scope:** No README parsing or other layout changed.
+
+**Evidence and delivery status**
+
+`make test` passed: 371 core, 41 store, 47 note/presentation, and 12 version checks. `make app`
+built and signed v4.2/build 42, which passed strict signature verification and reports version 4.2
+and build 42. Rendered side by side with v4.1, Project Control's and Local Assistant's workflow
+diagrams show the gaps and straight connectors, with the branch and merge elbows unchanged. The
+running v4.1 app was quit, v4.2 was installed at the project root in its place, and it relaunched
+without a crash report. Delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v4-1-build-41"></a>
 
