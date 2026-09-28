@@ -530,7 +530,8 @@ identical to the source. Installed in place of v4.2 at this project root, where 
 signature verification and launched showing the repository's name and every project's folder icon;
 the v4.2 bundle was moved to the Trash. After the last source change, on 2026-09-28, the app was
 rebuilt from the final sources, passed the same signature and identity checks, launched without a
-crash report, and replaced the installed v4.3. Delivered uncommitted; publication was not requested.
+crash report, and replaced the installed v4.3. Delivered uncommitted and recorded in `b44c024`;
+publication was not requested.
 
 [Back to change history](#change-history)
 
