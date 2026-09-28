@@ -5,6 +5,9 @@ import SwiftUI
 internal struct ControlWindow: View {
     @ObservedObject internal var store: ControlStore
     @State private var collapsedCategories: Set<String> = []
+    /// The rail state last asked for; `followRailRequest` moves the rail towards it in two steps.
+    @State private var railExpanded = true
+    /// Whether the rail is at its expanded width.
     @State private var sidebarExpanded = true
     /// Whether the rail's text is shown; it fades before the rail narrows and after it widens.
     @State private var labelsVisible = true
@@ -38,6 +41,7 @@ internal struct ControlWindow: View {
         }
         .foregroundStyle(ControlTheme.ink).tint(ControlTheme.mint)
         .animation(reduceMotion ? nil : ControlTheme.motion, value: displayLocked)
+        .task(id: railExpanded) { await followRailRequest() }
         .onChange(of: store.snapshot?.root) { _, _ in collapsedCategories.removeAll() }
         .onChange(of: store.selectedProject?.classification.category) { _, category in
             if let category { collapsedCategories.remove(category) }
@@ -54,7 +58,6 @@ internal struct ControlWindow: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(reduceMotion ? nil : ControlTheme.navigationMotion, value: sidebarExpanded)
     }
 
     private var navigationRail: some View {
@@ -210,10 +213,8 @@ internal struct ControlWindow: View {
     /// - Returns: The repository row, or its icon alone in rail mode.
     private func repositoryRow(_ snapshot: RepositorySnapshot) -> some View {
         let selected = store.selection == snapshot.root.path
-        let toggle = sidebarExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation
-        let count = snapshot.projects.count
-        let countLabel = String(format: count == 1 ? ControlConstants.singleProjectCountFormat
-            : ControlConstants.projectCountFormat, count)
+        let toggle = railExpanded ? ControlConstants.collapseNavigation : ControlConstants.expandNavigation
+        let countLabel = snapshot.projectCountLabel
         return HStack(spacing: 10) {
             Button(action: toggleRail) {
                 railIcon(ControlConstants.repositoryIcon, selected: selected).contentShape(Rectangle())
@@ -227,7 +228,8 @@ internal struct ControlWindow: View {
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Text(snapshot.root.lastPathComponent).font(.system(size: 13, weight: .semibold)).lineLimit(2)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(count.formatted()).font(.caption2.monospaced()).foregroundStyle(ControlTheme.railMuted)
+                            Text(snapshot.projects.count.formatted()).font(.caption2.monospaced())
+                                .foregroundStyle(ControlTheme.railMuted)
                                 .help(countLabel)
                         }.contentShape(Rectangle())
                     }.buttonStyle(.plain).help(toggle)
@@ -281,24 +283,33 @@ internal struct ControlWindow: View {
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Opens or closes the rail in two steps, closing any category list that belongs to the collapsed rail:
-    /// closing fades the labels before the rail narrows, and opening widens the rail before they return.
-    /// - Returns: Nothing; changes only local presentation state.
+    /// Asks the rail to open or close, closing any category list that belongs to the collapsed rail.
+    /// - Returns: Nothing; `followRailRequest` carries out the change.
     private func toggleRail() {
         poppedCategory = nil
+        railExpanded.toggle()
+    }
+
+    /// Moves the rail to the state last asked for in two steps: closing fades the labels before the rail
+    /// narrows, and opening widens the rail before they return. A newer request cancels the step still
+    /// waiting, so quick repeated clicks always end in the state last asked for.
+    /// - Returns: Nothing; changes only local presentation state.
+    private func followRailRequest() async {
+        let expand = railExpanded
+        guard sidebarExpanded != expand || labelsVisible != expand else { return }
         if reduceMotion {
-            sidebarExpanded.toggle()
-            labelsVisible = sidebarExpanded
-        } else if sidebarExpanded {
-            withAnimation(.easeOut(duration: ControlTheme.railLabelFade)) { labelsVisible = false }
-            DispatchQueue.main.asyncAfter(deadline: .now() + ControlTheme.railLabelFade) {
-                withAnimation(ControlTheme.navigationMotion) { sidebarExpanded = false }
-            }
-        } else {
+            sidebarExpanded = expand
+            labelsVisible = expand
+        } else if expand {
             withAnimation(ControlTheme.navigationMotion) { sidebarExpanded = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + ControlTheme.railLabelDelay) {
-                withAnimation(.easeIn(duration: ControlTheme.railLabelFade)) { labelsVisible = true }
-            }
+            try? await Task.sleep(for: .seconds(ControlTheme.railLabelDelay))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeIn(duration: ControlTheme.railLabelFade)) { labelsVisible = true }
+        } else {
+            withAnimation(.easeOut(duration: ControlTheme.railLabelFade)) { labelsVisible = false }
+            try? await Task.sleep(for: .seconds(ControlTheme.railLabelFade))
+            guard !Task.isCancelled else { return }
+            withAnimation(ControlTheme.navigationMotion) { sidebarExpanded = false }
         }
     }
 
@@ -346,7 +357,8 @@ internal struct ControlWindow: View {
             if showsLabels && !collapsed {
                 ForEach(Array(category.projects.enumerated()), id: \.element.id) { index, project in
                     projectRow(project).transition(.opacity)
-                        .animation(reduceMotion ? nil : ControlTheme.motion.delay(Double(index) * 0.045), value: collapsed)
+                        .animation(reduceMotion ? nil
+                            : ControlTheme.motion.delay(Double(index) * ControlTheme.disclosureStagger), value: collapsed)
                 }
             }
         }.animation(reduceMotion ? nil : ControlTheme.motion, value: collapsed)

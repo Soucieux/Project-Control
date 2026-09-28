@@ -62,9 +62,6 @@ internal struct WorkflowDiagram: View {
             let row = rows[node.layer]
             rows[node.layer] = (min(row?.top ?? frame.minY, frame.minY), max(row?.bottom ?? frame.maxY, frame.maxY))
         }
-        // Centered nodes of different widths can land a pixel apart once positions are rounded; closer than
-        // this, two nodes count as lined up and share one straight connector.
-        let alignmentTolerance: CGFloat = 2
         let gap = ControlTheme.diagramConnectorGap
         var path = Path()
         for edge in route.edges {
@@ -76,7 +73,7 @@ internal struct WorkflowDiagram: View {
             let top = from.maxY + gap
             let tip = to.minY - gap
             var endX = to.midX
-            if abs(from.midX - to.midX) < alignmentTolerance {
+            if abs(from.midX - to.midX) < ControlTheme.diagramAlignmentTolerance {
                 endX = ((from.midX + to.midX) / 2).rounded()
                 path.move(to: CGPoint(x: endX, y: top))
             } else {

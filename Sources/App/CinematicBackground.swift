@@ -29,7 +29,8 @@ private final class TransparentWindowBridge: NSView {
     }
 }
 
-/// A restrained full-window scene whose light, clouds, and texture remain legible through glass.
+/// The lock artwork's soft full-window scene: a gradient sky, a blurred horizon, two blurred cloud clusters and a
+/// faint dot field.
 private struct CinematicBackdrop: View {
     internal var body: some View {
         GeometryReader { proxy in
@@ -111,8 +112,8 @@ private struct CinematicBackdrop: View {
     }
 }
 
-/// Shared light artwork used by both the active detail pane and the privacy cover.
-internal struct CinematicArtwork: View {
+/// The privacy cover's light artwork: the soft scene, a distant fortress, a foreground shore and the halftone.
+private struct CinematicArtwork: View {
     internal var body: some View {
         GeometryReader { proxy in
             ZStack {
@@ -150,8 +151,8 @@ internal struct CinematicArtwork: View {
     }
 }
 
-/// Draws the lower-third dot field shared by the clear lock artwork and blurred detail background.
-internal struct CinematicHalftone: View {
+/// Draws the lock artwork's sage dot field, confined to the lower half and fading out upward.
+private struct CinematicHalftone: View {
     internal var body: some View {
         Canvas { context, size in
             let spacing: CGFloat = 7
@@ -250,41 +251,45 @@ internal struct SkyBackdrop: View {
     ]
     /// A 4×4 ordered-dither matrix scaled into 0...1, which breaks tone boundaries into pixels.
     private static let dither: [CGFloat] = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map { ($0 + 0.5) / 16 }
+    /// Each bank's pixels, measured from its corner. They are worked out once and moved with the corner, so a
+    /// resize only moves them and the clouds keep every pixel.
+    private static let leadingTones = tones(leadingBank, leading: true)
+    private static let trailingTones = tones(trailingBank, leading: false)
 
     internal var body: some View {
         ZStack {
             LinearGradient(colors: [ControlTheme.skyTop, ControlTheme.skyBottom], startPoint: .top, endPoint: .bottom)
             Canvas { context, size in
-                var tones = [Path(), Path(), Path()]
-                Self.addBank(Self.leadingBank, leading: true, size: size, into: &tones)
-                Self.addBank(Self.trailingBank, leading: false, size: size, into: &tones)
-                context.fill(tones[0], with: .color(ControlTheme.cloudShade))
-                context.fill(tones[1], with: .color(ControlTheme.cloudMid))
-                context.fill(tones[2], with: .color(ControlTheme.cloudLight))
+                for (tones, corner) in [(Self.leadingTones, CGPoint(x: 0, y: size.height)),
+                                        (Self.trailingTones, CGPoint(x: size.width, y: size.height))] {
+                    var bank = context
+                    bank.translateBy(x: corner.x, y: corner.y)
+                    bank.fill(tones[0], with: .color(ControlTheme.cloudShade))
+                    bank.fill(tones[1], with: .color(ControlTheme.cloudMid))
+                    bank.fill(tones[2], with: .color(ControlTheme.cloudLight))
+                }
             }
         }
         .accessibilityHidden(true)
     }
 
-    /// Adds one bank's pixels to the shade, middle and light tone paths. The puffs merge into one soft
+    /// Works out one bank's pixels as shade, middle and light tone paths. The puffs merge into one soft
     /// field, so the bank has a single bumpy outline; a pixel is lit where the field thins just above it,
     /// shaded towards the bank's base, and the outline is dithered so the edge breaks into single pixels.
     /// - Parameters:
     ///   - puffs: The bank's puffs, measured from its corner.
     ///   - leading: True for the lower-leading corner, false for the lower-trailing one.
-    ///   - size: Canvas size.
-    ///   - tones: Shade, middle and light paths, in that order.
-    /// - Returns: Nothing; appends squares to `tones`.
-    private static func addBank(_ puffs: [Puff], leading: Bool, size: CGSize, into tones: inout [Path]) {
+    /// - Returns: Shade, middle and light paths, in that order, measured from the bank's corner, which is their
+    ///   origin; the bank lies above it and inside the canvas.
+    private static func tones(_ puffs: [Puff], leading: Bool) -> [Path] {
         let pixel = ControlTheme.cloudPixel
         let outline: CGFloat = 0.5
-        let centers = puffs.map { puff in
-            (CGPoint(x: leading ? puff.x : size.width - puff.x, y: size.height - puff.y), puff.radius)
-        }
+        let inwards: CGFloat = leading ? 1 : -1
+        let centers = puffs.map { puff in (CGPoint(x: inwards * puff.x, y: -puff.y), puff.radius) }
         /// The merged field at a point: each puff adds a smooth bump that falls to zero at its radius.
         /// - Parameters:
-        ///   - x: Horizontal canvas position.
-        ///   - y: Vertical canvas position.
+        ///   - x: Horizontal position from the bank's corner.
+        ///   - y: Vertical position from the bank's corner, negative above it.
         /// - Returns: The summed field; the cloud's outline is where it crosses `outline`.
         func field(_ x: CGFloat, _ y: CGFloat) -> CGFloat {
             centers.reduce(0) { total, puff in
@@ -294,18 +299,21 @@ internal struct SkyBackdrop: View {
                 return total + bump * bump
             }
         }
-        let left = max(0, centers.map { $0.0.x - $0.1 }.min() ?? 0)
-        let right = min(size.width, centers.map { $0.0.x + $0.1 }.max() ?? 0)
-        let top = max(0, centers.map { $0.0.y - $0.1 }.min() ?? 0)
-        let height = max(size.height - top, 1)
+        let left = leading ? 0 : centers.map { $0.0.x - $0.1 }.min() ?? 0
+        let right = leading ? centers.map { $0.0.x + $0.1 }.max() ?? 0 : 0
+        let top = centers.map { $0.0.y - $0.1 }.min() ?? 0
+        let height = max(-top, 1)
+        var tones = [Path(), Path(), Path()]
         var y = (top / pixel).rounded(.down) * pixel
-        while y < size.height {
+        while y < 0 {
             var x = (left / pixel).rounded(.down) * pixel
             while x < right {
                 let centerX = x + pixel / 2
                 let centerY = y + pixel / 2
                 let density = field(centerX, centerY)
-                let threshold = dither[Int(x / pixel) % 4 + (Int(y / pixel) % 4) * 4]
+                let column = (Int(x / pixel) % 4 + 4) % 4
+                let row = (Int(y / pixel) % 4 + 4) % 4
+                let threshold = dither[column + row * 4]
                 if density > outline || density > outline * (0.55 + 0.45 * threshold) {
                     let lit = min(max((density - field(centerX, centerY - pixel * 4)) / 0.45, 0), 1)
                     let depth = (centerY - top) / height
@@ -317,10 +325,11 @@ internal struct SkyBackdrop: View {
             }
             y += pixel
         }
+        return tones
     }
 }
 
-/// A non-authenticating privacy cover built from the same artwork as the normal detail pane.
+/// A non-authenticating privacy cover: the lock artwork under its dot-matrix texture, with Unlock at the center.
 internal struct LockedArtwork: View {
     internal let unlock: () -> Void
 

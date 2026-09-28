@@ -7,12 +7,14 @@ internal struct RegisterRow: Equatable {
     internal let technologies: [String]
 }
 
-/// Disposable app metadata fixtures shared by core and store checks; never launched.
+/// Fixtures and readers the suites share: the live register read independently of the app's parser,
+/// flattened legacy text, disposable app bundles that are never launched, and isolated Git fixtures.
 internal enum TestFixtures {
     /// Reads the live register's project rows with a deliberately simple scan, so live checks follow
     /// the register as projects are added instead of repeating counts that go stale.
     /// - Parameter root: Repository root holding the register README.
     /// - Returns: Local project rows in register order; a row linking to another repository is skipped.
+    ///   Throws when the register README cannot be read as UTF-8 text.
     internal static func registerRows(in root: URL) throws -> [RegisterRow] {
         let readme = try String(contentsOf: root.appendingPathComponent(ControlConstants.readme), encoding: .utf8)
         return readme.components(separatedBy: .newlines).compactMap { line in
@@ -66,7 +68,7 @@ internal enum TestFixtures {
             .write(to: contents.appendingPathComponent(ControlConstants.appInfo))
         let executable = executableFolder.appendingPathComponent(TestConstants.executableName)
         try TestConstants.fixtureExecutable.write(to: executable, atomically: true, encoding: .utf8)
-        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
+        try FileManager.default.setAttributes([.posixPermissions: TestConstants.executablePermissions], ofItemAtPath: executable.path)
         return application.resolvingSymlinksInPath().standardizedFileURL
     }
 
@@ -78,34 +80,78 @@ internal enum TestFixtures {
     internal static func git(_ arguments: [String], in folder: URL) throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: ControlConstants.gitExecutable)
-        process.arguments = ["-C", folder.path, "-c", "core.hooksPath=/dev/null",
+        process.arguments = [ControlConstants.gitCurrentDirectory, folder.path, "-c", "core.hooksPath=/dev/null",
             "-c", "commit.gpgSign=false", "-c", "user.name=Fixture",
             "-c", "user.email=fixture@example.invalid"] + arguments
         process.environment = [ControlConstants.pathEnvironment: ControlConstants.gitSearchPath,
             ControlConstants.gitNoSystemConfigEnvironment: ControlConstants.gitEnvironmentEnabled,
             ControlConstants.gitGlobalConfigEnvironment: ControlConstants.gitNoConfigFile,
-            "GIT_AUTHOR_DATE": "2024-01-15T12:00:00Z", "GIT_COMMITTER_DATE": "2024-01-15T12:00:00Z"]
+            "GIT_AUTHOR_DATE": TestConstants.gitFixtureDate, "GIT_COMMITTER_DATE": TestConstants.gitFixtureDate]
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         try process.run()
         process.waitUntilExit()
         guard process.terminationStatus == 0 else {
-            throw ControlFailure(message: "Disposable Git activity fixture could not be created.")
+            throw ControlFailure(message: TestConstants.gitFixtureFailure)
         }
     }
 }
 
-/// Counts every suite's deterministic assertions; a failed one terminates the run with its label.
+/// Counts every suite's deterministic assertions and owns each run's disposable folder and preference suite.
+/// A failed assertion removes both before it terminates the run with its label, because the trap skips the
+/// suite's `defer`.
 internal enum TestSupport {
     internal private(set) static var count = 0
+    /// The run's UUID-named folder in the per-user temporary directory, until it is removed.
+    private static var folder: URL?
+    /// The preference suite opened inside `folder`, with the path that names it.
+    private static var suite: (path: String, defaults: UserDefaults)?
+
+    /// Creates the run's disposable folder, which `removeTemporaryFolder()` or a failed check removes.
+    /// - Returns: The new folder; throws when it cannot be created.
+    internal static func temporaryFolder() throws -> URL {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        folder = root
+        return root
+    }
+
+    /// Opens a preference suite named by a path inside the run's folder, so its plist stays there; a plain
+    /// name would leave an empty file in `~/Library/Preferences` after every run, even once the domain is
+    /// removed.
+    /// - Parameter root: The run's disposable folder.
+    /// - Returns: The isolated suite; ends the run through `fail(_:)` when it cannot be opened.
+    internal static func preferences(in root: URL) -> UserDefaults {
+        let path = root.appendingPathComponent(TestConstants.preferencesSuite).path
+        guard let defaults = UserDefaults(suiteName: path) else { fail(TestConstants.checkPreferencesSuite) }
+        suite = (path, defaults)
+        return defaults
+    }
+
+    /// Clears the run's preference suite and removes its folder.
+    /// - Returns: Nothing; a suite or folder already removed is skipped.
+    internal static func removeTemporaryFolder() {
+        if let suite { suite.defaults.removePersistentDomain(forName: suite.path) }
+        if let folder { try? FileManager.default.removeItem(at: folder) }
+        suite = nil
+        folder = nil
+    }
+
+    /// Ends the run unsuccessfully, removing its folder and preference suite first.
+    /// - Parameter label: Failure explanation.
+    /// - Returns: Never; terminates the run with the label after the cleanup.
+    internal static func fail(_ label: String) -> Never {
+        removeTemporaryFolder()
+        fatalError(TestConstants.failed + label)
+    }
 
     /// Records one assertion.
     /// - Parameters:
     ///   - condition: Expected truth value.
     ///   - label: Failure explanation.
-    /// - Returns: Nothing; terminates unsuccessfully when the condition is false.
+    /// - Returns: Nothing; ends the run through `fail(_:)` when the condition is false.
     internal static func check(_ condition: Bool, _ label: String) {
-        guard condition else { fatalError(TestConstants.failed + label) }
+        guard condition else { fail(label) }
         count += 1
     }
 

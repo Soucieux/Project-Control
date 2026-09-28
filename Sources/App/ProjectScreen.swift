@@ -49,7 +49,7 @@ internal struct ProjectScreen: View {
     /// of equal columns, so no part of the card is left empty at any width.
     private var card: some View {
         let target = applicationTarget
-        return GlassCard(contentPadding: 16) {
+        return ContentSurface(contentPadding: 16) {
             VStack(alignment: .leading, spacing: 14) {
                 header(target: target)
                 Divider().overlay(ControlTheme.line)
@@ -193,8 +193,8 @@ internal struct ProjectScreen: View {
             : project.readmeAvailable ? ControlConstants.healthAvailable : ControlConstants.healthReadmeMissing
         return metric(ControlConstants.documentHealth, value: value, tint: available ? ControlTheme.mint : ControlTheme.amber,
             icon: available ? ControlConstants.completeIcon : ControlConstants.warningIcon) {
-            if !project.folderAvailable { Text(ControlConstants.folderMissing) }
-            else if !project.readmeAvailable { Text(ControlConstants.noReadme) }
+            // A missing folder is already the value; a missing README adds that the repository summary stands in.
+            if project.folderAvailable && !project.readmeAvailable { Text(ControlConstants.noReadme) }
             if !project.isRegistered { Text(ControlConstants.unregisteredProject).foregroundStyle(ControlTheme.amber) }
             Text(ControlConstants.runtimeUnknown)
         }

@@ -1,25 +1,18 @@
 import SwiftUI
 
-/// Responsive dimensions preserve the supplied desktop and compact table proportions.
-private struct CommitActivityMetrics {
-    internal let yearWidth: CGFloat
-    internal let gap: CGFloat
-    internal let monthFont: CGFloat
-    internal let yearFont: CGFloat
-    internal let countFont: CGFloat
-    internal let radius: CGFloat
-    internal let footerFont: CGFloat
-
-    internal static let regular = CommitActivityMetrics(
-        yearWidth: 53, gap: 6, monthFont: 12, yearFont: 14, countFont: 13, radius: 8, footerFont: 14)
-    internal static let compact = CommitActivityMetrics(
-        yearWidth: 30, gap: 3, monthFont: 9, yearFont: 11, countFont: 10, radius: 5, footerFont: 12)
+/// The heatmap's fixed year column, cell gap and corner radius, and its type sizes.
+private enum CommitActivityMetrics {
+    internal static let yearWidth: CGFloat = 53
+    internal static let gap: CGFloat = 6
+    internal static let monthFont: CGFloat = 12
+    internal static let yearFont: CGFloat = 14
+    internal static let countFont: CGFloat = 13
+    internal static let radius: CGFloat = 8
+    internal static let footerFont: CGFloat = 14
 }
 
 /// Calculates one fixed year column and twelve equal monthly columns from the live available width.
 private struct CommitActivityGridLayout: Layout {
-    internal let metrics: CommitActivityMetrics
-
     /// Reports the exact table height after deriving monthly width and the 1.15:1 cell ratio.
     /// - Parameters:
     ///   - proposal: Width offered by the parent.
@@ -43,23 +36,23 @@ private struct CommitActivityGridLayout: Layout {
                                 subviews: Subviews, cache: inout ()) {
         let values = dimensions(width: bounds.width, subviewCount: subviews.count)
         let columns = ControlConstants.monthCount + 1
+        let yearWidth = CommitActivityMetrics.yearWidth
+        let gap = CommitActivityMetrics.gap
         for (index, subview) in subviews.enumerated() {
             let row = index / columns
             let column = index % columns
-            let width = column == 0 ? metrics.yearWidth : values.cellWidth
+            let width = column == 0 ? yearWidth : values.cellWidth
             let height = row == 0 ? values.headerHeight : values.cellHeight
             let x = column == 0 ? bounds.minX
-                : bounds.minX + metrics.yearWidth + metrics.gap
-                    + CGFloat(column - 1) * (values.cellWidth + metrics.gap)
+                : bounds.minX + yearWidth + gap + CGFloat(column - 1) * (values.cellWidth + gap)
             let y = row == 0 ? bounds.minY
-                : bounds.minY + values.headerHeight + metrics.gap
-                    + CGFloat(row - 1) * (values.cellHeight + metrics.gap)
+                : bounds.minY + values.headerHeight + gap + CGFloat(row - 1) * (values.cellHeight + gap)
             subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(width: width, height: height))
         }
     }
 
     private var minimumWidth: CGFloat {
-        metrics.yearWidth + CGFloat(ControlConstants.monthCount) * (24 + metrics.gap)
+        CommitActivityMetrics.yearWidth + CGFloat(ControlConstants.monthCount) * (24 + CommitActivityMetrics.gap)
     }
 
     /// Derives consistent row heights and month widths for the supplied container.
@@ -71,11 +64,12 @@ private struct CommitActivityGridLayout: Layout {
         (headerHeight: CGFloat, cellWidth: CGFloat, cellHeight: CGFloat, height: CGFloat) {
         let columns = ControlConstants.monthCount + 1
         let rows = max(0, subviewCount / columns - 1)
-        let gaps = CGFloat(ControlConstants.monthCount) * metrics.gap
-        let cellWidth = max(1, (width - metrics.yearWidth - gaps) / CGFloat(ControlConstants.monthCount))
+        let gap = CommitActivityMetrics.gap
+        let gaps = CGFloat(ControlConstants.monthCount) * gap
+        let cellWidth = max(1, (width - CommitActivityMetrics.yearWidth - gaps) / CGFloat(ControlConstants.monthCount))
         let cellHeight = cellWidth / 1.15
-        let headerHeight = max(16, metrics.monthFont * 1.5)
-        let rowGaps = rows > 0 ? CGFloat(rows) * metrics.gap : 0
+        let headerHeight = max(16, CommitActivityMetrics.monthFont * 1.5)
+        let rowGaps = rows > 0 ? CGFloat(rows) * gap : 0
         let height = headerHeight + rowGaps + CGFloat(rows) * cellHeight
         return (headerHeight, cellWidth, cellHeight, height)
     }
@@ -96,15 +90,11 @@ internal struct CommitActivityView: View {
     }
 
     internal var body: some View {
-        GlassCard {
+        ContentSurface(contentPadding: 22) {
             if activity.available {
                 VStack(alignment: .leading, spacing: 18) {
                     header
-                    ViewThatFits(in: .horizontal) {
-                        activityGrid(metrics: .regular)
-                            .frame(minWidth: ControlConstants.activityCompactBreakpoint)
-                        activityGrid(metrics: .compact)
-                    }
+                    activityGrid
                     Divider().overlay(ControlTheme.line)
                     footer
                 }
@@ -161,26 +151,24 @@ internal struct CommitActivityView: View {
             .accessibilityElement(children: .ignore).accessibilityLabel(ControlConstants.activityLegend)
     }
 
-    /// Builds thirteen responsive grid columns for one year label and twelve months.
-    /// - Parameter metrics: Desktop or compact spacing and typography.
-    /// - Returns: A grid with newest years first and twelve fixed calendar-month cells per year.
-    private func activityGrid(metrics: CommitActivityMetrics) -> some View {
-        CommitActivityGridLayout(metrics: metrics) {
+    /// Thirteen grid columns, one year label and twelve months, with newest years first and twelve fixed
+    /// calendar-month cells per year.
+    private var activityGrid: some View {
+        CommitActivityGridLayout {
             Color.clear
                 .accessibilityHidden(true)
             ForEach(Array(ControlConstants.commitActivityMonthLabels.enumerated()), id: \.offset) { _, label in
-                Text(label).font(.system(size: metrics.monthFont, weight: .semibold))
+                Text(label).font(.system(size: CommitActivityMetrics.monthFont, weight: .semibold))
                     .foregroundStyle(ControlTheme.muted)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             ForEach(activity.years) { year in
-                Text(String(year.year)).font(.system(size: metrics.yearFont, weight: .bold))
+                Text(String(year.year)).font(.system(size: CommitActivityMetrics.yearFont, weight: .bold))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
                 ForEach(0..<ControlConstants.monthCount, id: \.self) { index in
                     monthCell(year: year.year, monthIndex: index,
                         count: year.months.indices.contains(index) ? year.months[index] : 0,
-                        distribution: year.projectCounts.indices.contains(index) ? year.projectCounts[index] : [:],
-                        metrics: metrics)
+                        distribution: year.projectCounts.indices.contains(index) ? year.projectCounts[index] : [:])
                 }
             }
         }
@@ -192,10 +180,8 @@ internal struct CommitActivityView: View {
     ///   - monthIndex: Zero-based month.
     ///   - count: Loaded commits.
     ///   - distribution: Project participation counts.
-    ///   - metrics: Active layout values.
     /// - Returns: One accessible monthly activity cell.
-    private func monthCell(year: Int, monthIndex: Int, count: Int,
-                           distribution: [String: Int], metrics: CommitActivityMetrics) -> some View {
+    private func monthCell(year: Int, monthIndex: Int, count: Int, distribution: [String: Int]) -> some View {
         let month = monthIndex + 1
         let future = CommitActivityCalculator.isFuture(year: year, month: month, relativeTo: now, calendar: calendar)
         let intensity = CommitActivityCalculator.intensity(for: count)
@@ -203,15 +189,15 @@ internal struct CommitActivityView: View {
         let identity = CommitActivityCell(year: year, month: month)
         return Button { hoveredCell = identity } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
+                RoundedRectangle(cornerRadius: CommitActivityMetrics.radius, style: .continuous)
                     .fill(future ? ControlTheme.activityFuture : ControlTheme.activityLevels[intensity])
                 Text(showsCount ? String(count) : ControlConstants.empty)
-                    .font(.system(size: metrics.countFont, weight: .bold))
+                    .font(.system(size: CommitActivityMetrics.countFont, weight: .bold))
                     .foregroundStyle(intensity >= 3 ? Color.white : ControlTheme.sceneInk)
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
         }.buttonStyle(.plain).disabled(!showsCount)
             .overlay {
-                RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
+                RoundedRectangle(cornerRadius: CommitActivityMetrics.radius, style: .continuous)
                     .stroke(Color.white.opacity(future ? 0.10 : 0.26), lineWidth: 1)
             }
             .accessibilityLabel(accessibilityLabel(year: year, monthIndex: monthIndex, count: count, future: future))
@@ -318,34 +304,30 @@ internal struct CommitActivityView: View {
     private var footer: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 20) {
-                futureExplanation(font: CommitActivityMetrics.regular.footerFont)
+                futureExplanation
                 Spacer(minLength: 0)
-                summary(font: CommitActivityMetrics.regular.footerFont)
+                summary
             }
             VStack(alignment: .leading, spacing: 8) {
-                futureExplanation(font: CommitActivityMetrics.compact.footerFont)
-                summary(font: CommitActivityMetrics.compact.footerFont)
+                futureExplanation
+                summary
             }
         }
     }
 
-    /// Styles the future-month explanation for the active footer layout.
-    /// - Parameter font: Responsive footer type size.
-    /// - Returns: Muted explanatory text.
-    private func futureExplanation(font: CGFloat) -> some View {
-        Text(ControlConstants.futureMonths).font(.system(size: font)).foregroundStyle(ControlTheme.muted)
+    private var futureExplanation: some View {
+        Text(ControlConstants.futureMonths).font(.system(size: CommitActivityMetrics.footerFont))
+            .foregroundStyle(ControlTheme.muted)
     }
 
-    /// Keeps the total visually prominent while distinguishing valid-year count from elapsed span.
-    /// - Parameter font: Responsive footer type size.
-    /// - Returns: Total commit and distinct-year summary.
-    private func summary(font: CGFloat) -> some View {
+    /// The total, kept prominent, and the number of distinct valid years rather than the span between them.
+    private var summary: some View {
         HStack(spacing: 4) {
             Text(String(activity.totalCount)).fontWeight(.bold).foregroundStyle(ControlTheme.mint)
             Text(String(format: ControlConstants.commitActivitySummaryRemainderFormat,
                 activity.totalCount == 1 ? ControlConstants.commitSingular : ControlConstants.commitPlural,
                 activity.yearCount, activity.yearCount == 1 ? ControlConstants.yearSingular : ControlConstants.yearPlural))
                 .foregroundStyle(ControlTheme.muted)
-        }.font(.system(size: font))
+        }.font(.system(size: CommitActivityMetrics.footerFont))
     }
 }

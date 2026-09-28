@@ -4,11 +4,11 @@ import Foundation
 @main
 internal enum CoreTests {
     /// Checks parser, local storage, refresh, and path boundaries with disposable fixtures.
-    /// - Returns: Nothing; exits unsuccessfully on the first failed check or thrown error.
+    /// - Returns: Nothing; exits unsuccessfully on the first failed check, and throws when a fixture cannot be
+    ///   written, removed or linked, or a repository cannot be read.
     internal static func main() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: root) }
+        let root = try TestSupport.temporaryFolder()
+        defer { TestSupport.removeTemporaryFolder() }
         if CommandLine.arguments.contains(TestConstants.activityOnly) {
             try commitActivityChecks(root)
             print(TestConstants.passed + String(TestSupport.count))
@@ -36,7 +36,7 @@ internal enum CoreTests {
         TestSupport.check(TestFixtures.text(record.architecture).contains(TestConstants.architecture), TestConstants.checkArchitecture)
         TestSupport.check(record.workflows.count == 2 && record.workflows[0].steps.count == 3, TestConstants.checkRoutes)
         TestSupport.check(!ReadmeParser.sections(TestConstants.projectReadme).flatMap(\.lines).joined().contains(TestConstants.forbidden), TestConstants.checkCode)
-        TestSupport.check(record.history.first?.detail == TestConstants.history, TestConstants.checkHistory)
+        TestSupport.check(record.history.first?.lines == [TestConstants.history], TestConstants.checkHistory)
         TestSupport.check(snapshot.history.count == 1 && snapshot.history[0].title == TestConstants.project, TestConstants.checkRootHistory)
         TestSupport.check(snapshot.overview.first?.text == TestConstants.repositoryOverview, TestConstants.checkRepositoryOverview)
         TestSupport.check(!snapshot.projects[1].readmeAvailable && !snapshot.projects[1].folderAvailable, TestConstants.checkMissing)
@@ -120,12 +120,13 @@ internal enum CoreTests {
 
     /// Checks unfiltered totals, valid-month grouping, fixed intensity, future handling, and live Git loading.
     /// - Parameter root: Disposable non-Git directory used to exercise the unavailable state.
-    /// - Returns: Nothing; terminates on an activity calculation or read-boundary regression.
+    /// - Returns: Nothing; terminates on an activity calculation or read-boundary regression, and throws when the
+    ///   Git fixture cannot be set up.
     private static func commitActivityChecks(_ root: URL) throws {
         var calendar = Calendar(identifier: .gregorian)
         guard let timeZone = TimeZone(secondsFromGMT: 0),
               let now = ISO8601DateFormatter().date(from: TestConstants.activityNow) else {
-            fatalError(TestConstants.checkActivityFuture)
+            TestSupport.fail(TestConstants.checkActivityFuture)
         }
         calendar.timeZone = timeZone
         let nonfinite = CommitActivityCalculator.summarize(timestampRecords(["nan", "inf", "-inf"]), calendar: calendar)
@@ -150,7 +151,7 @@ internal enum CoreTests {
         TestSupport.check(!GitActivityReader.load(root, calendar: calendar).available, TestConstants.checkActivityUnavailable)
         let liveRoot = URL(fileURLWithPath: TestConstants.liveRoot)
         guard let snapshot = try? RepositoryReader.load(liveRoot), let project = snapshot.projects.first else {
-            fatalError(TestConstants.checkActivityDistribution)
+            TestSupport.fail(TestConstants.checkActivityDistribution)
         }
         let syntheticOutput = TestConstants.gitRecordPrefix + TestConstants.activityTimestamps[0]
             + TestConstants.gitRecordPrefix + ControlConstants.newline + project.folder.lastPathComponent
@@ -164,13 +165,13 @@ internal enum CoreTests {
             && distributed.years[0].projectCounts[0][project.id] == 1
             && distributed.years[0].projectCounts[0][ControlConstants.repositoryActivityID] == 1,
             TestConstants.checkActivityDistribution)
-        let unusualFolder = "資料\t\n\""
+        let unusualFolder = TestConstants.unusualFolder
         let unusualProject = ProjectRecord(id: unusualFolder, name: unusualFolder,
             folder: URL(fileURLWithPath: "/fixture/" + unusualFolder), readme: project.readme,
             introduction: ControlConstants.empty, version: nil, architecture: [], workflows: [], history: [],
             folderAvailable: true, readmeAvailable: true)
         var unusualBytes = Data(("\0" + TestConstants.activityTimestamps[0] + "\0\n"
-            + unusualFolder + "/line\n\u{001E}123\0" + unusualFolder + "/").utf8)
+            + unusualFolder + "/" + TestConstants.unusualFile + "\0" + unusualFolder + "/").utf8)
         unusualBytes.append(0xFF)
         unusualBytes.append(contentsOf: Data("\0\0invalid\0".utf8))
         let unusualRecords = GitActivityReader.records(from: unusualBytes, projects: [unusualProject])
@@ -193,7 +194,7 @@ internal enum CoreTests {
     /// - Returns: Nothing; throws on fixture setup failure or terminates on a read regression.
     private static func gitActivityFixtureChecks(_ root: URL, calendar: Calendar) throws {
         let repository = root.appendingPathComponent("GitActivity")
-        let folder = repository.appendingPathComponent("資料\t\n\"")
+        let folder = repository.appendingPathComponent(TestConstants.unusualFolder)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let readme = repository.appendingPathComponent(ControlConstants.readme)
         try "base".write(to: folder.appendingPathComponent("base"), atomically: true, encoding: .utf8)
@@ -201,7 +202,7 @@ internal enum CoreTests {
         try TestFixtures.git(["add", "."], in: repository)
         try TestFixtures.git(["commit", "-m", "base"], in: repository)
         try TestFixtures.git(["checkout", "-b", "fixture-topic"], in: repository)
-        try "topic".write(to: folder.appendingPathComponent("line\n\u{001E}123"),
+        try "topic".write(to: folder.appendingPathComponent(TestConstants.unusualFile),
             atomically: true, encoding: .utf8)
         try TestFixtures.git(["add", "."], in: repository)
         try TestFixtures.git(["commit", "-m", "topic"], in: repository)
@@ -229,7 +230,8 @@ internal enum CoreTests {
 
     /// Checks independent optional classifications, grouping, compatibility, and live register edits.
     /// - Parameter root: Isolated fixture parent; no source repository files are modified.
-    /// - Returns: Nothing; fails on metadata, grouping, or identity regression.
+    /// - Returns: Nothing; fails on metadata, grouping, or identity regression, and throws when a fixture cannot
+    ///   be written or its repository cannot be read.
     private static func classificationChecks(_ root: URL) throws {
         let repository = root.appendingPathComponent(TestConstants.classificationDirectory)
         try FileManager.default.createDirectory(at: repository, withIntermediateDirectories: true)
@@ -343,7 +345,8 @@ internal enum CoreTests {
 
     /// Exercises explicit routing, exclusions, renamed roots, deletion, and metadata-preserving edits.
     /// - Parameter root: Disposable fixture directory.
-    /// - Returns: Nothing; fails on a content-contract regression.
+    /// - Returns: Nothing; fails on a content-contract regression, and throws when a fixture cannot be written or
+    ///   its repository cannot be read.
     private static func mappingChecks(_ root: URL) throws {
         let sections = try ReadmeParser.validatedSections(TestConstants.mappedReadme)
         let architecture = ReadmeParser.architecture(sections)
@@ -357,7 +360,7 @@ internal enum CoreTests {
         TestSupport.check(ReadmeParser.models(sections).compactMap(\.table).flatMap(\.rows).first?.first == TestConstants.modelName,
               TestConstants.checkMapping)
         TestSupport.check(ReadmeParser.workflows(sections).first?.steps == TestConstants.mixedSteps, TestConstants.checkMapping)
-        TestSupport.check(ReadmeParser.history(sections).first?.detail == TestConstants.history, TestConstants.checkMapping)
+        TestSupport.check(ReadmeParser.history(sections).first?.lines == [TestConstants.history], TestConstants.checkMapping)
         TestSupport.check(ReadmeParser.release(sections, fallback: TestConstants.version) == TestConstants.mappedVersion, TestConstants.checkMappedRelease)
         let component = try ReadmeParser.validatedSections(TestConstants.componentReadme)
         TestSupport.check(ReadmeParser.release(component, fallback: ControlConstants.empty) == TestConstants.componentRelease,
@@ -379,7 +382,7 @@ internal enum CoreTests {
         try TestConstants.mappedReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
         let snapshot = try RepositoryReader.load(repository)
         TestSupport.check(snapshot.projects.count == 1 && snapshot.overview.first?.text == TestConstants.repositoryOverview
-            && snapshot.history.first?.detail == TestConstants.history, TestConstants.checkMappedRoot)
+            && snapshot.history.first?.lines == [TestConstants.history], TestConstants.checkMappedRoot)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedHistoryMarker,
             with: TestConstants.registerChildTable + TestConstants.mappedHistoryMarker)
             .write(to: rootReadme, atomically: true, encoding: .utf8)
@@ -387,13 +390,13 @@ internal enum CoreTests {
         let attributes = try FileManager.default.attributesOfItem(atPath: projectReadme.path)
         try TestConstants.mappedReadme.replacingOccurrences(of: TestConstants.digestBefore, with: TestConstants.digestAfter)
             .write(to: projectReadme, atomically: false, encoding: .utf8)
-        guard let modified = attributes[.modificationDate] as? Date else { fatalError(TestConstants.checkDigest) }
+        guard let modified = attributes[.modificationDate] as? Date else { TestSupport.fail(TestConstants.checkDigest) }
         try FileManager.default.setAttributes([.modificationDate: modified], ofItemAtPath: projectReadme.path)
         TestSupport.check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint, TestConstants.checkDigest)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.mappedProjectRow, with: ControlConstants.empty)
             .write(to: rootReadme, atomically: true, encoding: .utf8)
         let unregistered = try RepositoryReader.load(repository).projects
-        TestSupport.check(unregistered.map(\.name) == [TestConstants.project] && unregistered[0].isRegistered == false
+        TestSupport.check(unregistered.map(\.name) == [TestConstants.project] && !unregistered[0].isRegistered
             && unregistered[0].classification == ProjectClassification(), TestConstants.checkEmptyRegister)
         try TestConstants.mappedRoot.replacingOccurrences(of: TestConstants.registerHeader, with: ControlConstants.empty)
             .write(to: rootReadme, atomically: true, encoding: .utf8)
@@ -402,7 +405,8 @@ internal enum CoreTests {
 
     /// Lists unregistered top-level folders after the register and notices new ones on the next check.
     /// - Parameter root: Disposable fixture parent; the linked folder's target sits outside the repository.
-    /// - Returns: Nothing; fails when a folder is missed, misordered, or listed when it should be skipped.
+    /// - Returns: Nothing; fails when a folder is missed, misordered, or listed when it should be skipped, and throws
+    ///   when a fixture cannot be written or its repository cannot be read.
     private static func discoveryChecks(_ root: URL) throws {
         let repository = root.appendingPathComponent(TestConstants.discoveryDirectory)
         let outsideProject = root.appendingPathComponent(TestConstants.discoveryDirectory + TestConstants.external)
@@ -497,8 +501,9 @@ internal enum CoreTests {
         TestSupport.check(escaped.first?.table?.rows.first?.last == TestConstants.pipeValue, TestConstants.checkPipes)
     }
 
-    /// Preserves complete architecture responsibilities and source dates in history headings.
-    /// - Returns: Nothing; terminates if source tables lose components or dates remain in the detail body.
+    /// Preserves complete architecture responsibilities, source dates in history headings, and whole history cells.
+    /// - Returns: Nothing; terminates if source tables lose components, dates remain in the detail body, or a history
+    ///   cell is split or a link-only record pointer is kept beside its description.
     private static func architectureHistoryChecks() {
         let sections = ReadmeParser.sections(TestConstants.mixedArchitecture)
         let tables = ReadmeParser.architecture(sections).compactMap(\.table)
@@ -510,13 +515,15 @@ internal enum CoreTests {
         let rootHistory = ReadmeParser.history(ReadmeParser.sections(TestConstants.rootReadme))[0]
         TestSupport.check(rootHistory.date == TestConstants.historyDate && rootHistory.heading == TestConstants.datedRootHeading,
               TestConstants.checkHistoryHeading)
-        TestSupport.check(rootHistory.detail == TestConstants.rootHistoryDetail, TestConstants.checkHistoryDateBody)
+        TestSupport.check(rootHistory.lines == [TestConstants.rootHistoryDetail], TestConstants.checkHistoryDateBody)
         let releases = ReadmeParser.history(ReadmeParser.sections(TestConstants.datedHistory))
-        TestSupport.check(releases[0].heading == TestConstants.datedVersionHeading && releases[0].detail == TestConstants.history,
+        TestSupport.check(releases[0].heading == TestConstants.datedVersionHeading && releases[0].lines == [TestConstants.history],
               TestConstants.checkHistoryHeading)
-        TestSupport.check(releases[1].date == nil && releases[1].detail == TestConstants.history, TestConstants.checkUndatedHistory)
+        TestSupport.check(releases[1].date == nil && releases[1].lines == [TestConstants.history], TestConstants.checkUndatedHistory)
         let undated = ReadmeParser.history(ReadmeParser.sections(TestConstants.projectReadme))[0]
-        TestSupport.check(undated.date == nil && undated.detail == TestConstants.history, TestConstants.checkUndatedHistory)
+        TestSupport.check(undated.date == nil && undated.lines == [TestConstants.history], TestConstants.checkUndatedHistory)
+        let recorded = ReadmeParser.history(ReadmeParser.sections(TestConstants.recordedHistory))[0]
+        TestSupport.check(recorded.lines == TestConstants.recordedHistoryLines, TestConstants.checkHistoryLines)
     }
 
     /// Exercises automatic app discovery without launching any fixture or reading user preferences.
@@ -570,7 +577,7 @@ internal enum CoreTests {
         TestSupport.check(!ApplicationLocator.isApplication(application)
             && RepositoryReader.fingerprint(before) != before.fingerprint, TestConstants.checkAppExecutableRefresh)
         let disabled = try RepositoryReader.load(repository)
-        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
+        try FileManager.default.setAttributes([.posixPermissions: TestConstants.executablePermissions], ofItemAtPath: executable.path)
         TestSupport.check(RepositoryReader.fingerprint(disabled) != disabled.fingerprint
             && ApplicationLocator.isApplication(application), TestConstants.checkAppExecutableRefresh)
         let info = contents.appendingPathComponent(ControlConstants.appInfo)
@@ -586,7 +593,7 @@ internal enum CoreTests {
         TestSupport.check(ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataReload)
         try TestConstants.corrupt.write(to: info, atomically: true, encoding: .utf8)
         TestSupport.check(!ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataReload)
-        try Data(repeating: 0, count: ControlConstants.maxReadmeBytes + 1).write(to: info)
+        try Data(repeating: 0, count: ControlConstants.maxBundleMetadataBytes + 1).write(to: info)
         TestSupport.check(!ApplicationLocator.isApplication(application), TestConstants.checkAppMetadataBound)
     }
 

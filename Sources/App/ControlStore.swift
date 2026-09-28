@@ -184,7 +184,7 @@ internal final class ControlStore: ObservableObject {
     /// Locates and opens an app only after an explicit Open App action.
     /// - Parameter project: Project whose missing launch target the user is locating.
     /// - Returns: Nothing; cancellation leaves the existing target intact and launches nothing.
-    internal func chooseApplication(for project: ProjectRecord) {
+    private func chooseApplication(for project: ProjectRecord) {
         let panel = NSOpenPanel()
         panel.title = ControlConstants.chooseApp
         panel.message = ControlConstants.launchExplanation

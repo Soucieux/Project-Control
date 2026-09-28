@@ -45,6 +45,13 @@ internal enum TestConstants {
     internal static let activityTimestamps = ["1705276800", "1705708800", "1714521600", "1796083200", "invalid"]
     internal static let activityNow = "2026-09-01T00:00:00Z"
     internal static let gitRecordPrefix = "\0"
+    /// A folder name holding Unicode, a tab, a newline and a quote, and a file name holding a newline and a
+    /// record separator: paths only NUL framing keeps whole.
+    internal static let unusualFolder = "資料\t\n\""
+    internal static let unusualFile = "line\n\u{001E}123"
+    /// The date of every commit in a Git fixture, so its month counts never depend on the clock.
+    internal static let gitFixtureDate = "2024-01-15T12:00:00Z"
+    internal static let gitFixtureFailure = "Disposable Git activity fixture could not be created."
     internal static let hostedTechnologyTags = ["Next.js", "LangGraph", "Hosted AI"]
     internal static let literalTechnologyTags = ["Local AI", "RAG", "C++", "model_name-v1"]
     internal static let registerRowPrefix = "| ["
@@ -226,12 +233,16 @@ internal enum TestConstants {
     internal static let checkRegisterChildren = "descriptive child tables cannot become project registrations"
     internal static let registerHeader = "| Project | Scope |\n"
     internal static let raceDirectory = "PollingRace"
+    /// The longest a store check waits for a read, poll or refresh it set in motion, and how often it looks.
+    internal static let storeWaitSeconds = 5.0
+    internal static let storePollMilliseconds = 50
     internal static let checkPollingRace = "a completed old-root poll cannot queue over an active repository switch"
     internal static let checkWrongRootWarning = "a failed different-root selection does not mark current content stale"
     internal static let checkRegisterHeader = "a register without a table header is not a valid empty register"
     internal static let project = "Example"
     internal static let rootName = "ProjectControlTests-"
     internal static let preferencesSuite = "preferences"
+    internal static let checkPreferencesSuite = "a preference suite named by a path inside the run's folder opens"
     internal static let failed = "FAILED: "
     internal static let passed = "Core checks passed: "
     internal static let corrupt = "not JSON"
@@ -454,6 +465,8 @@ internal enum TestConstants {
     internal static let checkDiagramMalformed = "unsupported nested branch indentation is not guessed"
     internal static let checkDiagramIncomplete = "dangling connectors do not produce partial diagrams"
     internal static let executableName = "TestEntry"
+    /// The POSIX permissions an app fixture's entry point is created with, and restored to after a check removes them.
+    internal static let executablePermissions = 0o700
     internal static let identifierKey = "CFBundleIdentifier"
     internal static let testBundlePrefix = "local.projectcontrol.fixture."
     internal static let fixtureExecutable = "#!/bin/sh\nexit 0\n"
@@ -572,6 +585,44 @@ internal enum TestConstants {
     internal static let checkRepositorySelection = "the repository parent is selectable and survives refresh"
     internal static let checkProjectSelection = "a selected project survives refresh under its repository parent"
     internal static let checkSelectionFallback = "a removed selection returns to the repository parent"
+    internal static let interfacePassed = "Interface checks passed: "
+    internal static let screenCapture = "/usr/sbin/screencapture"
+    internal static let screenCaptureOptions = ["-x", "-o", "-l"]
+    internal static let captureName = "window.png"
+    internal static let windowOrigin = CGPoint(x: 60, y: 60)
+    /// Window points, measured from the top-left corner of a minimum-size window.
+    internal static let railTogglePoint = CGPoint(x: 36, y: 62)
+    internal static let historyTabPoint = CGPoint(x: 419, y: 197)
+    /// Just inside the expanded rail's trailing edge: black while the rail is open, sky once it closes.
+    internal static let railProbeX: CGFloat = 226
+    internal static let railProbeRows = stride(from: 150, through: 500, by: 25).map { CGFloat($0) }
+    internal static let railDarkness: CGFloat = 0.12
+    /// Just inside the history cards' leading edge, searched below the tabs for the first card's glass.
+    internal static let cardProbeX: CGFloat = 280
+    internal static let cardSearch: ClosedRange<CGFloat> = 225...400
+    internal static let glassDarkness: CGFloat = 0.5
+    /// A card's top counts only when the glass continues this far below it; the search stops this far above
+    /// the window's bottom edge.
+    internal static let probeMargin: CGFloat = 4
+    internal static let cardHeaderX: CGFloat = 600
+    internal static let cardHeaderOffset: CGFloat = 22
+    internal static let cardGrowth: CGFloat = 30
+    internal static let cardClosedTolerance: CGFloat = 6
+    internal static let settleMilliseconds = 1500
+    internal static let quickClickMilliseconds = 40
+    internal static let railSettleMilliseconds = 1200
+    internal static let cardCloseMilliseconds = 1000
+    internal static let checkInterfaceRepository = "the live repository loads into the test window"
+    internal static let checkInterfaceCapture = "the test window can be captured; allow Screen Recording for the app that runs make test-ui"
+    internal static let checkHistoryCard = "the first repository history card is found below the tabs"
+    internal static let checkRailStart = "the rail starts expanded"
+    internal static let checkRailDoubleExpanded = "two quick rail clicks from expanded end expanded"
+    internal static let checkRailCollapse = "one rail click collapses the rail"
+    internal static let checkRailDoubleCollapsed = "two quick rail clicks from collapsed end collapsed"
+    internal static let checkRailExpand = "one rail click expands the rail"
+    internal static let checkHistoryReopen = "open, close and open in quick succession leave a history card open"
+    internal static let checkHistoryClose = "one click closes an open history card"
+    internal static let checkHistoryOpenClose = "open and close in quick succession leave a history card closed"
     internal static let historyDate = "2026-08-30"
     internal static let datedRootHeading = "Example · 2026-08-30"
     internal static let datedVersionHeading = "v0.1 · 2026-08-30"
@@ -583,6 +634,13 @@ internal enum TestConstants {
     | v0.1 | 2026-08-30 | Initial implementation |
     | v0.0 | | Initial implementation |
     """
+    internal static let recordedHistory = """
+    ## Change log
+    | Record | Date | Highlights | Evidence | Details |
+    |---|---|---|---|---|
+    | v0.2 / build 2 | 2026-08-31 | <ul><li><strong>Scope:</strong> Reader · Parser</li></ul> | Checked. | [Full record](#v0-2-build-2) |
+    """
+    internal static let recordedHistoryLines = ["Scope: Reader · Parser", "Checked."]
     internal static let mixedArchitecture = """
     ## Workflow architecture and retries
     | Model | Path |
@@ -606,6 +664,7 @@ internal enum TestConstants {
     internal static let checkHistoryHeading = "history date appears next to the project or version title"
     internal static let checkHistoryDateBody = "history description no longer repeats its standalone date"
     internal static let checkUndatedHistory = "undated and two-column history retains its original content"
+    internal static let checkHistoryLines = "each history cell stays one whole line and a link-only record pointer beside a description is left out"
     internal static let checkAllArchitecture = "architecture table is present for "
     internal static let checkArchitectureCoverage = "architecture table includes "
     internal static let checkArchitectureGroups = "architecture categories remain ordered for "

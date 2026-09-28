@@ -5,7 +5,8 @@ internal struct WorkspaceStorage {
     internal let file: URL
 
     /// Loads saved notes and launch targets, returning an empty state only on first use.
-    /// - Returns: The decoded state, or an error preserving the existing file.
+    /// - Returns: The decoded state; throws, leaving the file untouched, when it cannot be read or decoded or repeats
+    ///   a note identity within a project.
     internal func load() throws -> WorkspaceState {
         guard FileManager.default.fileExists(atPath: file.path) else { return WorkspaceState() }
         let state = try JSONDecoder().decode(WorkspaceState.self, from: Data(contentsOf: file))
@@ -17,7 +18,7 @@ internal struct WorkspaceStorage {
 
     /// Saves a full state atomically before the interface adopts a mutation.
     /// - Parameter state: Proposed local state.
-    /// - Returns: Nothing; throws if persistence fails.
+    /// - Returns: Nothing; throws when the folder cannot be created or the state cannot be encoded or written.
     internal func save(_ state: WorkspaceState) throws {
         try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         let encoder = JSONEncoder()

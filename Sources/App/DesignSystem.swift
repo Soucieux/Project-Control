@@ -15,8 +15,7 @@ internal enum ControlTheme {
     internal static let amber = Color(red: 0.97, green: 0.74, blue: 0.40)
     internal static let mint = Color(red: 0.49, green: 0.82, blue: 0.64)
     /// The smoked tint laid over the dark material of every content plane.
-    internal static let glass = Color(red: 0.11, green: 0.14, blue: 0.14)
-    internal static let glassOpacity = 0.10
+    internal static let glassTint = Color(red: 0.11, green: 0.14, blue: 0.14).opacity(0.10)
     /// An opaque stand-in for the glass when Reduce Transparency is on.
     internal static let glassSolid = Color(red: 0.27, green: 0.32, blue: 0.31)
     internal static let skyTop = Color(red: 0.55, green: 0.64, blue: 0.64)
@@ -38,16 +37,25 @@ internal enum ControlTheme {
     ]
     internal static let activityFuture = Color.white.opacity(0.08)
     internal static let motion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.62)
+    /// Each project row disclosed into or out of its category starts this long after the row above it.
+    internal static let disclosureStagger = 0.045
     /// The rail's width change; its labels fade for `railLabelFade` before it narrows, and return
     /// `railLabelDelay` after it starts to widen.
     internal static let navigationMotion = Animation.timingCurve(0.4, 0, 0.2, 1, duration: 0.32)
     internal static let railLabelFade = 0.12
     internal static let railLabelDelay = 0.22
     /// A history card grows for `historyGrowDuration`; `historyRevealDelay` after it starts, its panel
-    /// fades in and each line follows `historyLineStagger` after the one above.
+    /// fades in over `historyPanelFade` and its lines over `historyLineFade`, the first `historyLineDelay`
+    /// after the panel and each later one `historyLineStagger` after the one above. Closing fades the
+    /// panel and its lines together over `historyCloseFade`, then shrinks the card.
     internal static let historyGrowDuration = 0.24
     internal static let historyRevealDelay = 0.2
+    internal static let historyPanelFade = 0.24
+    internal static let historyLineFade = 0.3
+    internal static let historyLineDelay = 0.08
     internal static let historyLineStagger = 0.1
+    internal static let historyCloseFade = 0.12
+    internal static let historyShrinkDuration = 0.2
     internal static let cardRadius: CGFloat = 18
     internal static let detailFrameInset: CGFloat = 3
     internal static let detailCornerRadius: CGFloat = 18
@@ -58,31 +66,13 @@ internal enum ControlTheme {
     internal static let railIconSize: CGFloat = 40
     /// The space a workflow connector leaves between itself and each node it joins.
     internal static let diagramConnectorGap: CGFloat = 5
+    /// Centered nodes of different widths can land a pixel apart once positions are rounded; closer than
+    /// this, two nodes count as lined up and share one straight connector.
+    internal static let diagramAlignmentTolerance: CGFloat = 2
     /// The centered column every detail screen reads in; it keeps its width while the rail moves.
     internal static let readingColumnWidth: CGFloat = 870
     internal static let minimumWindowWidth: CGFloat = 1120
     internal static let minimumWindowHeight: CGFloat = 620
-}
-
-/// A rounded, softly elevated information surface shared by project content.
-internal struct GlassCard<Content: View>: View {
-    private let contentPadding: CGFloat
-    private let content: Content
-
-    /// Stores the card content without introducing a second interaction layer.
-    /// - Parameter contentPadding: Inset between the card edge and its readable content.
-    /// - Parameter content: Readable native content placed on the translucent surface.
-    /// - Returns: A card retaining the supplied content and inset.
-    internal init(contentPadding: CGFloat = 22, @ViewBuilder content: () -> Content) {
-        self.contentPadding = contentPadding
-        self.content = content()
-    }
-
-    internal var body: some View {
-        content.padding(contentPadding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .glassPlane()
-    }
 }
 
 /// The smoked-glass plane behind content: a dark material that samples the sky, a tint and a faint rim.
@@ -100,7 +90,7 @@ private struct GlassBackground: ViewModifier {
                 if reduceTransparency { shape.fill(ControlTheme.glassSolid) }
                 else {
                     shape.fill(.ultraThinMaterial).environment(\.colorScheme, .dark)
-                        .overlay { shape.fill(ControlTheme.glass.opacity(ControlTheme.glassOpacity)) }
+                        .overlay { shape.fill(ControlTheme.glassTint) }
                 }
             }
             .overlay { shape.strokeBorder(Color.white.opacity(0.07), lineWidth: 1).allowsHitTesting(false) }
@@ -116,17 +106,24 @@ extension View {
     }
 }
 
-/// The existing workflow-style surface, also used for plain text below the tabs.
+/// The full-width smoked-glass surface under prose groups, empty states, work notes, the project card and
+/// the commit heatmap.
 internal struct ContentSurface<Content: View>: View {
+    private let contentPadding: CGFloat
     private let content: Content
 
     /// Captures content without adding an interaction or scroll container.
-    /// - Parameter content: Text, controls, or a grouped set of note rows.
-    /// - Returns: A surface retaining the supplied content.
-    internal init(@ViewBuilder content: () -> Content) { self.content = content() }
+    /// - Parameters:
+    ///   - contentPadding: Inset between the surface edge and its content.
+    ///   - content: Text, controls, or a grouped set of rows.
+    /// - Returns: A surface retaining the supplied content and inset.
+    internal init(contentPadding: CGFloat = 20, @ViewBuilder content: () -> Content) {
+        self.contentPadding = contentPadding
+        self.content = content()
+    }
 
     internal var body: some View {
-        content.padding(20).frame(maxWidth: .infinity, alignment: .leading).glassPlane()
+        content.padding(contentPadding).frame(maxWidth: .infinity, alignment: .leading).glassPlane()
     }
 }
 

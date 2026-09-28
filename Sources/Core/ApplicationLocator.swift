@@ -24,7 +24,7 @@ internal enum ApplicationLocator {
     ///   - url: Previously discovered bundle.
     ///   - project: Registered project with its canonical identity.
     /// - Returns: True only while the folder and bundle remain within that original project.
-    internal static func isWithinCurrentProject(_ url: URL, for project: ProjectRecord) -> Bool {
+    private static func isWithinCurrentProject(_ url: URL, for project: ProjectRecord) -> Bool {
         project.hasCurrentIdentity
             && url.resolvingSymlinksInPath().standardizedFileURL.path.hasPrefix(project.id + ControlConstants.slash)
     }
@@ -49,12 +49,12 @@ internal enum ApplicationLocator {
               RepositoryReader.contains(info, in: url),
               let attributes = try? FileManager.default.attributesOfItem(atPath: info.path),
               attributes[.type] as? FileAttributeType == .typeRegular,
-              let size = attributes[.size] as? NSNumber, size.intValue <= ControlConstants.maxReadmeBytes,
+              let size = attributes[.size] as? NSNumber, size.intValue <= ControlConstants.maxBundleMetadataBytes,
               let handle = try? FileHandle(forReadingFrom: info) else { return false }
         defer { try? handle.close() }
         // Bundle caches Info.plist across replacements, so validation must read fresh bounded metadata.
-        guard let data = try? handle.read(upToCount: ControlConstants.maxReadmeBytes + 1),
-              data.count <= ControlConstants.maxReadmeBytes,
+        guard let data = try? handle.read(upToCount: ControlConstants.maxBundleMetadataBytes + 1),
+              data.count <= ControlConstants.maxBundleMetadataBytes,
               let metadata = (try? PropertyListSerialization.propertyList(from: data, options: [], format: nil)) as? NSDictionary,
               metadata[ControlConstants.bundleTypeKey] as? String == ControlConstants.bundleApplicationType,
               let name = metadata[ControlConstants.bundleExecutableKey] as? String,

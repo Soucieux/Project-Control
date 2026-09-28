@@ -99,7 +99,8 @@ internal struct WorkflowRoute: Identifiable {
 internal struct HistoryEntry: Identifiable {
     internal let id = UUID()
     internal let title: String
-    internal let detail: String
+    /// The description in reading order, one line per source table cell.
+    internal let lines: [String]
     internal var date: String? = nil
     internal var heading: String { title + (date.map { ControlConstants.joined + $0 } ?? ControlConstants.empty) }
 }

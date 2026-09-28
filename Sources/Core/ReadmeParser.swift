@@ -22,7 +22,7 @@ internal enum ReadmeParser {
     ///   - pattern: Trusted expression.
     ///   - replacement: Replacement template.
     /// - Returns: The transformed text, or the input unchanged for an invalid pattern.
-    internal static func replace(_ value: String, _ pattern: String, _ replacement: String) -> String {
+    private static func replace(_ value: String, _ pattern: String, _ replacement: String) -> String {
         guard let expression = compiled(pattern) else { return value }
         return expression.stringByReplacingMatches(in: value, range: NSRange(value.startIndex..., in: value),
             withTemplate: replacement)
@@ -405,7 +405,9 @@ internal enum ReadmeParser {
         }.prefix(ControlConstants.maxWorkflowRoutes))
     }
 
-    /// Extracts structured history tables, falling back to version-labelled release headings.
+    /// Extracts structured history tables, falling back to version-labelled release headings. A cell holding
+    /// only a link, such as a pointer to the full record, is left out when another cell describes the row, because
+    /// the app shows its label without the link.
     /// - Parameter sections: Parsed README sections.
     /// - Returns: Source-ordered history, bounded to the latest thirty entries.
     internal static func history(_ sections: [ReadmeSection]) -> [HistoryEntry] {
@@ -415,14 +417,16 @@ internal enum ReadmeParser {
             return rows.prefix(ControlConstants.maxHistoryEntries).map { source in
                 let row = source.map(plain)
                 let dateIndex = row.indices.dropFirst().first { match(row[$0], ControlConstants.historyDatePattern) != nil }
-                let detail = row.indices.dropFirst().filter { $0 != dateIndex && !row[$0].isEmpty }.map { row[$0] }
-                    .joined(separator: ControlConstants.joined)
-                return HistoryEntry(title: row[0], detail: detail, date: dateIndex.map { row[$0] })
+                let cells = row.indices.dropFirst().filter { $0 != dateIndex && !row[$0].isEmpty }
+                let described = cells.filter { match(source[$0], ControlConstants.linkOnlyPattern) == nil }
+                return HistoryEntry(title: row[0], lines: (described.isEmpty ? cells : described).map { row[$0] },
+                    date: dateIndex.map { row[$0] })
             }
         }
         return selected.filter { match($0.title, ControlConstants.versionHeadingPattern) != nil }
             .prefix(ControlConstants.maxHistoryEntries).map {
-            HistoryEntry(title: $0.title, detail: paragraphs([$0]).prefix(2).joined(separator: ControlConstants.space))
+            let detail = paragraphs([$0]).prefix(2).joined(separator: ControlConstants.space)
+            return HistoryEntry(title: $0.title, lines: detail.isEmpty ? [] : [detail])
         }
     }
 }

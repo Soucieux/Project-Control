@@ -5,16 +5,12 @@ import Foundation
 @MainActor
 internal enum StoreTests {
     /// Exercises queued reloads and atomic note mutations with disposable local state.
-    /// - Returns: Nothing; exits unsuccessfully on a failed check or fixture error.
+    /// - Returns: Nothing; exits unsuccessfully on a failed check, and throws when a fixture or the workspace file
+    ///   cannot be written, read or removed, or a wait is cancelled.
     internal static func main() async throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: root) }
-        // A suite named by a path keeps its plist inside the disposable root; a plain name would leave an
-        // empty file in ~/Library/Preferences after every run, even once the domain is removed.
-        let suite = root.appendingPathComponent(TestConstants.preferencesSuite).path
-        guard let preferences = UserDefaults(suiteName: suite) else { fatalError(TestConstants.failed) }
-        defer { preferences.removePersistentDomain(forName: suite) }
+        let root = try TestSupport.temporaryFolder()
+        defer { TestSupport.removeTemporaryFolder() }
+        let preferences = TestSupport.preferences(in: root)
         let firstRoot = root.appendingPathComponent(TestConstants.project)
         let secondRoot = root.appendingPathComponent(TestConstants.secondRepository)
         for folder in [firstRoot, secondRoot] {
@@ -37,7 +33,7 @@ internal enum StoreTests {
         let store = ControlStore(storage: storage, preferences: preferences, readRepository: { url in
             if url == firstRoot {
                 started.signal()
-                guard release.wait(timeout: .now() + 5) == .success else {
+                guard release.wait(timeout: .now() + TestConstants.storeWaitSeconds) == .success else {
                     throw ControlFailure(message: TestConstants.checkReaderStarted)
                 }
             }
@@ -46,7 +42,7 @@ internal enum StoreTests {
         let first = Task { await store.reload(firstRoot) }
         let didStart = await withCheckedContinuation { continuation in
             DispatchQueue.global().async {
-                continuation.resume(returning: started.wait(timeout: .now() + 5) == .success)
+                continuation.resume(returning: started.wait(timeout: .now() + TestConstants.storeWaitSeconds) == .success)
             }
         }
         TestSupport.check(didStart, TestConstants.checkReaderStarted)
@@ -104,7 +100,8 @@ internal enum StoreTests {
     ///   - root: Disposable repository.
     ///   - storage: Isolated note storage.
     ///   - preferences: Isolated repository preferences.
-    /// - Returns: Nothing; fails if project-content recovery masks authoritative root metadata.
+    /// - Returns: Nothing; fails if project-content recovery masks authoritative root metadata, and throws when a
+    ///   fixture folder or README cannot be written.
     private static func classificationRecoveryCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let readme = root.appendingPathComponent(ControlConstants.readme)
         let projectReadme = root.appendingPathComponent(TestConstants.project).appendingPathComponent(ControlConstants.readme)
@@ -113,7 +110,7 @@ internal enum StoreTests {
         try TestConstants.mappedReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
         let store = ControlStore(storage: storage, preferences: preferences)
         await store.reload(root)
-        guard let project = store.snapshot?.projects.first else { fatalError(TestConstants.checkClassification) }
+        guard let project = store.snapshot?.projects.first else { TestSupport.fail(TestConstants.checkClassification) }
         store.selection = project.id
         let existingNotes = store.notes(for: project.id)
         let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
@@ -139,7 +136,8 @@ internal enum StoreTests {
     ///   - root: Disposable repository.
     ///   - storage: Isolated local notes.
     ///   - preferences: Isolated preferences.
-    /// - Returns: Nothing; fails if stale state or local data is mishandled.
+    /// - Returns: Nothing; fails if stale state or local data is mishandled, and throws when a fixture README cannot
+    ///   be written or removed.
     private static func sourceRecoveryChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let readme = root.appendingPathComponent(ControlConstants.readme)
         let projectReadme = root.appendingPathComponent(TestConstants.project).appendingPathComponent(ControlConstants.readme)
@@ -147,7 +145,7 @@ internal enum StoreTests {
         try TestConstants.mappedReadme.write(to: projectReadme, atomically: true, encoding: .utf8)
         let store = ControlStore(storage: storage, preferences: preferences)
         await store.reload(root)
-        guard let project = store.snapshot?.projects.first else { fatalError(TestConstants.checkMappedRoot) }
+        guard let project = store.snapshot?.projects.first else { TestSupport.fail(TestConstants.checkMappedRoot) }
         store.selection = project.id
         let note = WorkNote(text: TestConstants.title + ControlConstants.newline + TestConstants.detail)
         TestSupport.check(store.save(note, for: project.id), TestConstants.checkSyncNotes)
@@ -193,7 +191,8 @@ internal enum StoreTests {
     ///   - root: Disposable parent.
     ///   - storage: Isolated notes.
     ///   - preferences: Isolated preferences.
-    /// - Returns: Nothing; fails if the old poll is queued after the user's newer selection.
+    /// - Returns: Nothing; fails if the old poll is queued after the user's newer selection, and throws when a
+    ///   fixture cannot be written or the wait between the two reads is cancelled.
     private static func pollingRaceCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let base = root.appendingPathComponent(TestConstants.raceDirectory)
         let oldRoot = base.appendingPathComponent(TestConstants.project)
@@ -208,24 +207,28 @@ internal enum StoreTests {
         let readRelease = DispatchSemaphore(value: 0)
         let store = ControlStore(storage: storage, preferences: preferences, fingerprintRepository: { _ in
             pollStarted.signal()
-            _ = pollRelease.wait(timeout: .now() + 5)
+            _ = pollRelease.wait(timeout: .now() + TestConstants.storeWaitSeconds)
             return []
         }, readRepository: { url in
             if url == newRoot {
                 readStarted.signal()
-                _ = readRelease.wait(timeout: .now() + 5)
+                _ = readRelease.wait(timeout: .now() + TestConstants.storeWaitSeconds)
             }
             return try RepositoryReader.load(url)
         })
         await store.reload(oldRoot)
         let observer = Task { await store.observe() }
         let polling = await withCheckedContinuation { continuation in
-            DispatchQueue.global().async { continuation.resume(returning: pollStarted.wait(timeout: .now() + 5) == .success) }
+            DispatchQueue.global().async {
+                continuation.resume(returning: pollStarted.wait(timeout: .now() + TestConstants.storeWaitSeconds) == .success)
+            }
         }
         TestSupport.check(polling, TestConstants.checkPollingRace)
         let switchTask = Task { await store.reload(newRoot) }
         let switching = await withCheckedContinuation { continuation in
-            DispatchQueue.global().async { continuation.resume(returning: readStarted.wait(timeout: .now() + 5) == .success) }
+            DispatchQueue.global().async {
+                continuation.resume(returning: readStarted.wait(timeout: .now() + TestConstants.storeWaitSeconds) == .success)
+            }
         }
         TestSupport.check(switching, TestConstants.checkPollingRace)
         pollRelease.signal()
@@ -242,7 +245,8 @@ internal enum StoreTests {
     ///   - root: Disposable parent.
     ///   - storage: Isolated notes.
     ///   - preferences: Isolated preferences.
-    /// - Returns: Nothing; terminates on a retry-lifecycle regression.
+    /// - Returns: Nothing; terminates on a retry-lifecycle regression, and throws when the fixture cannot be
+    ///   written or the wait for recovery is cancelled.
     private static func initialRecoveryCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let repository = root.appendingPathComponent(TestConstants.alias)
         try FileManager.default.createDirectory(at: repository, withIntermediateDirectories: true)
@@ -252,8 +256,10 @@ internal enum StoreTests {
         TestSupport.check(store.snapshot == nil && store.syncFailure != nil, TestConstants.checkInitialRecovery)
         let observer = Task { await store.observe() }
         try TestConstants.mappedRoot.write(to: repository.appendingPathComponent(ControlConstants.readme), atomically: true, encoding: .utf8)
-        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
-        while store.snapshot == nil && ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(50)) }
+        let deadline = ContinuousClock.now.advanced(by: .seconds(TestConstants.storeWaitSeconds))
+        while store.snapshot == nil && ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(TestConstants.storePollMilliseconds))
+        }
         observer.cancel()
         await observer.value
         TestSupport.check(store.snapshot?.projects.count == 1 && store.syncFailure == nil, TestConstants.checkInitialRecovery)
@@ -287,7 +293,8 @@ internal enum StoreTests {
     ///   - root: Disposable repository.
     ///   - storage: Isolated workspace file.
     ///   - preferences: Isolated preference suite.
-    /// - Returns: Nothing; fails if polling misses the concurrent edit.
+    /// - Returns: Nothing; fails if polling misses the concurrent edit, and throws when the fixture cannot be
+    ///   written or the wait for the refresh is cancelled.
     private static func refreshCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let folder = root.appendingPathComponent(TestConstants.project)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
@@ -304,9 +311,9 @@ internal enum StoreTests {
         })
         await store.reload(root)
         let observer = Task { await store.observe() }
-        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+        let deadline = ContinuousClock.now.advanced(by: .seconds(TestConstants.storeWaitSeconds))
         while store.snapshot?.projects.first?.introduction != TestConstants.updatedIntroduction && ContinuousClock.now < deadline {
-            try await Task.sleep(for: .milliseconds(50))
+            try await Task.sleep(for: .milliseconds(TestConstants.storePollMilliseconds))
         }
         observer.cancel()
         await observer.value
@@ -318,7 +325,9 @@ internal enum StoreTests {
     ///   - root: Disposable repository.
     ///   - storage: Isolated workspace file.
     ///   - preferences: Isolated preference suite.
-    /// - Returns: Nothing; fails if launch-target selection changes the safety or fallback contract.
+    /// - Returns: Nothing; fails if launch-target selection changes the safety or fallback contract, and throws
+    ///   when the fixture repository cannot be read or an app fixture or the workspace file cannot be written or
+    ///   removed.
     private static func applicationChecks(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) throws {
         var project = try RepositoryReader.load(root).projects[0]
         let manual = try TestFixtures.application(in: root, name: TestConstants.external)
@@ -345,11 +354,12 @@ internal enum StoreTests {
     ///   - root: Disposable repository whose first project owns the replaced bundle.
     ///   - storage: Isolated workspace file.
     ///   - preferences: Isolated preference suite.
-    /// - Returns: Nothing; fails if the stale detected choice is accepted as a launch target.
+    /// - Returns: Nothing; fails if the stale detected choice is accepted as a launch target, and throws when an
+    ///   app fixture or its link cannot be created or removed.
     private static func launchGuardCheck(_ root: URL, storage: WorkspaceStorage, preferences: UserDefaults) async throws {
         let store = ControlStore(storage: storage, preferences: preferences)
         await store.reload(root)
-        guard var project = store.snapshot?.projects.first else { fatalError(TestConstants.checkLaunchGuard) }
+        guard var project = store.snapshot?.projects.first else { TestSupport.fail(TestConstants.checkLaunchGuard) }
         let detected = try TestFixtures.application(in: project.folder, name: TestConstants.replacedApp)
         let elsewhere = try TestFixtures.application(in: root, name: TestConstants.elsewhereApp)
         project.applications = [detected]

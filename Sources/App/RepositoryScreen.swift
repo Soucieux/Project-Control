@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// The repository parent owns its README overview, history, commit activity, source action, and read timestamp.
+/// The repository parent's screen: its name and project count on the sky, then its README overview, history,
+/// and commit activity.
 internal struct RepositoryScreen: View {
     @ObservedObject internal var store: ControlStore
     internal let snapshot: RepositorySnapshot
@@ -13,9 +14,7 @@ internal struct RepositoryScreen: View {
             VStack(spacing: 8) {
                 Text(snapshot.root.lastPathComponent).font(.system(size: 40, weight: .light)).tracking(-1)
                     .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
-                Text(String(format: snapshot.projects.count == 1 ? ControlConstants.singleProjectCountFormat
-                    : ControlConstants.projectCountFormat, snapshot.projects.count)
-                    + ControlConstants.joined + ControlConstants.repositorySummary)
+                Text(snapshot.projectCountLabel + ControlConstants.joined + ControlConstants.repositorySummary)
                     .font(.callout).foregroundStyle(ControlTheme.muted)
             }.multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.vertical, 12)
             if let warning = store.syncFailure {
@@ -35,5 +34,13 @@ internal struct RepositoryScreen: View {
                 }
             }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
         }
+    }
+}
+
+extension RepositorySnapshot {
+    /// The number of listed projects in words, as the repository title and the rail's count help show it.
+    internal var projectCountLabel: String {
+        String(format: projects.count == 1 ? ControlConstants.singleProjectCountFormat
+            : ControlConstants.projectCountFormat, projects.count)
     }
 }

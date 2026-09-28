@@ -7,8 +7,9 @@ internal enum RepositoryReader {
     /// - Parameters:
     ///   - url: README path.
     ///   - root: Allowed repository boundary.
-    /// - Returns: The README text, or throws without touching source files.
-    internal static func read(_ url: URL, within root: URL) throws -> String {
+    /// - Returns: The README text; throws when the path leaves the root, or the file is missing, not a regular
+    ///   file, larger than the read limit or not UTF-8.
+    private static func read(_ url: URL, within root: URL) throws -> String {
         guard contains(url, in: root) else { throw ControlFailure(message: ControlConstants.unsafeProject) }
         let values = try url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
         guard values.isRegularFile == true, (values.fileSize ?? Int.max) <= ControlConstants.maxReadmeBytes else {
@@ -36,7 +37,9 @@ internal enum RepositoryReader {
     /// Builds a repository snapshot from its Projects table, then adds every other top-level folder that
     /// carries a README, so a project appears before it is registered.
     /// - Parameter root: User-selected local repository folder.
-    /// - Returns: The complete snapshot, or an error for an invalid register.
+    /// - Returns: The complete snapshot; throws when the root README cannot be read, its section markers are
+    ///   invalid, its register table is missing or has a row without a folder link, or a project link leaves the
+    ///   repository.
     internal static func load(_ root: URL) throws -> RepositorySnapshot {
         let canonical = root.resolvingSymlinksInPath().standardizedFileURL
         let rootReadme = canonical.appendingPathComponent(ControlConstants.readme)
@@ -172,7 +175,7 @@ internal enum RepositoryReader {
             options: [.skipsHiddenFiles])) ?? []
         return children.compactMap { child -> URL? in
             guard let values = try? child.resourceValues(forKeys: keys),
-                  values.isDirectory == true, values.isSymbolicLink != true else { return nil }
+                  values.isDirectory == true, values.isSymbolicLink == false else { return nil }
             let folder = root.appendingPathComponent(child.lastPathComponent).standardizedFileURL
             return FileManager.default.fileExists(atPath: folder.appendingPathComponent(ControlConstants.readme).path)
                 ? folder : nil

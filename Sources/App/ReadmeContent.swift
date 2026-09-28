@@ -44,7 +44,7 @@ internal struct ReadmeContent: View {
 }
 
 /// Content-height native table cells; wider tables scroll without clipping their columns.
-internal struct ReadmeTableView: View {
+private struct ReadmeTableView: View {
     internal let table: ReadmeTable
     private var columns: Int { max(table.headers.count, table.rows.map(\.count).max() ?? 0) }
 
@@ -114,21 +114,21 @@ internal struct HistoryList: View {
 
 /// One history record as a glass card: its title and date beside a round disclosure button, opening a darker
 /// panel inside the same card. The card grows first, then the panel fades in and its lines follow from the
-/// top; closing runs the other way. Reduce Motion opens and closes it at once.
+/// top; closing fades the panel and its lines together, then shrinks the card. Reduce Motion opens and
+/// closes it at once.
 private struct HistoryCard: View {
     internal let entry: HistoryEntry
+    /// The state last asked for; `followOpenRequest` moves the card towards it in two steps.
+    @State private var open = false
+    /// Whether the panel is in the card, which has grown to hold it.
     @State private var expanded = false
+    /// Whether the panel and its lines are visible.
     @State private var revealed = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// The detail's source cells, one per line of the panel.
-    private var lines: [String] {
-        entry.detail.components(separatedBy: ControlConstants.joined).filter { !$0.isEmpty }
-    }
-
     internal var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button(action: toggle) {
+            Button { open.toggle() } label: {
                 HStack(spacing: 12) {
                     Text(entry.heading).font(.callout.weight(.medium)).multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -140,42 +140,52 @@ private struct HistoryCard: View {
                         .accessibilityHidden(true)
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain)
-                .accessibilityValue(expanded ? ControlConstants.expanded : ControlConstants.collapsed)
+                .accessibilityValue(open ? ControlConstants.expanded : ControlConstants.collapsed)
             if expanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
+                    ForEach(Array(entry.lines.enumerated()), id: \.offset) { index, line in
                         Text(line).font(.callout).lineSpacing(4).foregroundStyle(ControlTheme.muted)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .opacity(revealed ? 1 : 0).offset(y: revealed ? 0 : 4)
-                            .animation(reduceMotion ? nil : .easeOut(duration: 0.3)
-                                .delay(0.08 + Double(index) * ControlTheme.historyLineStagger),
+                            .animation(reduceMotion ? nil : revealed
+                                ? .easeOut(duration: ControlTheme.historyLineFade)
+                                    .delay(ControlTheme.historyLineDelay + Double(index) * ControlTheme.historyLineStagger)
+                                : .easeIn(duration: ControlTheme.historyCloseFade),
                                 value: revealed)
                     }
                 }
                 .textSelection(.enabled).padding(14)
                 .background(Color.black.opacity(revealed ? 0.24 : 0),
                     in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .animation(reduceMotion ? nil : .easeOut(duration: 0.24), value: revealed)
+                .animation(reduceMotion ? nil : revealed ? .easeOut(duration: ControlTheme.historyPanelFade)
+                    : .easeIn(duration: ControlTheme.historyCloseFade), value: revealed)
                 .transition(.identity)
             }
         }
         .padding(14).glassPlane(radius: 14)
+        .task(id: open) { await followOpenRequest() }
     }
 
-    /// Opens in two steps — the card grows, then the panel and its lines appear — and closes in reverse.
+    /// Moves the card to the state last asked for in two steps: opening grows the card before the panel and
+    /// its lines appear, and closing fades them before the card shrinks. A newer request cancels the step
+    /// still waiting, so quick repeated clicks always end in the state last asked for.
     /// - Returns: Nothing; changes only local presentation state.
-    private func toggle() {
+    private func followOpenRequest() async {
+        let opening = open
+        guard expanded != opening || revealed != opening else { return }
         if reduceMotion {
-            expanded.toggle()
-            revealed = expanded
-        } else if expanded {
-            withAnimation(.easeIn(duration: 0.12)) { revealed = false }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-                withAnimation(.easeInOut(duration: 0.2)) { expanded = false }
-            }
-        } else {
+            expanded = opening
+            revealed = opening
+        } else if opening {
             withAnimation(.easeOut(duration: ControlTheme.historyGrowDuration)) { expanded = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + ControlTheme.historyRevealDelay) { revealed = true }
+            try? await Task.sleep(for: .seconds(ControlTheme.historyRevealDelay))
+            guard !Task.isCancelled else { return }
+            revealed = true
+        } else {
+            revealed = false
+            try? await Task.sleep(for: .seconds(ControlTheme.historyCloseFade))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeInOut(duration: ControlTheme.historyShrinkDuration)) { expanded = false }
         }
     }
 }

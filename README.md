@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.2%20build%2042-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.3%20build%2043-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -113,7 +113,7 @@ Project Control/
 ├── Sources/App/        # Native state, layered interface, sky backdrop and lock artwork
 ├── Resources/          # Bundle identity, version, Repository Atlas master, and icon catalog
 ├── Scripts/            # Version and build pair check run before packaging
-├── Tests/              # Focused synthetic and read-only repository checks
+├── Tests/              # Focused synthetic, read-only repository and window checks
 ├── history/            # Archived change-history periods
 ├── Makefile            # Local build, focused checks, launch
 ├── CONTRIBUTING.md     # Project-facing contribution and numbering rules
@@ -236,9 +236,7 @@ notes available / no notes summary
    wait about two seconds, or use **Refresh now**. Confirm that the project appears under the
    intended category, its scope and technology tags are correct, and every documented detail tab
    opens without a README warning. A macOS `.app` is detected automatically only when it is directly
-   inside the project folder;
-
-   otherwise, **Open App** can remember a manually selected application.
+   inside the project folder; otherwise, **Open App** can remember a manually selected application.
 
 - If the project stays under **Uncategorized** with the unregistered note, check that its row is directly inside the selected Projects table, the link resolves to exactly that top-level folder, and the folder and README names match letter-for-letter. If a tab stays empty, check that every section marker immediately precedes a heading.
 - A malformed root register is rejected; an unavailable project README leaves the project visible from its root summary but cannot supply complete detail tabs.
@@ -307,9 +305,7 @@ A child's explicit marker can select a different destination, except inside `ign
 
 - Write **Technologies** as semicolon-separated names, for example `SwiftUI; README-driven` or `Next.js; LangGraph; Hosted AI`.
 - Each nonempty name becomes its own tag.
-- Surrounding whitespace and Markdown formatting are removed;
-
-case-insensitive duplicates keep their first spelling and position. Keep punctuation inside names, such as `C++` or `model_name-v1`. Do not use a semicolon inside one name.
+- Surrounding whitespace and Markdown formatting are removed; case-insensitive duplicates keep their first spelling and position. Keep punctuation inside names, such as `C++` or `model_name-v1`. Do not use a semicolon inside one name.
 
 - Follow the [tag rules](CONTRIBUTING.md#presentation-rules) when choosing factual technologies/approaches; they apply to this app's presentation only.
 - The app displays this metadata; it does not verify runtime use or infer tags from architecture tables, categories, or scope descriptions.
@@ -403,7 +399,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.2 (build 42)** in source and in the signed local app. [Change and delivery evidence](#v4-2-build-42).
+**v4.3 (build 43)** in source and in the signed local app. [Change and delivery evidence](#v4-3-build-43).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -422,6 +418,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.3 / build 43 | 2026-09-27 | <ul><li><strong>Fixes:</strong> Two quick clicks on the rail's toggle or on a history card's chevron now end in the state last asked for, and a closing history card fades its lines out together instead of cutting them off.</li><li><strong>History cards:</strong> An opened card shows each description cell of its README row whole, without the record link's label.</li><li><strong>Commit activity:</strong> The heatmap has one full-size layout, which fills the reading column at every window size.</li><li><strong>Sky:</strong> The clouds keep their pixels while the window is resized, and each resize redraw costs about a tenth of a millisecond.</li><li><strong>Document health:</strong> A missing folder is stated once.</li><li><strong>Checks:</strong> <code>make test-ui</code> checks the rail and history cards in a window of the app's own views, and a failed check no longer leaves its temporary folder behind.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.2 and launched.</li></ul> | [Full record](#v4-3-build-43) |
 | v4.2 / build 42 | 2026-09-27 | <ul><li><strong>Diagrams:</strong> Every workflow arrow stops a small gap short of the rectangles it joins, and nodes that line up are joined by one straight line instead of one with a slight sideways jog.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-2-build-42) |
 | v4.1 / build 41 | 2026-09-26 | <ul><li><strong>Look:</strong> Content sits on dark smoked glass over a sharp sky with pixel-dithered clouds, in place of the blurred artwork.</li><li><strong>Layout:</strong> Each screen reads in a centered column under a title set on the sky, and a small pill in the top corner shows the read time or README state.</li><li><strong>Details:</strong> The card's summaries read as a small label over a larger value, tags are plain text, history rows open into a panel inside their card, and the rail folds its labels away before it narrows.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-1-build-41) |
 | v4.0 / build 40 | 2026-09-26 | <ul><li><strong>Icon:</strong> Redrew the Repository Atlas icon in the macOS icon shape, so the app and the project folder show one icon at the standard size.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing, drawn-icon, and launch checks.</li></ul> | [Full record](#v4-0-build-40) |
@@ -460,6 +457,82 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-3-build-43"></a>
+
+### v4.3 / build 43
+
+- **Recorded date:** 2026-09-27.
+- **Rail:** Two clicks on the repository's name or icon in quick succession could leave the rail
+  collapsed, because each click scheduled its second step without cancelling the one before. The
+  two steps now run as one sequence that a newer click cancels, so the rail always ends in the state
+  last asked for, and the toggle's help text follows that state at once.
+- **History cards:** A history card's chevron had the same fault: opening, closing and opening again
+  quickly left the card closed, and a quick open and close left its lines showing without their fade
+  the next time it opened. Closing now fades the panel and its lines together in about 0.12 seconds
+  before the card shrinks; before, each line faded on its slower opening schedule and was cut off
+  when the panel went.
+- **History card lines:** An opened card lists its README row's description cells one per line.
+  Before, the cells were joined and split again at every ` · `, so a cell whose own text held one
+  broke in two, and the record column showed its link's label, "Full record", as a line of its own.
+  A cell that is only a link is now left out when another cell describes the row; a row described
+  by nothing but a link keeps its label.
+- **Commit activity:** The heatmap has one layout, the full-size one, and it fills its column at
+  every window size. Since v4.1 the reading column has given the grid about 770 points, under the
+  old 940-point threshold, so it always showed the compact layout's small type in large cells; the
+  smallest window leaves the grid wider than the compact layout ever needed, so that layout is gone.
+- **Sky:** Each cloud bank's pixels are worked out once and kept, measured from the bank's corner, so
+  resizing the window moves them instead of working them out again. A resize redraw costs about
+  0.1 ms instead of 1.7 to 2.3 ms, and the clouds keep their pixels while the window changes size,
+  where before their edges were re-sampled at every step. Opening and closing the rail, changing
+  tabs and opening history cards leave the sky alone apart from an occasional single redraw;
+  resizing redraws it at every step.
+- **Document health:** A missing project folder is stated once, as the column's value, rather than
+  repeated in the line beneath it.
+- **Source:** The project card and the heatmap sit on the same glass surface as the prose instead of
+  a second copy of it; the rail and the repository title share one project-count label; the glass
+  tint is one colour; the diagram's straight-line tolerance, every history-card timing and the
+  rail rows' disclosure stagger are named with the rest of the theme; the lock artwork's parts and
+  the README table view are private to their files, and four helpers only their own type calls — the
+  repository reader's file read, the parser's text replacement, the app finder's project check and
+  the store's app picker — are private to their types; the size limit on an app's bundle metadata
+  has its own name instead of sharing the README limit's; descriptions left over from the
+  blurred-artwork design now describe the current views; the descriptions of the repository reader
+  and the note store name every failure they report; and the folder scan lists a top-level folder
+  only when it is known not to be a link, where before a folder whose link status could not be read
+  was listed too.
+- **Checks:** `make test-ui` opens a window of the app's own views at the smallest size, clicks the
+  rail's toggle and a history card in quick succession, and confirms from captures of that window
+  that each ends in the state last asked for. It needs a logged-in session with Screen Recording
+  allowed, so it runs apart from `make test`. A new core check covers history cells that contain
+  ` · ` and the record link, and every throwing test helper now says which fixture errors it throws.
+  A failed check now removes the run's temporary folder and preference suite before it ends the
+  run, as a passing run always did; before, the folder stayed in the temporary directory. Test values
+  used in more than one place — the store checks' five-second wait and polling interval, the unusual
+  path names, the app fixture's permissions and the Git fixture's date — are named once instead of
+  repeated.
+- **Documentation:** The v2.7 and v2.8 records describe their scope and delivery without naming the
+  review that produced them. Two passages that a blank line had broken at a semicolon, on finding a
+  new project's app and on the Technologies format, read as one sentence again.
+- **Scope:** No notes, storage, Git reading or app-opening behaviour changed; README parsing changed
+  only in how a history row's cells become lines.
+
+**Evidence and delivery status**
+
+`make test` passed: 372 core, 41 store, 47 note/presentation, and 12 version checks. `make test-ui`
+passed its 20 checks at the 1,120-point minimum width: the rail ended expanded after two quick
+clicks and collapsed after two more, and a history card opened, closed and opened again ended open.
+The same suite built against v4.2 stopped at its first rail check. Offscreen renders of the sky took
+0.12 ms at 1,320 × 760 and 0.09 ms at 2,560 × 1,440, against 1.70 and 2.25 ms before, and a
+capture at rest shows the same clouds. `make app` built and signed v4.3/build 43, which passed
+strict signature verification, reports version 4.3 and build 43, and carries a bundle plist
+identical to the source. Installed in place of v4.2 at this project root, where it passed strict
+signature verification and launched showing the repository's name and every project's folder icon;
+the v4.2 bundle was moved to the Trash. After the last source change, on 2026-09-28, the app was
+rebuilt from the final sources, passed the same signature and identity checks, launched without a
+crash report, and replaced the installed v4.3. Delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v4-2-build-42"></a>
 
@@ -904,7 +977,7 @@ v2.9/build 29 source; `make check-version` accepts the pair; 432 native checks p
 
 - **Recorded date:** 2026-09-11; work began 2026-09-10.
 
-- **Scope:** Exhaustive pass over every file under `Project Control/`, requested as a full sweep.
+- **Scope:** Source, tests, scripts and documentation across all of `Project Control/`.
 
 - **Interface:** Project icons and the project screen no longer read and parse bundle metadata on
   every view update. `ApplicationLocator` now separates the canonical identity recheck from the
@@ -1018,7 +1091,7 @@ User-authorized complete build-folder cleanup; package and asset checks passed; 
 
 - **Recorded date:** 2026-09-05.
 
-- Exhaustive-pass source v2.7/build 27. At delivery, the source and signed local app were **v2.7 (build 27)**; the audit source corrections are committed locally, and source and documentation were uncommitted at initial delivery.
+- At delivery, the source and signed local app were **v2.7 (build 27)**; the source corrections below are committed locally, and source and documentation were uncommitted at initial delivery.
 
 - Sidebar rows again show README-derived technology tags and notes availability.
 - Collapsed navigation has accessible names and category counts.
@@ -1033,7 +1106,7 @@ User-authorized complete build-folder cleanup; package and asset checks passed; 
 
 - The documented native tests passed 339 core, 40 store, 41 note/presentation, and 12 version checks (432 in all). The final optimized app compiled, passed strict signing and exact source-metadata/icon checks, and launched from the project root.
 - Live inspection confirmed wrapping tags at the minimum width, named collapsed navigation, centered workflows, horizontal access to all four branches in a disposable wide-graph fixture, activity distributions and threshold descriptions, and empty/multiline note-editor states with Escape cancellation. The test draft was not saved and the original repository selection was restored. Native button accessibility activation passed; Tab focus traversal was not confirmed under the current macOS keyboard settings.
-- The user subsequently authorized removal of all build-folder outputs, including the previously preserved v2.6/build-26 recovery. The signed v2.7 app at the project root retains its exact audited bytes and valid strict signature, and no build-folder recovery remains; the older binaries were deleted locally, and generated intermediates can be rebuilt. Source code, editable icon masters, and audit evidence were preserved.
+- The user subsequently authorized removal of all build-folder outputs, including the previously preserved v2.6/build-26 recovery. The signed v2.7 app at the project root retains its exact delivered bytes and valid strict signature, and no build-folder recovery remains; the older binaries were deleted locally, and generated intermediates can be rebuilt. Source code, editable icon masters, and audit evidence were preserved.
 - Supplemental checks validated the SVG references, PNG decoding, and all ten packaged icon sizes; the source and packaged artwork were also visually inspected. Historical delivery notes below retain their original evidence.
 
 **Evidence and delivery status**

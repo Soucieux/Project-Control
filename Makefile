@@ -14,7 +14,7 @@ TEST_ARGS ?=
 ARCH := $(shell uname -m)
 FLAGS := -swift-version 5 -parse-as-library -target $(ARCH)-apple-macos14.0 -module-cache-path $(BUILD)/ModuleCache
 
-.PHONY: icons app check-version test test-core test-store test-notes test-version run
+.PHONY: icons app check-version test test-core test-store test-notes test-version test-ui run
 
 check-version:
 	/bin/bash Scripts/check-version.sh
@@ -62,6 +62,13 @@ test-store:
 	@mkdir -p "$(BUILD)"
 	$(SWIFT) $(FLAGS) -framework AppKit -framework SwiftUI $(CORE) Sources/App/ControlStore.swift $(TEST_SUPPORT) Tests/StoreTests.swift -o "$(BUILD)/StoreTests"
 	"$(BUILD)/StoreTests" $(TEST_ARGS)
+
+# Opens a window of the real views and captures it, so it needs a logged-in session with Screen Recording
+# allowed; it stays out of `test` for that reason.
+test-ui:
+	@mkdir -p "$(BUILD)"
+	$(SWIFT) $(FLAGS) -framework AppKit -framework SwiftUI $(CORE) $(filter-out Sources/App/ProjectControlApp.swift,$(UI)) $(TEST_SUPPORT) Tests/InterfaceTests.swift -o "$(BUILD)/InterfaceTests"
+	"$(BUILD)/InterfaceTests"
 
 run: app
 	open "$(FINAL_APP)"

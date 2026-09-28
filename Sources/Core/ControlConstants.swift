@@ -90,6 +90,7 @@ internal enum ControlConstants {
     internal static let headingPattern = #"^(#{1,6})\s+(.+?)\s*#*$"#
     internal static let boldHeadingPattern = #"^(?:\*\*[^*]+\*\*|__[^_]+__)$"#
     internal static let linkPattern = #"!?\[([^\]]*)\]\(([^)]+)\)"#
+    internal static let linkOnlyPattern = #"^\[[^\]]*\]\([^)]+\)$"#
     internal static let absoluteLinkPattern = #"^[a-zA-Z][a-zA-Z0-9+.-]*:"#
     internal static let htmlBreakPattern = #"</(?:li|p)>|<br\s*/?>"#
     internal static let htmlPattern = #"<[^>]*>"#
@@ -191,7 +192,6 @@ internal enum ControlConstants {
     internal static let healthFolderMissing = "Folder missing"
     internal static let healthReadmeMissing = "README missing"
     internal static let noValue = "—"
-    internal static let folderMissing = "Project folder unavailable"
     internal static let unregisteredProject = "Not listed in the root Projects register"
     internal static let runtimeUnknown = "Runtime not checked"
     internal static let lastRead = "Last read"
@@ -240,7 +240,7 @@ internal enum ControlConstants {
     internal static let maxWorkflowRoutes = 16
     internal static let maxHistoryEntries = 30
     internal static let monthCount = 12
-    internal static let activityCompactBreakpoint: CGFloat = 940
     internal static let maxReadmeBytes = 2_000_000
+    internal static let maxBundleMetadataBytes = 2_000_000
     internal static let refreshSeconds: TimeInterval = 2
 }

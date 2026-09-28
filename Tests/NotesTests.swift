@@ -5,19 +5,16 @@ import Foundation
 @MainActor
 internal enum NotesTests {
     /// Exercises isolated local files without reading or modifying the user's notes.
-    /// - Returns: Nothing; throws or terminates on an unexpected result.
+    /// - Returns: Nothing; exits unsuccessfully on a failed check, and throws when a fixture or the notes file
+    ///   cannot be written, read, encoded or decoded.
     internal static func main() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(TestConstants.rootName + UUID().uuidString)
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: root) }
-        // A suite named by a path keeps its plist inside the disposable root, never in ~/Library/Preferences.
-        let suite = root.appendingPathComponent(TestConstants.preferencesSuite).path
-        guard let preferences = UserDefaults(suiteName: suite) else { fatalError(NotesTestConstants.storeLabel) }
-        defer { preferences.removePersistentDomain(forName: suite) }
+        let root = try TestSupport.temporaryFolder()
+        defer { TestSupport.removeTemporaryFolder() }
+        let preferences = TestSupport.preferences(in: root)
         let storage = WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile))
         try NotesTestConstants.legacy.write(to: storage.file, atomically: true, encoding: .utf8)
         let store = ControlStore(storage: storage, preferences: preferences)
-        guard let note = store.notes(for: NotesTestConstants.projectID).first else { fatalError(NotesTestConstants.noteLabel) }
+        guard let note = store.notes(for: NotesTestConstants.projectID).first else { TestSupport.fail(NotesTestConstants.noteLabel) }
         TestSupport.check(note.text == NotesTestConstants.legacyText && note.isValid, NotesTestConstants.noteLabel)
         TestSupport.check(try String(contentsOf: storage.file, encoding: .utf8) == NotesTestConstants.legacy, NotesTestConstants.noteLabel)
         TestSupport.check(try JSONDecoder().decode(WorkNote.self, from: JSONEncoder().encode(note)) == note, NotesTestConstants.noteLabel)
@@ -85,6 +82,6 @@ internal enum NotesTests {
                         && groups.allSatisfy { group in group.count == 1 || group.allSatisfy { $0.kind == .paragraph || $0.kind == .bullet } }, NotesTestConstants.contentLabel)
                 }
             }
-        } catch { fatalError(NotesTestConstants.contentLabel) }
+        } catch { TestSupport.fail(NotesTestConstants.contentLabel) }
     }
 }

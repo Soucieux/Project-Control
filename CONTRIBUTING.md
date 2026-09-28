@@ -62,6 +62,12 @@ make app
   ordered grouping. `test-version` covers valid numbering pairs, rollover, and mismatches.
 - The suites never launch an application or touch the user's real workspace, and disposable
   fixtures are removed afterwards.
+- `make test-ui` checks the rail and the history cards at the smallest window. It opens a window of
+  the app's own views on the repository that holds this folder, clicks the rail's toggle and a
+  history card in quick succession, and reads captures of that window to confirm each ends in the
+  state last asked for. It needs a logged-in session and Screen Recording permission for the app
+  that runs it, so it stays out of `make test`; run it after changing the rail, the history cards or
+  their timing.
 - `make app` prepares the bundle under the ignored `build/` folder, checks its signature, and only
   then promotes the complete bundle to `Project Control.app` at this project root. The promotion is
   transactional: the existing app is set aside while the new one moves into place and put back if
