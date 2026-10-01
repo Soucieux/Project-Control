@@ -7,12 +7,12 @@ internal enum TestConstants {
     ## Projects
     | Project | Scope |
     |---|---|
-    | [Example](Example/) | <ul><li><strong>cAtEgOrY:</strong> Management</li><li><strong>Technical scope:</strong> **Native desktop**</li><li><strong>Technologies:</strong> **SwiftUI**; ; README-driven; swiftui;</li><li><strong>Product:</strong> Primary tool.</li></ul> |
-    | [Missing](Missing/) | <ul><li><strong>Category:</strong> AI Applications</li><li><strong>Technical scope:</strong> Full-stack web</li><li><strong>Technologies:</strong> Next.js; LangGraph; Hosted AI</li><li><strong>Product:</strong> Hosted service.</li></ul> |
+    | [Example](Example/) | <ul><li><strong>cAtEgOrY:</strong> Management</li><li><strong>Platform:</strong> **Native desktop**</li><li><strong>Technologies:</strong> **SwiftUI**; ; README-driven; swiftui;</li><li><strong>Product:</strong> Primary tool.</li></ul> |
+    | [Missing](Missing/) | <ul><li><strong>Category:</strong> AI Applications</li><li><strong>Platform:</strong> Full-stack web</li><li><strong>Technologies:</strong> Next.js; LangGraph; Hosted AI</li><li><strong>Product:</strong> Hosted service.</li></ul> |
     | [Another](Another/) | <ul><li><strong>Category:</strong> AI Applications</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> Local AI; RAG; C++; model_name-v1</li><li><strong>Product:</strong> Local assistant.</li></ul> |
-    | [Blank](Blank/) | <ul><li><strong>Category:</strong></li><li><strong>Technical scope:</strong></li><li><strong>Technologies:</strong> ; ;</li><li><strong>Product:</strong> Metadata not yet documented.</li></ul> |
+    | [Blank](Blank/) | <ul><li><strong>Category:</strong></li><li><strong>Platform:</strong></li><li><strong>Technologies:</strong> ; ;</li><li><strong>Product:</strong> Metadata not yet documented.</li></ul> |
     | [Short](Short/) | Legacy short row. |
-    | [Example](Example/) | <ul><li><strong>Category:</strong> Wrong</li><li><strong>Technical scope:</strong> Wrong</li><li><strong>Technologies:</strong> Wrong</li><li><strong>Product:</strong> Duplicate row.</li></ul> |
+    | [Example](Example/) | <ul><li><strong>Category:</strong> Wrong</li><li><strong>Platform:</strong> Wrong</li><li><strong>Technologies:</strong> Wrong</li><li><strong>Product:</strong> Duplicate row.</li></ul> |
     """
     internal static let legacyClassifiedRoot = """
     # Legacy classified repository
@@ -62,6 +62,7 @@ internal enum TestConstants {
     internal static let registerItemEnd = "</li>"
     internal static let checkClassification = "scope labels are read case-insensitively and rendered as plain text"
     internal static let checkClassificationCompatibility = "legacy classification columns remain supported and override conflicting scope labels"
+    internal static let checkLegacyScopeLabel = "a row still labelled Technical scope supplies its platform"
     internal static let checkClassificationGroups = "categories and members retain first appearance without duplicating projects"
     internal static let checkClassificationUnknown = "absent, blank, and short metadata creates no technology or absence tags"
     internal static let checkTechnologyTags = "technology tags preserve literal names and first order while trimming blanks and case-insensitive duplicates"

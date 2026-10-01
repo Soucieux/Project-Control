@@ -41,6 +41,9 @@ internal enum ControlConstants {
     internal static let gitPathSeparatorByte: UInt8 = 47
     internal static let projectsHeading = "projects"
     internal static let categoryColumn = "category"
+    /// The register's label for a project's technical scope.
+    internal static let platformLabel = "platform"
+    /// The older name for the same value, still read from a legacy column or label.
     internal static let technicalScopeColumn = "technical scope"
     internal static let technologiesColumn = "technologies"
     internal static let technologySeparator = ";"

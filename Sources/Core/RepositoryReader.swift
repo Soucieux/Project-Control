@@ -81,7 +81,8 @@ internal enum RepositoryReader {
                 record.classification = ProjectClassification(
                     category: registerValue(ControlConstants.categoryColumn, headers: headers, row: row, scope: scope)
                         ?? ControlConstants.uncategorized,
-                    technicalScope: registerValue(ControlConstants.technicalScopeColumn, headers: headers, row: row, scope: scope),
+                    technicalScope: registerValue(ControlConstants.platformLabel, headers: headers, row: row, scope: scope)
+                        ?? registerValue(ControlConstants.technicalScopeColumn, headers: headers, row: row, scope: scope),
                     technologies: technologyTags(registerValue(
                         ControlConstants.technologiesColumn, headers: headers, row: row, scope: scope)))
                 return record

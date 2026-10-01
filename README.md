@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.5%20build%2045-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.6%20build%2046-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -216,11 +216,12 @@ notes available / no notes summary
 4. **Register the project in the root Projects table.** Add one row directly to the table under the
    `projects` marker. The first cell must link to the new top-level folder. If the folder name
    contains spaces, encode each space as `%20` in the link. Open the Professional scope cell with
-   the latest update date, add a public-repository link when the project has a public mirror, then
-   Category, Technical scope and Technologies, followed by the useful project summary.
+   the **Updated** date, then **Repository** with the public mirror's link or `N/A`, **Category**,
+   **AI** (`N/A` for a project without AI), **Platform** and **Technologies**, followed by the useful
+   project summary.
 
    ```markdown
-   | [Example Project](Example%20Project/) | <ul><li><strong>Latest update:</strong> 2026-09-04</li><li><strong>Category:</strong> Project Management</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; SQLite</li><li><strong>Product:</strong> A concise factual summary.</li></ul> |
+   | [Example Project](Example%20Project/) | <ul><li><strong>Updated:</strong> 2026-09-04</li><li><strong>Category:</strong> Project Management</li><li><strong>Platform:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; SQLite</li><li><strong>Purpose:</strong> A concise factual summary.</li></ul> |
    ```
 
    Use real, source-confirmed classifications. Separate technology names with semicolons. The folder
@@ -284,22 +285,22 @@ A child's explicit marker can select a different destination, except inside `ign
 
 - The register has two columns: the project folder link and the Professional scope description. The app reads a labelled item wherever it appears in that cell, so the order below is for readers, not for parsing.
 - A row whose first-column link points at another repository — a fork or any work kept outside this one — is skipped rather than displayed, because there is no folder here to read; such rows belong in the root README's **Forked projects** section, which is marked `ignore`. A relative link that escapes the repository is still refused as unsafe.
-- Every Professional scope cell opens with **Latest update**, then **Public repository** for a project with a public mirror, and carries these three labelled items:
+- Every Professional scope cell opens with **Updated**, then **Repository** (`N/A` without a public mirror), and carries these three labelled items, each on a single line:
 
 ```html
-<ul><li><strong>Category:</strong> Project Management</li><li><strong>Technical scope:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; README-driven</li><li><strong>Product:</strong> Project-specific summary.</li></ul>
+<ul><li><strong>Category:</strong> Project Management</li><li><strong>Platform:</strong> Native desktop</li><li><strong>Technologies:</strong> SwiftUI; README-driven</li><li><strong>Purpose:</strong> Project-specific summary.</li></ul>
 ```
 
-- Project Control reads the labels case-insensitively, removes presentation markup, and leaves later project-specific bullets available as the professional summary.
+- Project Control reads the labels case-insensitively, removes presentation markup, and leaves later project-specific bullets available as the professional summary. The **AI** item after **Category**, `N/A` for a project without AI, is one of those bullets, and so is any sub-bullet list, which the app reads as plain text.
 - Categories and their projects retain first-appearance/source order.
 
-- Missing or blank Category values use **Uncategorized**; a missing or blank Technical scope is omitted from the sidebar row and the project's title, and missing or blank Technologies from the project card.
+- Missing or blank Category values use **Uncategorized**; a missing or blank Platform is omitted from the sidebar row and the project's title, and missing or blank Technologies from the project card.
 - Custom category labels are supported without changing code.
 
 - Use short, factual labels: native UI with local logic is **Native desktop**, not a server-based full-stack app; AI educational content is not an AI runtime.
 - Calling an external AI API does not make a utility a backend.
 
-- Older registers with separate `Category`, `Technical scope`, and `Technologies` columns remain compatible.
+- Older registers with separate `Category`, `Technical scope`, and `Technologies` columns remain compatible, and a scope cell still labelled **Technical scope** instead of **Platform** is read the same way.
 - When one of those legacy columns is present, its value—including an explicit blank—wins over a same-named scope label.
 - Do not duplicate current metadata across both formats.
 
@@ -399,7 +400,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.5 (build 45)** in source and in the signed local app. [Change and delivery evidence](#v4-5-build-45).
+**v4.6 (build 46)** in source and in the signed local app. [Change and delivery evidence](#v4-6-build-46).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -418,6 +419,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.6 / build 46 | 2026-10-01 | <ul><li><strong>Register:</strong> The root register names a project's technical scope Platform, and the app reads it for the sidebar and title; a register still labelled Technical scope shows the same.</li><li><strong>Contract:</strong> The README content contract uses the register's one-word labels and places an AI item after Category.</li></ul> | [Full record](#v4-6-build-46) |
 | v4.5 / build 45 | 2026-10-01 | <ul><li><strong>Tabs:</strong> On every screen the content sits 12 points below the tabs, so the two read as one group: half the repository screen's former 24 points, and a project's 8 widened to match.</li><li><strong>Evidence:</strong> Passed the interface, version and signing checks; installed in place of v4.4 and launched.</li></ul> | [Full record](#v4-5-build-45) |
 | v4.4 / build 44 | 2026-09-28 | <ul><li><strong>Icons:</strong> Each project folder's icon is fetched once and kept until the folder or its custom icon changes; checking that it is unchanged costs about an eighth of fetching a custom icon again.</li><li><strong>Architecture and Models:</strong> Both tabs come from one reading of a project's architecture sections, so reading them for all eight projects here takes about 10 to 11 ms instead of 16 to 18 ms, with the same content.</li><li><strong>Checks:</strong> <code>make test-ui</code> also checks the icon cache.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.3 and launched.</li></ul> | [Full record](#v4-4-build-44) |
 | v4.3 / build 43 | 2026-09-27 | <ul><li><strong>Fixes:</strong> Two quick clicks on the rail's toggle or on a history card's chevron now end in the state last asked for, and a closing history card fades its lines out together instead of cutting them off.</li><li><strong>History cards:</strong> An opened card shows each description cell of its README row whole, without the record link's label.</li><li><strong>Commit activity:</strong> The heatmap has one full-size layout, which fills the reading column at every window size.</li><li><strong>Sky:</strong> The clouds keep their pixels while the window is resized, and each resize redraw costs about a tenth of a millisecond.</li><li><strong>Document health:</strong> A missing folder is stated once.</li><li><strong>Checks:</strong> <code>make test-ui</code> checks the rail and history cards in a window of the app's own views, and a failed check no longer leaves its temporary folder behind.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.2 and launched.</li></ul> | [Full record](#v4-3-build-43) |
@@ -459,6 +461,33 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-6-build-46"></a>
+
+### v4.6 / build 46
+
+- **Recorded date:** 2026-10-01.
+- **Register:** The root register now gives every item a one-word label, and a project's technical
+  scope is labelled **Platform**. The app reads **Platform** for the sidebar row and the project's
+  title, and still reads **Technical scope** from an older label or column, so an older register
+  shows the same.
+- **Contract:** The README content contract's examples and rules use the new labels — **Updated**,
+  **Repository**, **Category**, **Platform**, and **Technologies** — and say that the **AI** item
+  after **Category**, `N/A` for a project without AI, reads as part of the project's summary.
+- **Checks:** A new core check reads a row still labelled **Technical scope**.
+
+**Evidence and delivery status**
+
+`make test` passed 373 core checks, the new one included, with 41 store, 47 notes and presentation,
+and 12 version checks; `make test-core` passed its 373 again once the live register used the new
+labels. `make app` built and signed v4.6 build 46, which passed strict signature verification.
+Installed in place of v4.5 at this project root on 2026-10-01: the installed app passed strict
+signature verification, reports version 4.6 and build 46, carries the built binary byte for byte,
+and launched and quit cleanly, showing each project's platform from the main checkout's register,
+which still used the older label at the time. The v4.5 bundle was kept in the ignored `build/`
+folder until then and is proposed for removal. Delivered uncommitted.
+
+[Back to change history](#change-history)
 
 <a id="v4-5-build-45"></a>
 

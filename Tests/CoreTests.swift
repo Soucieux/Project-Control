@@ -244,6 +244,7 @@ internal enum CoreTests {
         TestSupport.check(snapshot.projects[1].classification == ProjectClassification(category: TestConstants.aiCategory,
             technicalScope: TestConstants.fullStackScope, technologies: TestConstants.hostedTechnologyTags), TestConstants.checkClassification)
         TestSupport.check(snapshot.projects[2].classification.technologies == TestConstants.literalTechnologyTags, TestConstants.checkTechnologyTags)
+        TestSupport.check(snapshot.projects[2].classification.technicalScope == TestConstants.desktopScope, TestConstants.checkLegacyScopeLabel)
         TestSupport.check(snapshot.projects.count == 5 && snapshot.categories.map(\.name) == [TestConstants.managementCategory,
             TestConstants.aiCategory, ControlConstants.uncategorized] && snapshot.categories.map { $0.projects.count } == [1, 2, 2],
             TestConstants.checkClassificationGroups)
