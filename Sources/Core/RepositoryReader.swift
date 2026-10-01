@@ -154,13 +154,14 @@ internal enum RepositoryReader {
             ?? (mapped || scope.isEmpty ? ControlConstants.noIntroduction : scope)
         var isDirectory: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath: folder.path, isDirectory: &isDirectory)
+        let (architecture, models) = ReadmeParser.architectureAndModels(sections)
         return ProjectRecord(id: folder.resolvingSymlinksInPath().standardizedFileURL.path, name: name, folder: folder, readme: readme,
             introduction: introduction,
-            version: ReadmeParser.release(sections, fallback: scope), architecture: ReadmeParser.architecture(sections), workflows: ReadmeParser.workflows(sections),
+            version: ReadmeParser.release(sections, fallback: scope), architecture: architecture, workflows: ReadmeParser.workflows(sections),
             history: ReadmeParser.history(sections), folderAvailable: exists && isDirectory.boolValue,
             readmeAvailable: document != nil,
             overview: ReadmeParser.overview(sections, fallback: introduction),
-            models: ReadmeParser.models(sections),
+            models: models,
             applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning,
             usesDatedHistory: ReadmeParser.usesDatedHistory(sections))
     }

@@ -265,39 +265,53 @@ internal enum ReadmeParser {
     ///   - includeHeadings: Whether to label subsequent sections.
     /// - Returns: Native presentation blocks, with no table row duplicated as prose.
     private static func blocks(_ sections: [ReadmeSection], includeHeadings: Bool = false) -> [ReadmeBlock] {
-        var blocks: [ReadmeBlock] = []
-        for (index, section) in sections.enumerated() {
-            if includeHeadings && index > 0 {
-                blocks.append(ReadmeBlock(kind: .heading, text: section.title))
-            }
-            var paragraph: [String] = []
-            var tableLines: [String] = []
-            var kind = ReadmeBlock.Kind.paragraph
-            for line in section.lines {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                if trimmed.hasPrefix(ControlConstants.pipe) {
-                    appendBlock(&paragraph, kind: kind, to: &blocks)
-                    kind = .paragraph
-                    tableLines.append(line)
-                    continue
-                }
-                appendTable(&tableLines, to: &blocks)
-                if trimmed.isEmpty
-                    || match(trimmed, ControlConstants.separatorPattern) != nil
-                    || match(trimmed, ControlConstants.imageLinePattern) != nil {
-                    appendBlock(&paragraph, kind: kind, to: &blocks)
-                    kind = .paragraph
-                    continue
-                }
-                if let item = match(line, ControlConstants.listItemPattern, group: 1) {
-                    appendBlock(&paragraph, kind: kind, to: &blocks)
-                    kind = .bullet
-                    paragraph.append(item)
-                } else { paragraph.append(line) }
-            }
-            appendBlock(&paragraph, kind: kind, to: &blocks)
-            appendTable(&tableLines, to: &blocks)
+        let content = sections.map(sectionBlocks)
+        return includeHeadings ? titled(content, sections: sections) : content.flatMap { $0 }
+    }
+
+    /// Puts each section's heading, after the first section's, ahead of that section's blocks.
+    /// - Parameters:
+    ///   - content: Each section's blocks, in source order.
+    ///   - sections: The sections they were read from.
+    /// - Returns: One list of blocks with every later section labelled.
+    private static func titled(_ content: [[ReadmeBlock]], sections: [ReadmeSection]) -> [ReadmeBlock] {
+        content.indices.flatMap { index in
+            (index > 0 ? [ReadmeBlock(kind: .heading, text: sections[index].title)] : []) + content[index]
         }
+    }
+
+    /// Tokenizes one section's prose and consecutive table rows, retaining source order and table headers.
+    /// - Parameter section: A selected source section.
+    /// - Returns: Its presentation blocks, with no table row duplicated as prose.
+    private static func sectionBlocks(_ section: ReadmeSection) -> [ReadmeBlock] {
+        var blocks: [ReadmeBlock] = []
+        var paragraph: [String] = []
+        var tableLines: [String] = []
+        var kind = ReadmeBlock.Kind.paragraph
+        for line in section.lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix(ControlConstants.pipe) {
+                appendBlock(&paragraph, kind: kind, to: &blocks)
+                kind = .paragraph
+                tableLines.append(line)
+                continue
+            }
+            appendTable(&tableLines, to: &blocks)
+            if trimmed.isEmpty
+                || match(trimmed, ControlConstants.separatorPattern) != nil
+                || match(trimmed, ControlConstants.imageLinePattern) != nil {
+                appendBlock(&paragraph, kind: kind, to: &blocks)
+                kind = .paragraph
+                continue
+            }
+            if let item = match(line, ControlConstants.listItemPattern, group: 1) {
+                appendBlock(&paragraph, kind: kind, to: &blocks)
+                kind = .bullet
+                paragraph.append(item)
+            } else { paragraph.append(line) }
+        }
+        appendBlock(&paragraph, kind: kind, to: &blocks)
+        appendTable(&tableLines, to: &blocks)
         return blocks
     }
 
@@ -331,20 +345,20 @@ internal enum ReadmeParser {
         lines.removeAll()
     }
 
-    /// Preserves complete architecture tables, including model and retrieval responsibilities.
-    /// - Parameter sections: Parsed README sections.
-    /// - Returns: Source-derived architecture blocks; dedicated Models and history sections remain separate.
-    internal static func architecture(_ sections: [ReadmeSection]) -> [ReadmeBlock] {
-        blocks(topicSections(sections, topic: .architecture), includeHeadings: true)
-    }
-
-    /// Separates documented model facts from general architecture and introductory prose.
+    /// Reads the architecture sections once for both the Architecture and Models tabs: complete architecture tables,
+    /// including model and retrieval responsibilities, and the documented model facts separated from them.
     /// - Parameter sections: Parsed README source.
-    /// - Returns: Source-derived prose and tables, without guessing undocumented models.
-    internal static func models(_ sections: [ReadmeSection]) -> [ReadmeBlock] {
-        blocks(topicSections(sections, topic: .models))
-            + modelBlocks(blocks(topicSections(sections, topic: .architecture)))
+    /// - Returns: The architecture blocks, with dedicated Models and history sections kept separate; and the model
+    ///   blocks: the Models sections' prose and tables, then the architecture's model mentions and, in a README
+    ///   without section markers, the opening description's, without guessing undocumented models.
+    internal static func architectureAndModels(_ sections: [ReadmeSection])
+        -> (architecture: [ReadmeBlock], models: [ReadmeBlock]) {
+        let owned = topicSections(sections, topic: .architecture)
+        let content = owned.map(sectionBlocks)
+        let models = blocks(topicSections(sections, topic: .models))
+            + modelBlocks(content.flatMap { $0 })
             + (sections.contains { $0.mapping != nil } ? [] : modelBlocks(blocks(Array(sections.prefix { $0.level < 2 }))))
+        return (titled(content, sections: owned), models)
     }
 
     /// Reads only the mapped release section, retaining the legacy register fallback for unmarked READMEs.

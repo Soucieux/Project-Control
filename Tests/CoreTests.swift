@@ -349,15 +349,16 @@ internal enum CoreTests {
     ///   its repository cannot be read.
     private static func mappingChecks(_ root: URL) throws {
         let sections = try ReadmeParser.validatedSections(TestConstants.mappedReadme)
-        let architecture = ReadmeParser.architecture(sections)
+        let (architecture, models) = ReadmeParser.architectureAndModels(sections)
         TestSupport.check(architecture.compactMap(\.table).flatMap(\.rows).compactMap(\.first) == TestConstants.mappedTechnologyNames,
               TestConstants.checkMapping)
         let renamed = try ReadmeParser.validatedSections(TestConstants.mappedReadme.replacingOccurrences(
             of: TestConstants.mappedHeading, with: TestConstants.renamedMappedHeading))
-        TestSupport.check(TestFixtures.text(ReadmeParser.architecture(renamed)) == TestFixtures.text(architecture), TestConstants.checkMapping)
+        TestSupport.check(TestFixtures.text(ReadmeParser.architectureAndModels(renamed).architecture) == TestFixtures.text(architecture),
+              TestConstants.checkMapping)
         TestSupport.check(ReadmeParser.overview(sections, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.introduction,
               TestConstants.checkMapping)
-        TestSupport.check(ReadmeParser.models(sections).compactMap(\.table).flatMap(\.rows).first?.first == TestConstants.modelName,
+        TestSupport.check(models.compactMap(\.table).flatMap(\.rows).first?.first == TestConstants.modelName,
               TestConstants.checkMapping)
         TestSupport.check(ReadmeParser.workflows(sections).first?.steps == TestConstants.mixedSteps, TestConstants.checkMapping)
         TestSupport.check(ReadmeParser.history(sections).first?.lines == [TestConstants.history], TestConstants.checkMapping)
@@ -371,8 +372,8 @@ internal enum CoreTests {
         for invalid in TestConstants.invalidMappings {
             TestSupport.checkThrows(TestConstants.checkMappingFailure) { _ = try ReadmeParser.validatedSections(invalid) }
         }
-        TestSupport.check(ReadmeParser.architecture(try ReadmeParser.validatedSections(TestConstants.mappedWithoutArchitecture)).isEmpty,
-              TestConstants.checkMapping)
+        let withoutArchitecture = try ReadmeParser.validatedSections(TestConstants.mappedWithoutArchitecture)
+        TestSupport.check(ReadmeParser.architectureAndModels(withoutArchitecture).architecture.isEmpty, TestConstants.checkMapping)
         let repository = root.appendingPathComponent(TestConstants.secondRepository)
         let project = repository.appendingPathComponent(TestConstants.project)
         try FileManager.default.createDirectory(at: project, withIntermediateDirectories: true)
@@ -456,10 +457,11 @@ internal enum CoreTests {
         TestSupport.check(!overview.contains { $0.text == TestConstants.architecture || $0.text == ControlConstants.workflow }, TestConstants.checkOverviewOwnership)
         TestSupport.check(ReadmeParser.overview(ReadmeParser.sections(TestConstants.projectReadme), fallback: ControlConstants.noIntroduction).first?.text == TestConstants.introduction, TestConstants.checkOverviewFallback)
         TestSupport.check(TestFixtures.text(ReadmeParser.overview(ReadmeParser.sections(TestConstants.overviewOrder), fallback: ControlConstants.noIntroduction)) == TestConstants.overviewOrderExpected, TestConstants.checkOverviewOrder)
-        let architecture = TestFixtures.text(ReadmeParser.architecture(topics))
+        let tabs = ReadmeParser.architectureAndModels(topics)
+        let architecture = TestFixtures.text(tabs.architecture)
         TestSupport.check(architecture.contains(TestConstants.architecture) && architecture.contains(TestConstants.modelFact)
             && !architecture.contains(TestConstants.obsoleteArchitecture), TestConstants.checkArchitectureOwnership)
-        TestSupport.check(TestFixtures.text(ReadmeParser.models(topics)).contains(TestConstants.modelFact), TestConstants.checkModels)
+        TestSupport.check(TestFixtures.text(tabs.models).contains(TestConstants.modelFact), TestConstants.checkModels)
         let diagram = ReadmeParser.workflows(topics).first
         TestSupport.check(diagram?.nodes.count == 5 && diagram?.nodes[1].layer == diagram?.nodes[2].layer, TestConstants.checkDiagramBranches)
         TestSupport.check(diagram?.edges.contains(WorkflowEdge(source: 1, target: 3)) == true
@@ -478,7 +480,7 @@ internal enum CoreTests {
         TestSupport.check(ReadmeParser.workflows(ReadmeParser.sections(TestConstants.manyRoutes)).count == 10, TestConstants.checkDiagramCount)
         let versioned = ReadmeParser.sections(TestConstants.versionedOverview)
         TestSupport.check(ReadmeParser.overview(versioned, fallback: ControlConstants.noIntroduction).first?.text == TestConstants.overviewText
-            && TestFixtures.text(ReadmeParser.architecture(versioned)).contains(TestConstants.architecture)
+            && TestFixtures.text(ReadmeParser.architectureAndModels(versioned).architecture).contains(TestConstants.architecture)
             && ReadmeParser.workflows(versioned).count == 1 && ReadmeParser.history(versioned).isEmpty, TestConstants.checkVersionedTitle)
     }
 
@@ -486,12 +488,12 @@ internal enum CoreTests {
     /// - Returns: Nothing; terminates if tables become prose or model/path text changes.
     private static func tableChecks() {
         let sections = ReadmeParser.sections(TestConstants.modelTables)
-        let models = ReadmeParser.models(sections)
+        let (architecture, models) = ReadmeParser.architectureAndModels(sections)
         let tables = models.compactMap(\.table)
         TestSupport.check(tables.count == 2 && tables[0].headers == TestConstants.modelHeaders, TestConstants.checkStructuredTables)
         TestSupport.check(tables[0].rows.count == 2 && tables[1].headers == TestConstants.pathHeaders, TestConstants.checkModelTableRows)
         TestSupport.check(models.filter { $0.kind == .paragraph }.isEmpty, TestConstants.checkTableProseLeak)
-        TestSupport.check(TestFixtures.text(ReadmeParser.architecture(sections)).contains(TestConstants.architecture), TestConstants.checkArchitectureOwnership)
+        TestSupport.check(TestFixtures.text(architecture).contains(TestConstants.architecture), TestConstants.checkArchitectureOwnership)
         TestSupport.check(tables[1].rows.first?.last == TestConstants.modelPath, TestConstants.checkModelIdentifiers)
         TestSupport.check(ReadmeParser.plain(TestConstants.inlineIdentifiers) == TestConstants.expectedIdentifiers, TestConstants.checkModelIdentifiers)
         TestSupport.check(ReadmeParser.paragraphs(ReadmeParser.sections(TestConstants.adjacentTable)) == TestConstants.adjacentProse, TestConstants.checkAdjacentTable)
@@ -506,12 +508,13 @@ internal enum CoreTests {
     ///   cell is split or a link-only record pointer is kept beside its description.
     private static func architectureHistoryChecks() {
         let sections = ReadmeParser.sections(TestConstants.mixedArchitecture)
-        let tables = ReadmeParser.architecture(sections).compactMap(\.table)
+        let (architecture, models) = ReadmeParser.architectureAndModels(sections)
+        let tables = architecture.compactMap(\.table)
         TestSupport.check(tables.first?.rows.count == 3 && tables.first?.headers == TestConstants.pathHeaders,
               TestConstants.checkCompleteArchitecture)
         let routes = ReadmeParser.workflows(sections)
         TestSupport.check(routes.count == 2 && routes.first?.steps == TestConstants.mixedSteps, TestConstants.checkMixedArchitecture)
-        TestSupport.check(ReadmeParser.models(sections).compactMap(\.table).first?.rows.count == 1, TestConstants.checkModelSecondary)
+        TestSupport.check(models.compactMap(\.table).first?.rows.count == 1, TestConstants.checkModelSecondary)
         let rootHistory = ReadmeParser.history(ReadmeParser.sections(TestConstants.rootReadme))[0]
         TestSupport.check(rootHistory.date == TestConstants.historyDate && rootHistory.heading == TestConstants.datedRootHeading,
               TestConstants.checkHistoryHeading)
