@@ -485,7 +485,8 @@ Installed in place of v4.5 at this project root on 2026-10-01: the installed app
 signature verification, reports version 4.6 and build 46, carries the built binary byte for byte,
 and launched and quit cleanly, showing each project's platform from the main checkout's register,
 which still used the older label at the time. The v4.5 bundle was kept in the ignored `build/`
-folder until then and is proposed for removal. Delivered uncommitted.
+folder until then, then moved to the Trash after approval. Delivered uncommitted and recorded in
+`b9a1cbf`.
 
 [Back to change history](#change-history)
 
