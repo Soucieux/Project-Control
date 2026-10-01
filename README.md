@@ -499,7 +499,8 @@ folder icon in the rail; the v4.3 bundle it replaced was kept in the ignored `bu
 v4.4 passed those checks, then proposed for removal. On 2026-09-30, after the last changes, which
 touched only comments in the app's sources, `make app` produced the same executable byte for byte,
 and the installed app passed the same checks again and launched showing every project's folder
-icon. Delivered uncommitted; publication was not requested.
+icon. Delivered uncommitted and recorded in `0dc6805`, `aa9393a` and `4b3a698`; published to the
+public repository on 2026-09-30.
 
 [Back to change history](#change-history)
 
@@ -576,7 +577,7 @@ signature verification and launched showing the repository's name and every proj
 the v4.2 bundle was moved to the Trash. After the last source change, on 2026-09-28, the app was
 rebuilt from the final sources, passed the same signature and identity checks, launched without a
 crash report, and replaced the installed v4.3. Delivered uncommitted and recorded in `b44c024`;
-publication was not requested.
+published to the public repository on 2026-09-30.
 
 [Back to change history](#change-history)
 
