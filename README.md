@@ -484,8 +484,8 @@ this project root on 2026-10-01; after the project screen's gap was matched the 
 rebuilt and installed again in place of the first v4.5 build. The installed app passed strict
 signature verification, reports version 4.5 and build 45, and launched without a crash report showing
 the 12-point gap. The v4.4 bundle and the first v4.5 build were each kept in the ignored `build/`
-folder until their replacement passed those checks, then proposed for removal. Delivered uncommitted;
-publication was not requested.
+folder until their replacement passed those checks, then proposed for removal. Delivered uncommitted
+and recorded in `6a88455`; published to the public repository on 2026-10-01.
 
 [Back to change history](#change-history)
 
