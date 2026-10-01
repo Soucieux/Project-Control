@@ -12,6 +12,8 @@ internal enum ControlConstants {
     internal static let backslash = "\\"
     internal static let readme = "README.md"
     internal static let stateFile = "workspace.json"
+    /// The hidden file whose resource fork holds a folder's custom Finder icon.
+    internal static let customIconFile = "Icon\r"
     internal static let appExtension = "app"
     internal static let folderPreference = "repositoryPath"
     internal static let gitExecutable = "/usr/bin/git"

@@ -1,9 +1,10 @@
 import AppKit
 import SwiftUI
 
-/// Window checks of the rail's and the history cards' two-step motion. SwiftUI keeps no inspectable view tree
-/// in-process, so the suite drives the real `ControlWindow` with clicks and judges it from captures of its
-/// own window. It reads the live repository, opens no application and runs apart from `make test`.
+/// Window checks of the rail's and the history cards' two-step motion, and checks of the project icon cache the
+/// window draws from. SwiftUI keeps no inspectable view tree in-process, so the suite drives the real
+/// `ControlWindow` with clicks and judges it from captures of its own window. It reads the live repository, opens
+/// no application and runs apart from `make test`.
 @main
 internal enum InterfaceTests {
     /// Starts AppKit; the checks run once it has finished launching.
@@ -35,12 +36,14 @@ private final class InterfaceTestsDelegate: NSObject, NSApplicationDelegate {
 /// One scripted session at the minimum window size, with its state in a disposable folder.
 @MainActor
 private enum InterfaceRun {
-    /// Opens the window on the live repository, then asks for the rail and a history card in quick succession.
+    /// Checks the project icon cache, then opens the window on the live repository and asks for the rail and a
+    /// history card in quick succession.
     /// - Returns: Nothing; terminates on the first failed check.
-    /// - Throws: A file error when the disposable folder cannot be created.
+    /// - Throws: A file error when the disposable folder or its project folder cannot be created or changed.
     internal static func run() async throws {
         let root = try TestSupport.temporaryFolder()
         defer { TestSupport.removeTemporaryFolder() }
+        try iconChecks(root)
         let preferences = TestSupport.preferences(in: root)
         let store = ControlStore(storage: WorkspaceStorage(file: root.appendingPathComponent(ControlConstants.stateFile)),
                                  preferences: preferences)
@@ -51,6 +54,68 @@ private enum InterfaceRun {
         await pause(TestConstants.settleMilliseconds)
         await railChecks(screen)
         await historyChecks(screen)
+    }
+
+    /// Fetches a project folder's icon twice, then changes the folder each way its icon can change and fetches the
+    /// icon after each change.
+    /// - Parameter root: Disposable folder that receives the project folder.
+    /// - Returns: Nothing; terminates if an unchanged folder fetches its icon again or a changed one reuses it.
+    /// - Throws: A file error when the project folder cannot be created or its metadata changed.
+    private static func iconChecks(_ root: URL) throws {
+        let folder = root.appendingPathComponent(TestConstants.project)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let project = ProjectRecord(id: folder.resolvingSymlinksInPath().standardizedFileURL.path,
+            name: TestConstants.project, folder: folder, readme: folder.appendingPathComponent(ControlConstants.readme),
+            introduction: ControlConstants.empty, version: nil, architecture: [], workflows: [], history: [],
+            folderAvailable: true, readmeAvailable: false)
+        let plain = FolderIcons.icon(for: project)
+        TestSupport.check(FolderIcons.icon(for: project) === plain, TestConstants.checkIconReuse)
+        let customized = try refetches(project, after: plain, TestConstants.checkIconSet) {
+            NSWorkspace.shared.setIcon(swatch(.systemBlue), forFile: folder.path, options: [])
+        }
+        let replaced = try refetches(project, after: customized, TestConstants.checkIconReplace) {
+            NSWorkspace.shared.setIcon(swatch(.systemRed), forFile: folder.path, options: [])
+        }
+        let iconFile = folder.appendingPathComponent(ControlConstants.customIconFile)
+        let fileChanged = try refetches(project, after: replaced, TestConstants.checkIconFileChange) {
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: iconFile.path)
+            return true
+        }
+        let labelled = try refetches(project, after: fileChanged, TestConstants.checkIconFolderChange) {
+            try (folder as NSURL).setResourceValue(2, forKey: .labelNumberKey)
+            return true
+        }
+        let removed = try refetches(project, after: labelled, TestConstants.checkIconRemove) {
+            NSWorkspace.shared.setIcon(nil, forFile: folder.path, options: [])
+        }
+        TestSupport.check(FolderIcons.icon(for: project) === removed, TestConstants.checkIconReuse)
+    }
+
+    /// Makes one change to a project folder and fetches its icon again.
+    /// - Parameters:
+    ///   - project: The project whose folder changes.
+    ///   - last: The icon fetched before the change.
+    ///   - label: What the check proves.
+    ///   - change: The change; returns false when it could not be made.
+    /// - Returns: The icon fetched after the change; terminates if the change failed or the earlier icon came back.
+    /// - Throws: The change's file error.
+    private static func refetches(_ project: ProjectRecord, after last: NSImage, _ label: String,
+                                  _ change: () throws -> Bool) throws -> NSImage {
+        let changed = try change()
+        let icon = FolderIcons.icon(for: project)
+        TestSupport.check(changed && icon !== last, label)
+        return icon
+    }
+
+    /// Draws a plain square to set as a custom folder icon.
+    /// - Parameter color: Its fill.
+    /// - Returns: The image.
+    private static func swatch(_ color: NSColor) -> NSImage {
+        NSImage(size: NSSize(width: 64, height: 64), flipped: false) { rect in
+            color.setFill()
+            rect.fill()
+            return true
+        }
     }
 
     /// Clicks the rail's toggle once and twice in quick succession from both states.
