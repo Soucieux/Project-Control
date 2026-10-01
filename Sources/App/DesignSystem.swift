@@ -71,6 +71,8 @@ internal enum ControlTheme {
     internal static let diagramAlignmentTolerance: CGFloat = 2
     /// The centered column every detail screen reads in; it keeps its width while the rail moves.
     internal static let readingColumnWidth: CGFloat = 870
+    /// The space between a screen's tab strip and the content below it, the same on every screen.
+    internal static let tabContentGap: CGFloat = 12
     internal static let minimumWindowWidth: CGFloat = 1120
     internal static let minimumWindowHeight: CGFloat = 620
 }

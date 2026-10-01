@@ -20,7 +20,7 @@ internal struct ProjectScreen: View {
             if let warning = project.sourceWarning {
                 Text(warning).font(.caption).foregroundStyle(ControlTheme.amber)
             }
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: ControlTheme.tabContentGap) {
                 TabStrip(tabs: ProjectTab.allCases, label: \.label, selection: $tab)
                 Group {
                     switch tab {

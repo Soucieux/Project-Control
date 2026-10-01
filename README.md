@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.4%20build%2044-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.5%20build%2045-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -399,7 +399,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.4 (build 44)** in source and in the signed local app. [Change and delivery evidence](#v4-4-build-44).
+**v4.5 (build 45)** in source and in the signed local app. [Change and delivery evidence](#v4-5-build-45).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -418,6 +418,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.5 / build 45 | 2026-10-01 | <ul><li><strong>Tabs:</strong> On every screen the content sits 12 points below the tabs, so the two read as one group: half the repository screen's former 24 points, and a project's 8 widened to match.</li><li><strong>Evidence:</strong> Passed the interface, version and signing checks; installed in place of v4.4 and launched.</li></ul> | [Full record](#v4-5-build-45) |
 | v4.4 / build 44 | 2026-09-28 | <ul><li><strong>Icons:</strong> Each project folder's icon is fetched once and kept until the folder or its custom icon changes; checking that it is unchanged costs about an eighth of fetching a custom icon again.</li><li><strong>Architecture and Models:</strong> Both tabs come from one reading of a project's architecture sections, so reading them for all eight projects here takes about 10 to 11 ms instead of 16 to 18 ms, with the same content.</li><li><strong>Checks:</strong> <code>make test-ui</code> also checks the icon cache.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.3 and launched.</li></ul> | [Full record](#v4-4-build-44) |
 | v4.3 / build 43 | 2026-09-27 | <ul><li><strong>Fixes:</strong> Two quick clicks on the rail's toggle or on a history card's chevron now end in the state last asked for, and a closing history card fades its lines out together instead of cutting them off.</li><li><strong>History cards:</strong> An opened card shows each description cell of its README row whole, without the record link's label.</li><li><strong>Commit activity:</strong> The heatmap has one full-size layout, which fills the reading column at every window size.</li><li><strong>Sky:</strong> The clouds keep their pixels while the window is resized, and each resize redraw costs about a tenth of a millisecond.</li><li><strong>Document health:</strong> A missing folder is stated once.</li><li><strong>Checks:</strong> <code>make test-ui</code> checks the rail and history cards in a window of the app's own views, and a failed check no longer leaves its temporary folder behind.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.2 and launched.</li></ul> | [Full record](#v4-3-build-43) |
 | v4.2 / build 42 | 2026-09-27 | <ul><li><strong>Diagrams:</strong> Every workflow arrow stops a small gap short of the rectangles it joins, and nodes that line up are joined by one straight line instead of one with a slight sideways jog.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-2-build-42) |
@@ -458,6 +459,35 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-5-build-45"></a>
+
+### v4.5 / build 45
+
+- **Recorded date:** 2026-10-01.
+- **Tabs:** On the repository screen the tab strip and the content below it were 24 points apart,
+  the same gap that separates the title from the tabs, so the content read as a block of its own. They
+  now sit 12 points apart, half that gap, so the content reads as the tabs' own. A project's screen
+  held its tabs and content 8 points apart; it now uses the same 12 points, and both screens read the
+  gap from one shared theme value, so they cannot drift apart.
+- **Scope:** Only that gap changed; the titles, the project card, the tabs and their content are as
+  before.
+
+**Evidence and delivery status**
+
+`make app` built and signed v4.5/build 45, which passed the version check and strict signature
+verification and carries a bundle plist identical to the source. `make test-ui` passed its 27
+checks, including the history-card checks, which find the first card below the tabs at its new
+height. In captures of the app's views at 1×, the sky between the tab strip and the content below it
+measures 12 pixels on the repository screen and on a project's screen. Installed in place of v4.4 at
+this project root on 2026-10-01; after the project screen's gap was matched the same day, the app was
+rebuilt and installed again in place of the first v4.5 build. The installed app passed strict
+signature verification, reports version 4.5 and build 45, and launched without a crash report showing
+the 12-point gap. The v4.4 bundle and the first v4.5 build were each kept in the ignored `build/`
+folder until their replacement passed those checks, then proposed for removal. Delivered uncommitted;
+publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v4-4-build-44"></a>
 

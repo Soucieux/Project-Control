@@ -21,18 +21,20 @@ internal struct RepositoryScreen: View {
                 Text(ControlConstants.staleContent + ControlConstants.space + warning)
                     .font(.callout).foregroundStyle(ControlTheme.amber)
             }
-            TabStrip(tabs: RepositoryTab.allCases, label: \.label, selection: $tab)
-            Group {
-                switch tab {
-                case .overview: ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview)
-                case .history: HistoryList(entries: snapshot.history)
-                case .activity:
-                    TimelineView(.everyMinute) { context in
-                        CommitActivityView(activity: snapshot.commitActivity,
-                            projects: snapshot.projects, now: context.date)
+            VStack(alignment: .leading, spacing: ControlTheme.tabContentGap) {
+                TabStrip(tabs: RepositoryTab.allCases, label: \.label, selection: $tab)
+                Group {
+                    switch tab {
+                    case .overview: ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview)
+                    case .history: HistoryList(entries: snapshot.history)
+                    case .activity:
+                        TimelineView(.everyMinute) { context in
+                            CommitActivityView(activity: snapshot.commitActivity,
+                                projects: snapshot.projects, now: context.date)
+                        }
                     }
-                }
-            }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
+                }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
+            }
         }
     }
 }
