@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.3%20build%2043-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.4%20build%2044-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -75,7 +75,7 @@ open "Project Control.app"
 | Technology or concept | Use in this project |
 |---|---|
 | SwiftUI | Builds the black chassis, the sky-and-cloud detail layer, smoked-glass content, animated hierarchy rail, artwork lock, project screens, work-note editor, expandable History cards, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
-| AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon shows each project folder's own Finder icon, with a neutral fallback. |
+| AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon shows each project folder's own Finder icon, with a neutral fallback, and keeps each icon until its folder or custom icon changes. |
 
 ### Backend & Application Logic
 
@@ -399,7 +399,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.3 (build 43)** in source and in the signed local app. [Change and delivery evidence](#v4-3-build-43).
+**v4.4 (build 44)** in source and in the signed local app. [Change and delivery evidence](#v4-4-build-44).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -418,6 +418,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.4 / build 44 | 2026-09-28 | <ul><li><strong>Icons:</strong> Each project folder's icon is fetched once and kept until the folder or its custom icon changes; checking that it is unchanged costs about an eighth of fetching a custom icon again.</li><li><strong>Architecture and Models:</strong> Both tabs come from one reading of a project's architecture sections, so reading them for all eight projects here takes about 10 to 11 ms instead of 16 to 18 ms, with the same content.</li><li><strong>Checks:</strong> <code>make test-ui</code> also checks the icon cache.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.3 and launched.</li></ul> | [Full record](#v4-4-build-44) |
 | v4.3 / build 43 | 2026-09-27 | <ul><li><strong>Fixes:</strong> Two quick clicks on the rail's toggle or on a history card's chevron now end in the state last asked for, and a closing history card fades its lines out together instead of cutting them off.</li><li><strong>History cards:</strong> An opened card shows each description cell of its README row whole, without the record link's label.</li><li><strong>Commit activity:</strong> The heatmap has one full-size layout, which fills the reading column at every window size.</li><li><strong>Sky:</strong> The clouds keep their pixels while the window is resized, and each resize redraw costs about a tenth of a millisecond.</li><li><strong>Document health:</strong> A missing folder is stated once.</li><li><strong>Checks:</strong> <code>make test-ui</code> checks the rail and history cards in a window of the app's own views, and a failed check no longer leaves its temporary folder behind.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.2 and launched.</li></ul> | [Full record](#v4-3-build-43) |
 | v4.2 / build 42 | 2026-09-27 | <ul><li><strong>Diagrams:</strong> Every workflow arrow stops a small gap short of the rectangles it joins, and nodes that line up are joined by one straight line instead of one with a slight sideways jog.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-2-build-42) |
 | v4.1 / build 41 | 2026-09-26 | <ul><li><strong>Look:</strong> Content sits on dark smoked glass over a sharp sky with pixel-dithered clouds, in place of the blurred artwork.</li><li><strong>Layout:</strong> Each screen reads in a centered column under a title set on the sky, and a small pill in the top corner shows the read time or README state.</li><li><strong>Details:</strong> The card's summaries read as a small label over a larger value, tags are plain text, history rows open into a panel inside their card, and the rail folds its labels away before it narrows.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](#v4-1-build-41) |
@@ -457,6 +458,50 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-4-build-44"></a>
+
+### v4.4 / build 44
+
+- **Recorded date:** 2026-09-28.
+- **Icons:** The rail, the project title and the activity hover fetched a project folder's Finder
+  icon from the system every time they were drawn, about a fifth of a millisecond for each folder
+  with a custom icon, as every project folder in this repository has. Each icon is now kept with a
+  stamp of its folder, made of the folder the project resolves to and the times the folder's and its
+  custom icon file's metadata last changed, and fetched again only when that stamp moves. Setting,
+  replacing or removing a custom icon, rewriting the icon file in place and a folder-only change such
+  as a Finder colour label each move it. A kept icon costs about 27 to 29 µs, against 207 to 231 µs
+  to fetch a custom icon again; a folder with the plain folder icon costs about 40 µs to look up, so
+  the saving there is smaller. A missing folder, or an alias that no longer points at the project,
+  still shows the neutral symbol, checked on every draw as before.
+- **Architecture and Models:** The Models tab read a project's architecture sections a second time
+  after the Architecture tab had read them. Both tabs now come from one reading, so reading them for
+  the repository's eight projects takes about 10 to 11 ms instead of 16 to 18 ms, and both show
+  exactly what they showed before.
+- **Checks:** `make test-ui` also sets, replaces and removes a disposable folder's custom icon,
+  changes the icon file alone and gives the folder a Finder colour label, and confirms the icon is
+  fetched again after each change and reused while nothing changes. The parser checks read both tabs
+  through the one reading.
+- **Scope:** No README content the app shows, notes, storage, Git reading or app-opening behaviour
+  changed.
+
+**Evidence and delivery status**
+
+`make test` passed: 372 core, 41 store, 47 note/presentation, and 12 version checks. `make test-ui`
+passed its 27 checks, 7 of them on the icon cache; the same checks fail against a cache keyed on the
+folder's modification time alone, which misses a change to the icon file alone, and against no
+cache. The Architecture and Models content of all eight projects in this repository, 106 blocks,
+was identical before and after the change. `make app` built and signed v4.4/build 44, which passed
+strict signature verification, reports version 4.4 and build 44, and carries a bundle plist
+identical to the source. Installed in place of v4.3 at this project root on 2026-09-28, where it
+passed strict signature verification and launched without a crash report, showing every project's
+folder icon in the rail; the v4.3 bundle it replaced was kept in the ignored `build/` folder until
+v4.4 passed those checks, then proposed for removal. On 2026-09-30, after the last changes, which
+touched only comments in the app's sources, `make app` produced the same executable byte for byte,
+and the installed app passed the same checks again and launched showing every project's folder
+icon. Delivered uncommitted; publication was not requested.
+
+[Back to change history](#change-history)
 
 <a id="v4-3-build-43"></a>
 
