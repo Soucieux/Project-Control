@@ -1,0 +1,9 @@
+# Project Control's ignore rules. The project has a public mirror, so its rules live here
+# rather than in the repository's root .gitignore.
+
+# macOS
+.DS_Store
+
+# Build output: make builds into build/ and copies the finished app to the project folder
+/build/
+/Project Control.app/
