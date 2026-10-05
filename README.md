@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.6%20build%2046-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.7%20build%2047-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 <!-- project-control:section=overview -->
 ## Overview
@@ -411,7 +411,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.6 (build 46)** in source and in the signed local app. [Change and delivery evidence](#v4-6-build-46).
+**v4.7 (build 47)** in source and in the signed local app. [Change and delivery evidence](#v4-7-build-47).
 
 <!-- project-control:section=ignore -->
 ## Contributing
@@ -430,6 +430,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.7 / build 47 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Meta Search Engine's four category headings, so <code>make test</code> passes again.</li><li><strong>Coverage:</strong> They also name every architecture row and the main technologies of Career Ledger, DayWright and Meta Search Engine.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.6 and launched.</li></ul> | [Full record](#v4-7-build-47) |
 | Documentation | 2026-10-05 | <ul><li><strong>Readability:</strong> Long paragraphs, bullets and table cells are now short leads with sub-points, one fact each; no detail was removed.</li></ul> | [Full record](#readme-structure) |
 | v4.6 / build 46 | 2026-10-01 | <ul><li><strong>Register:</strong> The root register names a project's technical scope Platform, and the app reads it for the sidebar and title; a register still labelled Technical scope shows the same.</li><li><strong>Contract:</strong> The README content contract uses the register's one-word labels and places an AI item after Category.</li></ul> | [Full record](#v4-6-build-46) |
 | v4.5 / build 45 | 2026-10-01 | <ul><li><strong>Tabs:</strong> On every screen the content sits 12 points below the tabs, so the two read as one group: half the repository screen's former 24 points, and a project's 8 widened to match.</li><li><strong>Evidence:</strong> Passed the interface, version and signing checks; installed in place of v4.4 and launched.</li></ul> | [Full record](#v4-5-build-45) |
@@ -459,20 +460,50 @@ One record per change; complete details and evidence are below. Older work dates
 | v2.7 / build 27 | 2026-09-05 | <ul><li><strong>Change:</strong> Restores source-derived sidebar tags and notes availability.</li></ul> | [Full record](#v2-7-build-27) |
 | Maintenance | 2026-09-04 | <ul><li><strong>Change:</strong> Removed the superseded v2.6 candidates from build/previous.FdBli0, build/previous.GtF7qQ, and build/previous.uqRg60.</li></ul> | [Full record](#superseded-candidates-removed) |
 | Maintenance | 2026-09-03 | <ul><li><strong>Change:</strong> Kept sidebar content at its expanded layout width while the outer rail reveals it, replaced lazy category layout with stable eager layout.</li></ul> | [Full record](#sidebar-reveal-width) |
-| Maintenance | 2026-09-03 | <ul><li><strong>Change:</strong> Raised the minimum window width from 980 to 1,120 points and removed the header's stacked action/status layout after the user identified it during live delivery checks.</li></ul> | [Full record](#minimum-window-width) |
-| v2.6 / build 26 | 2026-09-02 | <ul><li><strong>Change:</strong> Implemented v2.6/build 26.</li></ul> | [Full record](#v2-6-build-26) |
-| v2.5 / build 16 | 2026-09-02 | <ul><li><strong>Change:</strong> Combined project identity, actions, and Document Health in one compact pre-tab glass card.</li></ul> | [Full record](#v2-5-build-16) |
-| Documentation | 2026-09-02 | <ul><li><strong>Change:</strong> Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here.</li></ul> | [Full record](#numbering-rules-moved) |
-| v2.4 / build 15 | 2026-09-02 | <ul><li><strong>Change:</strong> Removed the competing whole-shell SwiftUI clip and outline so the native macOS window owns the outer corners without light wedges.</li></ul> | [Full record](#v2-4-build-15) |
-| v2.3 / build 14 | 2026-09-01 | <ul><li><strong>Change:</strong> Added repository Commit activity with newest-first years, twelve responsive month cells, fixed absolute intensities, concealed future values, complete unique-commit totals.</li></ul> | [Full record](#v2-3-build-14) |
-| v2.2 / build 13 | 2026-09-01 | <ul><li><strong>Change:</strong> Moved Category, Technical scope.</li></ul> | [Full record](#v2-2-build-13) |
-| v2.1 / build 12 | 2026-09-01 | <ul><li><strong>Change:</strong> Delivered the approved edge-to-edge glass correction.</li></ul> | [Full record](#v2-1-build-12) |
-| v2.0 / build 11 | 2026-09-01 | <ul><li><strong>Change:</strong> Delivered the complete cinematic glass redesign.</li></ul> | [Full record](#v2-0-build-11) |
-| v1.0 / build 10 | 2026-08-31 | <ul><li><strong>Change:</strong> Replaced mandatory AI-usage badges with optional root-README Technologies tags, keeping technical scope separate.</li></ul> | [Full record](#v1-0-build-10) |
-| v0.9 / build 9 | 2026-08-31 | <ul><li><strong>Change:</strong> Corrected header icon/title proportions, left alignment, and the ellipsis/disclosure overlap.</li></ul> | [Full record](#v0-9-build-9) |
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-7-build-47"></a>
+
+### v4.7 / build 47
+
+- **Recorded date:** 2026-10-05.
+- **Category check:** The core suite compares each project's architecture category headings with an
+  expected list.
+  - Meta Search Engine, registered on 2026-10-01, had no entry, so its four headings failed the
+    check and `make test` stopped in the core suite.
+  - The list now names Frontend & Presentation, Data & Storage, Integrations & Security, and Build &
+    Delivery, in that order.
+- **Row check:** Career Ledger, DayWright, and Meta Search Engine had no expected architecture rows,
+  so the checks passed them without reading their tables.
+  - Each now lists every row of its architecture tables, and each listed row must appear exactly
+    once.
+- **Coverage:** The coverage check looks for each project's main technologies, as it does for the
+  earlier projects:
+  - Career Ledger: SwiftUI, SQLite, llama.cpp, Qwen, GGUF, and Dictation.
+  - DayWright: React, Tauri, FastAPI, PlatformState, SQLite, sqlite-vec, LlamaRuntime, and Whisper.
+  - Meta Search Engine: React, React Router, Bootstrap, browser local storage, Tavily, Vite, and
+    Vitest.
+- **App:** No source or interface change; the version advances because the checks changed.
+
+**Evidence and delivery status**
+
+`make test`, built into a temporary folder outside the project, passed 441 core checks, 59 of them
+new, with 41 store, 50 notes and presentation, and 12 version checks.
+
+- `make app` built and signed v4.7 build 47, which passed strict signature verification and reports
+  version 4.7 and build 47.
+- Installed in place of v4.6 at this project root on 2026-10-05:
+  - the installed app passed strict signature verification,
+  - reports version 4.7 and build 47,
+  - carries the built binary byte for byte,
+  - and launched.
+- The v4.6 bundle was kept in the ignored `build/` folder until then, then moved to the Trash after
+  approval.
+- Delivered uncommitted.
+
+[Back to change history](#change-history)
 
 <a id="readme-structure"></a>
 
@@ -1436,274 +1467,6 @@ Source `722fe5e`; project record `47b24f4`; signed project-root app; live expans
 
 [Back to change history](#change-history)
 
-<a id="minimum-window-width"></a>
-
-### Maintenance
-
-- **Recorded date:** 2026-09-03.
-
-Raised the minimum window width from 980 to 1,120 points and removed the header's stacked action/status layout after the user identified it during live delivery checks.
-
-- Document Health and Notes stay beside the buttons; the app-detection caption can wrap.
-- Review found no production issue, centralized the minimum-window value, and corrected a malformed-note fixture that could pass for the wrong reason.
-- Verification passed 20 affected core and five affected store checks in addition to the note and numbering checks, complete compilation, a cache-free optimized rebuild, strict signing, exact metadata, and arm64/icon checks.
-- Live checks confirmed the minimum width and single-row header before the final equivalent build.
-
-**Evidence and delivery status**
-
-Source `2a5a372`; project record `47b24f4`; signed project-root app; expansion/editor recheck pending
-
-[Back to change history](#change-history)
-
-<a id="v2-6-build-26"></a>
-
-### v2.6 / build 26
-
-- **Recorded date:** 2026-09-02.
-
-- Replaced the 112-point notes progress ring with a content-sized **Notes available / No notes** summary beside Document Health; the header shows no progress or note counters.
-- Tightened the project header: identity uses a 48-point icon and 32-point name, the card has a 16-point outer inset, and the tab-to-content gap is eight points.
-- A 1,120-point minimum window width, raised during the pending delivery checks on September 3, keeps actions, Document Health, and Notes in one horizontal row with the sidebar expanded; app-detection captions can wrap without moving the summaries below the controls.
-- The same delivery correction keeps sidebar content at its expanded layout width behind the changing rail boundary, retains eager category layout, and fades newly revealed project rows instead of sliding them from the top; existing icon columns, footer actions, category behavior, and Reduce Motion remain.
-- **Work notes** owns an integrated Add note toolbar, an inline single-text-field editor with Save and Cancel, and saved-note edit/delete controls. There are no title, context, or status fields; the draft stays in the selected project view across tab changes, and a failed save does not discard it.
-- Note IDs and all legacy title/context text are retained on read, with title and context combined by a blank line; files are not rewritten merely by loading them, only an explicit mutation writes the new format, and status tracking is retired.
-  - Edits, deletion, atomic saves, and read-only recovery for malformed storage remain supported.
-- Every prose/list group below the tabs uses the established translucent content surface, even when the same tab also contains headings or tables; source headings and bold-only titles stay outside it, and tables, workflow diagrams, and history rows keep their existing surfaces. Empty states and workflow guidance are also surfaced.
-- Packaging now enforces the corrected version/build mapping and rejects mismatched pairs under the repository policy.
-- The authorized code review found no production-code correctness, security, performance, or maintainability defect. It corrected a malformed-note fixture that could previously pass for the wrong reason, so the failure is attributable to note content rather than a missing top-level field, and gave the 1,120-point minimum one named source of truth.
-- Checks:
-  - 40 focused note/presentation assertions (legacy migration without a read-time write, round trips, limits, save/edit/delete and failure preservation, mixed heading/prose/table order, bold-only titles, and prose coverage across all six registered projects);
-  - nine disposable-metadata numbering checks (valid pairs, rollover, and malformed/mismatched values);
-  - and 20 affected classification/parser core checks and five classification/store checks for the affected README and state paths.
-- Complete native compilation, a cache-free optimized build, and strict signature/metadata/arm64/icon checks passed. The signed project-root app matches the source plist at v2.6/build 26, contains the exact generated icon, and has an arm64 executable with a valid strict ad-hoc signature.
-- Formal verification then repeated the affected tests, complete compilation, cache-free optimized packaging, and strict package checks. Native icon packaging required its normal macOS access outside the command sandbox; the unchanged rule then succeeded.
-- On September 3, live checks of an initial candidate confirmed prose wrapping, compact headers, an inline single-field editor, disabled empty Save, and enabled Save for a multiline draft; no saved notes were changed.
-  - Live inspection after the width correction confirmed the 1,120-point minimum, the single-row header, and the collapsed sidebar endpoint.
-  - The Mac was locked before the corrected expansion animation and remaining editor interactions could be reinspected.
-- On September 4, the three superseded v2.6 candidates were removed while the signed app and ten distinct-version recoveries were retained; full core/store suites were not rerun for that cleanup. The September 6 cleanup later removed every build-folder recovery.
-- Implementation is committed in `2a5a372` and `722fe5e`, with project documentation in `47b24f4`; this documentation checkpoint records the result.
-
-**Evidence and delivery status**
-
-Source `2a5a372`; navigation `722fe5e`; project record `47b24f4`; this documentation checkpoint; signed project-root app
-
-[Back to change history](#change-history)
-
-<a id="v2-5-build-16"></a>
-
-### v2.5 / build 16
-
-- **Recorded date:** 2026-09-02.
-
-- Combined project identity, actions, and Document Health in one compact pre-tab glass card.
-- The icon, name, and version are top-aligned beside the notes gauge; folder, README, app, optional app-menu, application-detection message, document availability, and runtime disclaimer form a compact, adaptive lower grouping.
-- The card alone reduces its content inset to 16 points, trimming its top and side space, and uses a 14-point internal row gap, leaving other glass-card styling unchanged;
-  - the action/status row drops its title-column offset or stacks when needed to preserve narrow-window readability, and the tab-to-content gap was reduced to eight points.
-- No action, launch-selection, warning, note, README-parsing, or repository-data behavior changed; existing warnings, below-tab content styling, notes, history, repository activity, navigation, artwork, and lock behavior are unchanged.
-- Complete native type-checking, a cache-free optimized build, strict signing, and exact v2.5/build-16 metadata checks passed; source and bundle metadata both identify v2.5/build 16, the executable is arm64, and the bundled icon is present.
-- Live app inspection covered Local Assistant and the longer Python Accomplishments title at regular and minimum window sizes, confirming visible actions, detection text, integrated health, the notes gauge, and unclipped tab/content layout.
-- Core/store logic was unchanged, so those suites were not rerun.
-- The subsequent authorized review found no actionable issues; verification repeated a cache-free optimized build, strict signature/metadata/arm64/icon checks, and live narrow-window Local Assistant and Python Accomplishments header inspection.
-- The initial delivery preceded that review and was uncommitted. Superseded same-version candidates and generated intermediates were removed after the final package checks.
-
-**Evidence and delivery status**
-
-Source `cb93da7`; this documentation checkpoint; signed project-root app
-
-[Back to change history](#change-history)
-
-<a id="numbering-rules-moved"></a>
-
-### Documentation
-
-- **Recorded date:** 2026-09-02.
-
-- Moved generic version and build-number rules to the repository README, retained Project Control's bundle-delivery procedure here, and added the required linked project declaration.
-- Application source, metadata, signed bundle, and v2.4/build 15 are unchanged.
-
-**Evidence and delivery status**
-
-This documentation commit
-
-[Back to change history](#change-history)
-
-<a id="v2-4-build-15"></a>
-
-### v2.4 / build 15
-
-- **Recorded date:** 2026-09-02.
-
-- Removed only the competing whole-shell SwiftUI clip and outline, so the native macOS window owns the outer corners without light wedges while the full black chassis and independently rounded detail surface remain.
-- Kept the three-point black detail reveal and visually tuned the detail layer to an 18-point radius, so all four rendered detail curves follow the native window instead of deriving the radius from an assumed outer value.
-- Removed the lock artwork's custom outer mask and outline; lock and unlock now crossfade edge-to-edge with an opacity-only transition and no shell scaling.
-- `ReadmeContent` wraps only untitled below-tab paragraph/bullet views in the established rounded translucent plane; heading-led content, native tables, Workflow titles and diagrams, history disclosure rows, work-note rows, and every area above the tabs keep their existing presentation.
-- Added a lower-third sage halftone, fading upward, to the shared active/lock artwork and repeated it crisply above the normal detail blur, so its dots remain visible in the same lower position; a denser full-frame matrix of dots and short marks is added only to the clear lock view.
-- Moved repository README, repository actions, and Lock into matching full-width pinned footer rows beneath a hierarchy separator, with one fixed book, adjustment, and lock icon axis and longer balanced Open README file, Repository menu, and Lock application labels.
-  - The menu's visible row uses the same fixed leading layout as the plain buttons instead of the borderless menu's intrinsic alignment.
-- Compact workspace/sync status and the live bundle version follow a second separator, aligned to the visible icon column rather than the rail edge.
-  - Duplicate header/detail controls remain removed, all compact icons stay centered on one axis in the collapsed rail, and the detail header keeps identity and context without duplicated actions.
-- Passed 332 core checks, 39 store checks, optimized arm64 compilation, strict signing, exact source/bundle v2.4/build-15 metadata, icon checks, root-bundle promotion, and live inspection of repository/project Overview, Architecture, and Workflows, expanded/collapsed footer and rails, lock artwork, halftone density, and the native/detail corners.
-- The complete code review found no actionable source findings. Formal verification repeated a clean optimized rebuild, strict signing and package-identity checks, arm64/icon checks, and live expanded/collapsed, Overview, Workflows, and lock-state inspection.
-
-**Evidence and delivery status**
-
-Source `196b8b3`; project documentation `bf4b33b`; this documentation checkpoint; signed project-root app
-
-[Back to change history](#change-history)
-
-<a id="v2-3-build-14"></a>
-
-### v2.3 / build 14
-
-- **Recorded date:** 2026-09-01.
-
-- Added repository Commit activity: newest-first distinct years, twelve responsive month cells, fixed absolute intensities, dimmed future cells that conceal their counts, and a complete unique-commit total kept independent from valid monthly buckets.
-- Hovering a populated cell lists each affected current project's icon (the real project icon when available), name, and participation count.
-- Activity invokes the fixed system Git executable directly with read-only arguments and loads every unique reachable commit. Changed paths are read solely to map registered top-level project folders; commit messages, authors, and file contents remain unread.
-- Reworked the shell into two explicit layers: one full-window rounded black chassis and one inset four-corner light-artwork detail panel above it in the right-hand detail region.
-  - The chassis is visible as the left rail and the narrow perimeter around all four detail corners; the detail panel blurs the same artwork that the lock screen shows clearly.
-- Removed rail/detail overlap and visible scrollbars.
-  - The reference-style brand control stays visible in both rail states; the expanded brand row and collapsed 40-point icon column share one leading axis, and every rail icon keeps that fixed axis while labels animate.
-  - Top navigation, scrolling project groups, and the pinned local-only status remain structurally separate.
-- Reduce Motion suppresses transitions, while Reduce Transparency retains the solid detail fallback.
-- Passed 8 focused activity core checks, 1 store check, complete native type-checking, optimized compilation, strict signing, exact v2.3/build-14 metadata, arm64 executable/icon checks, and live expanded/collapsed/lock and activity inspection. Optional code review and formal verification did not run.
-- The activity implementation is committed in `b5358ab` and the shell implementation in `dc612a8`; this documentation checkpoint records their delivered state.
-
-**Evidence and delivery status**
-
-Activity `b5358ab`; shell `dc612a8`; project documentation `920a9bb`; this documentation checkpoint; signed project-root app
-
-[Back to change history](#change-history)
-
-<a id="v2-2-build-13"></a>
-
-### v2.2 / build 13
-
-- **Recorded date:** 2026-09-01.
-
-Moved Category, Technical scope, and Technologies into the first three labelled list items of every root-register Professional scope cell, so the human-facing Projects register can use three readable columns without losing its complete project descriptions.
-
-- The parser reads those labels case-insensitively, strips display markup, and handles blank labelled values explicitly.
-- Older separate classification columns remain compatible and take precedence over same-named scope labels when present, including explicit blanks; the retired AI-usage column remains ignored.
-- The existing v2.1 glass UI, project content, notes, launch behavior, synchronization paths, and all other project-management behavior are unchanged.
-- All 20 focused core checks and 5 isolated store checks passed, including the new labelled-scope, blank-value, compatibility, and precedence regressions.
-- Complete native type-checking, cache-free optimized compilation, strict signing, exact source/bundle metadata equality, arm64 executable/icon checks, bundle promotion, and a separate-instance project-root launch passed.
-- Source is committed in `5ab1b93`. Generated compiler/icon intermediates and the smoke process were removed.
-- Optional code review and formal verification did not run.
-
-**Evidence and delivery status**
-
-Source `5ab1b93`; this project documentation and delivery checkpoint
-
-[Back to change history](#change-history)
-
-<a id="v2-1-build-12"></a>
-
-### v2.1 / build 12
-
-- **Recorded date:** 2026-09-01.
-
-- Delivered the approved edge-to-edge glass correction: removed all four outer shell insets, moved title-bar clearance inside the hierarchy rail, placed a full-window local sky/cloud/texture scene across the whole window, and replaced desktop-only sampling with `withinWindow` native material so the scene remains visible beneath the content plane.
-- Normal appearance adds no opaque tint above the material; Reduce Transparency alone uses the existing strong surface as a solid fallback. The lock artwork shares the same scene and also fills the window.
-- README parsing, classifications, notes, app discovery, tabs, native tables, diagrams, and all README-driven data and interaction paths are unchanged.
-- Added the Project Control-specific rendered acceptance rule to root AGENTS.md without changing sibling-project policy.
-- Complete native type-checking passed. A controlled 1320×760 render confirmed shell coverage at every edge midpoint and visible scene variation across the glass content plane, followed by visual inspection of the zero-gap boundary, shared backdrop, and content readability.
-- After the source and dual-README checkpoints were committed, cache-free optimized compilation, strict signing, exact source/bundle metadata equality, icon/executable checks, bundle promotion, and a separate-instance project-root launch passed.
-- Generated intermediates and the smoke process were removed.
-- Core/store behavior was unchanged, so those suites were not rerun; optional code review and formal verification did not run.
-
-**Evidence and delivery status**
-
-Source `f4fca5b`; project source record `ad48ff1`; root source record `e261f5d`; project delivery `ee58c92`; this delivery checkpoint
-
-[Back to change history](#change-history)
-
-<a id="v2-0-build-11"></a>
-
-### v2.0 / build 11
-
-- **Recorded date:** 2026-09-01.
-
-- Delivered the complete cinematic glass redesign, replacing the earlier angular navy interface:
-  - a transparent native window and real behind-window desktop blur inside one outlined rounded shell,
-  - an aligned expanding/collapsing black hierarchy rail,
-  - staggered per-project disclosure transitions,
-  - bounded internal scrolling with hidden indicators,
-  - rounded content cards,
-  - and a no-password artwork lock that replaces the whole interface with local artwork and a centered Unlock control.
-- The user's screenshot rejected the first signed candidate because it showed an internal green field; source `c4ef97a` provides the transparent-window and real behind-window material correction.
-- Offscreen inspection removed a redundant lock caption that crossed the fortress silhouette. Offscreen repository/project renders confirmed the outlined shell, rounded hierarchy, real app icons, fixed-height content, and centered lock control; behind-window sampling itself requires the live window.
-- README-derived data and parsing, classifications, notes, project icons, application discovery, content tabs, tables, diagrams, workflow data, and background README synchronization are unchanged.
-- All **323 core checks** and **39 store checks** passed, followed by complete native type-checking, before distributable compilation. After the source and dual-README checkpoints were committed, a clean optimized build passed strict signing, exact source/bundle metadata equality, and separate-instance project-root launch.
-- ScreenCaptureKit access remained denied, so final live capture and interaction are not claimed; optional code review and formal verification did not run.
-- The superseded v2.0 bundle and generated intermediates were removed. Superseded Vector/Lens design and reference files remain in Git history.
-
-**Evidence and delivery status**
-
-Initial source `f317ff0`; desktop glass `c4ef97a`; project records `13e395f`, `039702e`, `98dad53`; root records `5f816cc`, `7ca6e6c`; this delivery checkpoint
-
-[Back to change history](#change-history)
-
-<a id="v1-0-build-10"></a>
-
-### v1.0 / build 10
-
-- **Recorded date:** 2026-08-31.
-
-- Replaced mandatory AI-usage badges with optional, individually wrapping root-README Technologies tags, keeping technical scope as a separate line. The root register supplies the tags for all six projects.
-- Added per-tag wrapping, case-insensitive deduplication, explicit empty and retired-column behavior, and focused parser/store regressions; updated the parser, sidebar, all six root register entries, both README records, and the Project Control-only tag rule in root AGENTS.md.
-- Passed **19 focused parser/register checks**, **5 store checks**, native type-checking, and **24 native tag-layout cases** at 64-, 148-, and 320-point widths, including empty and long labels.
-- Offscreen views at 900×660 and 1160×840 and a six-project tag panel were inspected.
-  - The isolated render needed normal macOS icon-service access outside the agent sandbox; it captured only its own never-shown views, not desktop pixels, and no screen-recording permission was changed or retried.
-  - These checks do not establish live scrolling, keyboard interaction, or installed-app behavior.
-- Source was committed separately, with the user's authorization, in `dc45f88` (metadata/sync), `36c21c4` (header), and `a427582` (sidebar), with root metadata/policy in `82e51d0` and release records in `7f5b5ee` / `d8d07e8`, before the build; no build-gate exception was used.
-- A cache-free optimized arm64 build was promoted to the project root.
-  - Strict signing, exact source/bundle metadata equality, v1.0/build-10 identity, unchanged Nexus icon bytes, and a fresh root-level process launch passed.
-  - The smoke-test process remained running for at least 47 seconds and was then closed; no existing Project Control process was present before the check.
-  - This confirms launch, not live interaction.
-- Generated compiler caches and intermediate icon files were removed and can be regenerated. No desktop capture or privacy-setting change was attempted.
-- No live-interaction, code-review, or formal-verification claim is made.
-
-Run only the classification regressions from this project folder:
-
-```sh
-make test-core test-store TEST_ARGS=--classification
-```
-
-- These exercise optional/reordered columns, literal technology names, empty/duplicate tags, retired AI metadata, tag edits/removals, the actual six-project register, and stale-project refresh while preserving selection and notes.
-- Omitting `TEST_ARGS` retains the existing test targets' complete behavior.
-
-**Evidence and delivery status**
-
-`dc45f88`, `36c21c4`, `a427582`; root metadata/policy `82e51d0`; pre-build release records `7f5b5ee`, `d8d07e8`
-
-[Back to change history](#change-history)
-
-<a id="v0-9-build-9"></a>
-
-### v0.9 / build 9
-
-- **Recorded date:** 2026-08-31.
-
-- Corrected the header: a 36-point Nexus icon, an 18-point title, symmetric spacing and left alignment, and a separate ellipsis menu without the redundant triangle, so the ellipsis no longer overlaps the disclosure control.
-- Added five collapsible, source-ordered README-driven categories with counts and independently wrapping technical-scope/AI-usage badges from optional root-register columns. Missing metadata remains unspecified and backward-compatible; root classification changes still apply when a project README is stale, preserving project identity, selection, and work notes.
-- The focused checks cover case-insensitive and reordered optional metadata columns, custom category names, missing/blank/short rows, duplicate projects, source ordering, README-triggered regrouping, and preservation of selection/notes while project content is stale. The new source fixtures and the live six-project register passed **312 core checks and 38 store checks**.
-- Native type-checking and a cache-free optimized build passed.
-  - Four isolated, never-shown native views were rendered: at 900×660 and 1160×840, a tall register showing all five categories, and a minimum-width long-repository-name case.
-  - The header icon/title alignment, separate ellipsis, wrapping badges, counts, selection highlight, and real app/fallback icons were inspected.
-  - The design pass retains the navy/icy-blue palette and uses informational badges, not health scores.
-  - These renders do not establish live scrolling, collapsing, keyboard, menu, or window-chrome behavior.
-- macOS denied live window capture; no capture permission or privacy setting was changed or retried. The render probe and icon packager needed normal macOS icon-service access outside the agent sandbox; neither captured the desktop.
-- The app was delivered directly in the project folder. Clean compilation, strict bundle identity/signature checks, matching source/bundle metadata, unchanged Nexus icon bytes, and project-root launch passed. Only the newly started background smoke-test instance was closed; the existing app session was preserved.
-- The preceding v0.8 source/build work was already committed before this build; Temporary render sources/images, test binaries, compiler caches, and intermediate icons were removed.
-- Source was uncommitted at delivery; the retained header/category implementation is now captured with v1.0 in `dc45f88`, `36c21c4`, and `a427582`, not in a separate v0.9 release commit. Live interaction, optional code review, and formal verification were not confirmed or run for this batch.
-
-**Evidence and delivery status**
-
-Retained implementation captured with v1.0 in `dc45f88`, `36c21c4`, `a427582`; no separate v0.9 release commit
-
-[Back to change history](#change-history)
-
 </details>
 
 ### Earlier history
@@ -1711,7 +1474,7 @@ Retained implementation captured with v1.0 in `dc45f88`, `36c21c4`, `a427582`; n
 Older records are archived by period, newest first. Each archive keeps the same table
 and full records; the count after a link is how many records it holds.
 
-- **Months** — [August 2026](history/2026-08.md) (11)
+- **Months** — [September 2026](history/2026-09.md) (9) · [August 2026](history/2026-08.md) (13)
 
 ---
 
