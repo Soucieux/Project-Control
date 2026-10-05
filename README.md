@@ -501,7 +501,8 @@ new, with 41 store, 50 notes and presentation, and 12 version checks.
   - and launched.
 - The v4.6 bundle was kept in the ignored `build/` folder until then, then moved to the Trash after
   approval.
-- Delivered uncommitted.
+- Delivered uncommitted and recorded in `a137dc0`; published to the public repository on
+  2026-10-05.
 
 [Back to change history](#change-history)
 
