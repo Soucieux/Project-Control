@@ -2,6 +2,33 @@
 
 Every change to Project Control, newest first, in one shape: the summary from the history table, then what changed, what was checked and how it was delivered. The README's Change history table lists the newest 10 and links here.
 
+<a id="v4-9-build-49"></a>
+
+## v4.9 / build 49 — 2026-10-06
+
+- **Checks:** The live architecture checks expect the Build & Delivery category that Local Assistant and Prospect Copilot now carry, so `make test` passes again.
+- **Evidence:** Passed all four check suites and the signing checks; installed in place of v4.8.
+
+### Changed
+
+- **Category check:** The core suite compares each project's architecture category headings with an
+  expected list per project.
+  - Local Assistant and Prospect Copilot gained a Build & Delivery table when their READMEs were
+    checked against their source, so their five expected headings became six and `make test` stopped
+    in the core suite.
+  - Both lists now end with Build & Delivery.
+- **App:** No source or interface change; the version advances because the checks changed.
+
+### Checked
+
+- `make test`, built into a temporary folder outside the project, passed the core, store, notes and
+  presentation, and version checks.
+
+### Delivered
+
+- `make app` built and signed v4.9 build 49, which passed strict signature verification and reports
+  version 4.9 and build 49; it replaced v4.8 at the project root of the main checkout.
+
 <a id="changelog"></a>
 
 ## Documentation — 2026-10-06

@@ -684,8 +684,8 @@ internal enum TestConstants {
         "Data & Storage", "Integrations & Security", "Build & Delivery"
     ]
     internal static let architectureGroupOrder = [
-        "Local Assistant": [0, 1, 2, 3, 4],
-        "Prospect Copilot": [0, 1, 2, 3, 4],
+        "Local Assistant": [0, 1, 2, 3, 4, 5],
+        "Prospect Copilot": [0, 1, 2, 3, 4, 5],
         "OpenClaw": [0, 2, 3, 4],
         "Python Accomplishments": [0, 1, 2, 3, 4, 5],
         "Knowledge Transfer": [1, 2, 3, 5],

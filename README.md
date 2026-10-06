@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.8%20build%2048-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.9%20build%2049-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 [Overview](#overview) · [Capabilities](#capabilities) · [Quick start](#quick-start) · [Usage](#usage) · [Workflow](#workflow) · [Architecture](#architecture) · [Project structure](#project-structure) · [Current release](#current-release) · [References](#references) · [Contributing](#contributing) · [Change history](#change-history)
 
@@ -162,7 +162,7 @@ Project Control/
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.8 (build 48)** in source and in the signed local app. [Change and delivery evidence](CHANGELOG.md#v4-8-build-48).
+**v4.9 (build 49)** in source and in the signed local app. [Change and delivery evidence](CHANGELOG.md#v4-9-build-49).
 
 ## References
 
@@ -435,6 +435,7 @@ One record per change; complete details and evidence are in [CHANGELOG.md](CHANG
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.9 / build 49 | 2026-10-06 | <ul><li><strong>Checks:</strong> The live architecture checks expect the Build & Delivery category that Local Assistant and Prospect Copilot now carry, so <code>make test</code> passes again.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.8.</li></ul> | [Full record](CHANGELOG.md#v4-9-build-49) |
 | Documentation | 2026-10-06 | <ul><li><strong>History:</strong> The complete change history now lives in <code>CHANGELOG.md</code>, one entry per change with its summary, what changed, what was checked and how it was delivered; the README table keeps the newest ten rows and opens each entry from its Details cell.</li></ul> | [Full record](CHANGELOG.md#changelog) |
 | v4.8 / build 48 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Career Ledger's four category headings, which its README now groups its table under, so <code>make test</code> passes again.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.7.</li></ul> | [Full record](CHANGELOG.md#v4-8-build-48) |
 | Documentation | 2026-10-05 | <ul><li><strong>Structure:</strong> Sections follow the order and names every project README now shares, under a contents line; sections were renamed and moved, and no wording was removed.</li></ul> | [Full record](CHANGELOG.md#readme-skeleton) |
@@ -444,7 +445,6 @@ One record per change; complete details and evidence are in [CHANGELOG.md](CHANG
 | v4.5 / build 45 | 2026-10-01 | <ul><li><strong>Tabs:</strong> On every screen the content sits 12 points below the tabs, so the two read as one group: half the repository screen's former 24 points, and a project's 8 widened to match.</li><li><strong>Evidence:</strong> Passed the interface, version and signing checks; installed in place of v4.4 and launched.</li></ul> | [Full record](CHANGELOG.md#v4-5-build-45) |
 | v4.4 / build 44 | 2026-09-28 | <ul><li><strong>Icons:</strong> Each project folder's icon is fetched once and kept until the folder or its custom icon changes; checking that it is unchanged costs about an eighth of fetching a custom icon again.</li><li><strong>Architecture and Models:</strong> Both tabs come from one reading of a project's architecture sections, so reading them for all eight projects here takes about 10 to 11 ms instead of 16 to 18 ms, with the same content.</li><li><strong>Checks:</strong> <code>make test-ui</code> also checks the icon cache.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.3 and launched.</li></ul> | [Full record](CHANGELOG.md#v4-4-build-44) |
 | v4.3 / build 43 | 2026-09-27 | <ul><li><strong>Fixes:</strong> Two quick clicks on the rail's toggle or on a history card's chevron now end in the state last asked for, and a closing history card fades its lines out together instead of cutting them off.</li><li><strong>History cards:</strong> An opened card shows each description cell of its README row whole, without the record link's label.</li><li><strong>Commit activity:</strong> The heatmap has one full-size layout, which fills the reading column at every window size.</li><li><strong>Sky:</strong> The clouds keep their pixels while the window is resized, and each resize redraw costs about a tenth of a millisecond.</li><li><strong>Document health:</strong> A missing folder is stated once.</li><li><strong>Checks:</strong> <code>make test-ui</code> checks the rail and history cards in a window of the app's own views, and a failed check no longer leaves its temporary folder behind.</li><li><strong>Evidence:</strong> Passed all five check suites and the signing checks; installed in place of v4.2 and launched.</li></ul> | [Full record](CHANGELOG.md#v4-3-build-43) |
-| v4.2 / build 42 | 2026-09-27 | <ul><li><strong>Diagrams:</strong> Every workflow arrow stops a small gap short of the rectangles it joins, and nodes that line up are joined by one straight line instead of one with a slight sideways jog.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing and launch checks.</li></ul> | [Full record](CHANGELOG.md#v4-2-build-42) |
 ---
 
 <!-- project-control:section=ignore -->
