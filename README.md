@@ -2,10 +2,13 @@
 
 ![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.7%20build%2047-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
+[Overview](#overview) · [Capabilities](#capabilities) · [Quick start](#quick-start) · [Usage](#usage) · [Workflow](#workflow) · [Architecture](#architecture) · [Project structure](#project-structure) · [Current release](#current-release) · [References](#references) · [Contributing](#contributing) · [Change history](#change-history)
+
 <!-- project-control:section=overview -->
 ## Overview
 
-- Project Control is a native macOS management center for this repository.
+Project Control is a native macOS management center for this repository.
+
 - Understand projects, save plain-text work notes, follow documented changes, and open a folder or chosen application without viewing or editing source code inside the app.
 
 <!-- project-control:section=overview -->
@@ -39,7 +42,7 @@ make app
 open "Project Control.app"
 ```
 
-## Using Project Control
+## Usage
 
 ### Navigation and work notes
 
@@ -68,6 +71,39 @@ open "Project Control.app"
 - **Automatic apps:** Eligible `.app` bundles must be directly inside the project. Selection prefers a project-name match, then a folder-name match, then a sole candidate; unmatched multiple candidates appear as choices.
 - **Manual choice:** If no app is detected, **Open App** can open and remember a selected application when local storage is writable.
 - **Boundary:** Files and apps open only on your action. This local build has no network client and is neither sandboxed nor notarized. Runtime monitoring, arbitrary script launching, and public distribution are not implemented.
+
+<!-- project-control:section=workflows -->
+## Workflow
+
+```text
+README change
+README saved
+  ↓
+background content check
+  ↓
+mapped section parsing
+  ↓
+native screen update
+
+Project register
+Projects table and top-level project folders
+  ↓
+project READMEs
+  ↓
+project navigation and content
+
+Commit activity
+Local Git refs
+  ↓
+timestamps plus project-folder paths
+  ↓
+monthly totals and hover distributions
+
+Work notes
+Local work notes
+  ↓
+notes available / no notes summary
+```
 
 <!-- project-control:section=architecture -->
 ## Architecture
@@ -123,48 +159,22 @@ Project Control/
 └── build/              # Staging and caches; ignored by Git
 ```
 
-<!-- project-control:section=workflows -->
-## Workflow and data sources
+<!-- project-control:section=release -->
+## Current release
 
-```text
-README change
-README saved
-  ↓
-background content check
-  ↓
-mapped section parsing
-  ↓
-native screen update
+**v4.7 (build 47)** in source and in the signed local app. [Change and delivery evidence](#v4-7-build-47).
 
-Project register
-Projects table and top-level project folders
-  ↓
-project READMEs
-  ↓
-project navigation and content
-
-Commit activity
-Local Git refs
-  ↓
-timestamps plus project-folder paths
-  ↓
-monthly totals and hover distributions
-
-Work notes
-Local work notes
-  ↓
-notes available / no notes summary
-```
+## References
 
 <!-- project-control:section=ignore -->
-## README content contract for Project Control
+### README content contract for Project Control
 
 - Repository and project READMEs are the content baseline.
 - Project Control reads selected sections locally; it never executes README instructions, scans source code, or uses a model to invent missing facts.
 - This section is the single authoring contract for all current and future projects.
 - It is referenced by the repository instructions and applies to README inputs, not sibling applications' UI or runtime behavior.
 
-### Add a new project to Project Control
+#### Add a new project to Project Control
 
 - A folder directly inside the repository root that holds a `README.md` appears on its own, after the registered projects, under **Uncategorized**; its card notes that it is not in the root register.
 - Project Control lists only those top-level folders. It never scans nested or hidden folders, and it lists a folder link only when the register names it.
@@ -250,7 +260,7 @@ notes available / no notes summary
   - If a tab stays empty, check that every section marker immediately precedes a heading.
 - A malformed root register is rejected; an unavailable project README leaves the project visible from its root summary but cannot supply complete detail tabs.
 
-### Select app-visible sections
+#### Select app-visible sections
 
 Place a standalone marker immediately before the heading that owns the content; blank lines between them are allowed. The comment is invisible in normal Markdown readers.
 
@@ -342,7 +352,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 - Current release sections supply a `v<major>.<minor>` label with an optional `(build N)`; legacy root summaries are a fallback only for unmarked project READMEs.
 - Optional absent sections stay empty rather than being fabricated.
 
-### Write readable architecture and workflow content
+#### Write readable architecture and workflow content
 
 - Keep category headings such as AI & Intelligence, Frontend & Presentation, Backend & Application
   Logic, Data & Storage, Integrations & Security, and Build & Delivery; omit empty categories.
@@ -387,7 +397,7 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 - Put setup commands, operating instructions, and detailed maintenance outside mapped sections, or
   mark their subtree `ignore`. Read README remains the route to the complete document.
 
-### Update and recovery behavior
+#### Update and recovery behavior
 
 - While the app view is active, background checks run approximately every two seconds over the root README, every listed project README, the list of top-level folders, and app metadata.
 - Bounded content digests detect edits even when file size and timestamps are unchanged.
@@ -408,11 +418,6 @@ The former **AI usage** column is ignored, even when Technologies is absent or b
 - Changing the supported mapping/rendering behavior does require an app update and its usual build/version checks.
 - Observatory is separate: its offline HTML embeds vault content and must be rebuilt when that content changes, following its own versioning and previous-build rules.
 
-<!-- project-control:section=release -->
-## Current release
-
-**v4.7 (build 47)** in source and in the signed local app. [Change and delivery evidence](#v4-7-build-47).
-
 <!-- project-control:section=ignore -->
 ## Contributing
 
@@ -430,6 +435,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| Documentation | 2026-10-05 | <ul><li><strong>Structure:</strong> Sections follow the order and names every project README now shares, under a contents line; sections were renamed and moved, and no wording was removed.</li></ul> | [Full record](#readme-skeleton) |
 | v4.7 / build 47 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Meta Search Engine's four category headings, so <code>make test</code> passes again.</li><li><strong>Coverage:</strong> They also name every architecture row and the main technologies of Career Ledger, DayWright and Meta Search Engine.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.6 and launched.</li></ul> | [Full record](#v4-7-build-47) |
 | Documentation | 2026-10-05 | <ul><li><strong>Readability:</strong> Long paragraphs, bullets and table cells are now short leads with sub-points, one fact each; no detail was removed.</li></ul> | [Full record](#readme-structure) |
 | v4.6 / build 46 | 2026-10-01 | <ul><li><strong>Register:</strong> The root register names a project's technical scope Platform, and the app reads it for the sidebar and title; a register still labelled Technical scope shows the same.</li><li><strong>Contract:</strong> The README content contract uses the register's one-word labels and places an AI item after Category.</li></ul> | [Full record](#v4-6-build-46) |
@@ -463,6 +469,24 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="readme-skeleton"></a>
+
+### Documentation
+
+- **Recorded date:** 2026-10-05.
+- **Why:** project READMEs named and ordered the same kinds of section differently, so setup, workflow and
+  architecture sat in a different place in each.
+- **Order:** the sections now run Overview, Capabilities, Quick start, Usage, Workflow, Architecture, Project structure, Current release, References, Contributing, Change history.
+- **Renamed:** Using Project Control is now Usage, and Workflow and data sources is Workflow.
+- **Moved:** Workflow now comes before Architecture, and README content contract for Project Control sits under References, after Current release.
+- **Opening:** a contents line under the title links every section.
+  - The overview opens with its describing sentence as a plain paragraph, where it was the first list item.
+- **Unchanged:** every sentence, table, diagram and Project Control marker inside the sections; whole sections
+  moved, and links to a renamed section were updated.
+- **Scope:** Documentation only.
+
+[Back to change history](#change-history)
 
 <a id="v4-7-build-47"></a>
 
