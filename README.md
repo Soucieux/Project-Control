@@ -493,7 +493,7 @@ One record per change; complete details and evidence are below. Older work dates
   notes and presentation, and 12 version checks.
 - `make app` built and signed v4.8 build 48, which passed strict signature verification and reports
   version 4.8 and build 48; it replaced v4.7 at the project root and launched.
-- Delivered from uncommitted source.
+- Delivered uncommitted on 2026-10-05, then committed as `c0963b8`, with this citation after it.
 
 [Back to change history](#change-history)
 
