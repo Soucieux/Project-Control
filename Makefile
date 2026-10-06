@@ -44,9 +44,10 @@ app: check-version icons
 	@set -eu; \
 	if [[ -e "$(FINAL_APP)" ]]; then \
 		previous="$$(mktemp -d "$(BUILD)/previous.XXXXXX")"; \
-		mv "$(FINAL_APP)" "$$previous/$(FINAL_APP)"; \
+		kept="$$previous/$$(basename "$(FINAL_APP)")"; \
+		mv "$(FINAL_APP)" "$$kept"; \
 		if ! mv "$(APP)" "$(FINAL_APP)"; then \
-			mv "$$previous/$(FINAL_APP)" "$(FINAL_APP)"; exit 1; \
+			mv "$$kept" "$(FINAL_APP)"; exit 1; \
 		fi; \
 		rm -rf "$$previous"; \
 	else mv "$(APP)" "$(FINAL_APP)"; fi

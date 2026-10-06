@@ -690,7 +690,8 @@ internal enum TestConstants {
         "Python Accomplishments": [0, 1, 2, 3, 4, 5],
         "Knowledge Transfer": [1, 2, 3, 5],
         "Project Control": [1, 2, 3, 4],
-        "Meta Search Engine": [1, 3, 4, 5]
+        "Meta Search Engine": [1, 3, 4, 5],
+        "Career Ledger": [0, 1, 2, 3]
     ]
     internal static let architectureCoverage = [
         "Local Assistant": ["Native Swift", "Qwen3-4B", "Qwen3-Embedding", "llama.cpp", "RAG", "IndexingService", "SQLite", "FTS5", "sqlite-vec", "WhisperKit", "Connector"],

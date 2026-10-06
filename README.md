@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.7%20build%2047-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.8%20build%2048-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 [Overview](#overview) · [Capabilities](#capabilities) · [Quick start](#quick-start) · [Usage](#usage) · [Workflow](#workflow) · [Architecture](#architecture) · [Project structure](#project-structure) · [Current release](#current-release) · [References](#references) · [Contributing](#contributing) · [Change history](#change-history)
 
@@ -162,7 +162,7 @@ Project Control/
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.7 (build 47)** in source and in the signed local app. [Change and delivery evidence](#v4-7-build-47).
+**v4.8 (build 48)** in source and in the signed local app. [Change and delivery evidence](#v4-8-build-48).
 
 ## References
 
@@ -435,6 +435,7 @@ One record per change; complete details and evidence are below. Older work dates
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v4.8 / build 48 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Career Ledger's four category headings, which its README now groups its table under, so <code>make test</code> passes again.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.7.</li></ul> | [Full record](#v4-8-build-48) |
 | Documentation | 2026-10-05 | <ul><li><strong>Structure:</strong> Sections follow the order and names every project README now shares, under a contents line; sections were renamed and moved, and no wording was removed.</li></ul> | [Full record](#readme-skeleton) |
 | v4.7 / build 47 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Meta Search Engine's four category headings, so <code>make test</code> passes again.</li><li><strong>Coverage:</strong> They also name every architecture row and the main technologies of Career Ledger, DayWright and Meta Search Engine.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.6 and launched.</li></ul> | [Full record](#v4-7-build-47) |
 | Documentation | 2026-10-05 | <ul><li><strong>Readability:</strong> Long paragraphs, bullets and table cells are now short leads with sub-points, one fact each; no detail was removed.</li></ul> | [Full record](#readme-structure) |
@@ -469,6 +470,32 @@ One record per change; complete details and evidence are below. Older work dates
 
 <details>
 <summary>Full records for this table</summary>
+
+<a id="v4-8-build-48"></a>
+
+### v4.8 / build 48
+
+- **Recorded date:** 2026-10-05.
+- **Category check:** The core suite compares each project's architecture category headings with an
+  expected list.
+  - Career Ledger's README grouped its one architecture table under the shared category headings,
+    so its four headings failed the check and `make test` stopped in the core suite.
+  - The list now names AI & Intelligence, Frontend & Presentation, Backend & Application Logic, and
+    Data & Storage, in that order.
+- **Build:** `make app` sets the replaced app aside under its own name, so `FINAL_APP` may name the
+  delivered app outside the project folder, as when promoting from a worktree.
+- **App:** No source or interface change; the version advances because the checks and the build
+  step changed.
+
+**Evidence and delivery status**
+
+- `make test`, built into a temporary folder outside the project, passed 445 core, 41 store, 50
+  notes and presentation, and 12 version checks.
+- `make app` built and signed v4.8 build 48, which passed strict signature verification and reports
+  version 4.8 and build 48; it replaced v4.7 at the project root and launched.
+- Delivered from uncommitted source.
+
+[Back to change history](#change-history)
 
 <a id="readme-skeleton"></a>
 
