@@ -27,7 +27,7 @@ Every change to Project Control, newest first, in one shape: the summary from th
 ### Checked
 
 - `make test`, built into a temporary folder outside the project, passed 459 core, 41 store, 50 notes and presentation, and 12 version checks; the core suite gained the changelog fixture, strip, record and live checks.
-- `make test-ui` was run three times and could not capture the test window ("could not create image from window"), so its history checks, now finding the first card below the strip, are to be rerun with the screen available.
+- `make test-ui`, run from the owner's Terminal on 2026-10-07, passed 30 interface checks, the history checks now finding the first card below the strip; from the delivery session it could not capture the test window, which lacked Screen Recording.
 
 ### Delivered
 
