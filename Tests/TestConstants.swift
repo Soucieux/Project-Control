@@ -322,6 +322,59 @@ internal enum TestConstants {
     internal static let version = "v0.1 (build 1)"
     internal static let architecture = "Interface · SwiftUI"
     internal static let history = "Initial implementation"
+    internal static let changelog = """
+    # Example changelog
+
+    Every change, newest first.
+
+    <a id="v0-8-build-8"></a>
+
+    ## v0.8 / build 8 — 2026-08-30
+
+    - **Change:** Shipped the panel.
+
+    ### Added
+
+    - **Panel:** A new panel.
+      - With a sub-point.
+
+    ### Checked
+
+    - `make test` passed 3 checks.
+
+    <a id="notes"></a>
+
+    ## Documentation — 2026-08-20
+
+    - **Notes:** Rewrote the notes.
+
+    ### Changed
+
+    - **Notes:** Moved them.
+
+    ```markdown
+    ## Not an entry
+    ```
+
+    <a id="old"></a>
+
+    ## Early notes — 2024-05-01
+
+    - **Change:** First notes.
+    """
+    internal static let changelogEntryTitle = "v0.8 / build 8"
+    internal static let changelogEntryDate = "2026-08-30"
+    internal static let changelogSummarySuffix = "Shipped the panel."
+    internal static let changelogSectionNames = ["Added", "Checked"]
+    internal static let changelogSubPoint = "With a sub-point."
+    internal static let changelogOldestTitle = "Early notes"
+    internal static let changelogSpan = "2024 – 2026"
+    internal static let changelogVersion = "v0.8"
+    internal static let checkChangelogEntries = "a changelog's entries carry their title, date, summary and subsections, and a fenced heading is not an entry"
+    internal static let checkChangelogStrip = "the history strip holds the years before the last twelve months, then each month, with releases counted"
+    internal static let checkChangelogRecord = "a project's changelog beside its README is read and a change to it refreshes the fingerprint"
+    internal static let checkLiveChangelogs = "every live changelog is read with its strip: "
+    internal static let checkLiveRootChangelog = "the live root changelog is read with its strip"
     internal static let forbidden = "secretCode"
     internal static let checkRegister = "root Projects table discovers two rows"
     internal static let checkIntro = "project introduction is extracted"
@@ -618,7 +671,8 @@ internal enum TestConstants {
     internal static let cardCloseMilliseconds = 1000
     internal static let checkInterfaceRepository = "the live repository loads into the test window"
     internal static let checkInterfaceCapture = "the test window can be captured; allow Screen Recording for the app that runs make test-ui"
-    internal static let checkHistoryCard = "the first repository history card is found below the tabs"
+    internal static let checkHistoryStrip = "the repository history opens with the strip's glass below the tabs"
+    internal static let checkHistoryCard = "the first repository history card is found below the strip"
     internal static let checkRailStart = "the rail starts expanded"
     internal static let checkRailDoubleExpanded = "two quick rail clicks from expanded end expanded"
     internal static let checkRailCollapse = "one rail click collapses the rail"

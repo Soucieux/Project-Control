@@ -134,12 +134,17 @@ private enum InterfaceRun {
         TestSupport.check(screen.railExpanded(), TestConstants.checkRailExpand)
     }
 
-    /// Opens the repository history and asks the first card to open and close in quick succession.
+    /// Opens the repository history, finds the strip and the first card below it, and asks the card to open and
+    /// close in quick succession.
     /// - Parameter screen: The test window.
-    /// - Returns: Nothing; terminates if the card ends in a state other than the one last asked for.
+    /// - Returns: Nothing; terminates if the strip or the card is missing, or the card ends in a state other than the
+    ///   one last asked for.
     private static func historyChecks(_ screen: InterfaceWindow) async {
         await screen.clicks(TestConstants.historyTabPoint, count: 1)
-        let top = screen.cardTop()
+        let stripTop = screen.cardTop()
+        TestSupport.check(stripTop != nil, TestConstants.checkHistoryStrip)
+        guard let stripTop else { return }
+        let top = screen.cardTop(from: stripTop + screen.cardHeight(top: stripTop) + TestConstants.probeMargin)
         TestSupport.check(top != nil, TestConstants.checkHistoryCard)
         guard let top else { return }
         let closed = screen.cardHeight(top: top)
@@ -236,12 +241,13 @@ private struct InterfaceWindow {
         }
     }
 
-    /// Finds the first card's top edge below the tabs.
-    /// - Returns: The top edge in window points, or nil when no glass is found.
-    internal func cardTop() -> CGFloat? {
+    /// Finds the first glass top edge at or below a point, the tabs' bottom by default.
+    /// - Parameter start: The window point to search down from.
+    /// - Returns: The top edge in window points, or nil when no glass is found above the window's bottom margin.
+    internal func cardTop(from start: CGFloat = TestConstants.cardSearch.lowerBound) -> CGFloat? {
         let image = capture()
         let x = TestConstants.cardProbeX
-        return stride(from: TestConstants.cardSearch.lowerBound, to: TestConstants.cardSearch.upperBound, by: 1).first {
+        return stride(from: start, to: window.frame.height - TestConstants.probeMargin, by: 1).first {
             luminance(image, x: x, y: $0) < TestConstants.glassDarkness
                 && luminance(image, x: x, y: $0 + TestConstants.probeMargin) < TestConstants.glassDarkness
         }

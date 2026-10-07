@@ -26,7 +26,8 @@ internal struct RepositoryScreen: View {
                 Group {
                     switch tab {
                     case .overview: ReadmeContent(blocks: snapshot.overview, empty: ControlConstants.noRepositoryOverview)
-                    case .history: HistoryList(entries: snapshot.history)
+                    case .history: HistoryList(entries: snapshot.changelog.isEmpty ? snapshot.history : snapshot.changelog,
+                        strip: snapshot.strip)
                     case .activity:
                         TimelineView(.everyMinute) { context in
                             CommitActivityView(activity: snapshot.commitActivity,

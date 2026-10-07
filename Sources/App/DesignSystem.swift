@@ -36,6 +36,14 @@ internal enum ControlTheme {
         Color(red: 0.10, green: 0.29, blue: 0.22)
     ]
     internal static let activityFuture = Color.white.opacity(0.08)
+    /// The history strip's five shades, one per entry bin, from a light wash to a deep teal.
+    internal static let historyLevels = [
+        Color(red: 0.72, green: 0.83, blue: 0.86),
+        Color(red: 0.53, green: 0.72, blue: 0.78),
+        Color(red: 0.36, green: 0.60, blue: 0.69),
+        Color(red: 0.22, green: 0.45, blue: 0.56),
+        Color(red: 0.12, green: 0.30, blue: 0.40)
+    ]
     internal static let motion = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.62)
     /// Each project row disclosed into or out of its category starts this long after the row above it.
     internal static let disclosureStagger = 0.045
@@ -54,6 +62,8 @@ internal enum ControlTheme {
     internal static let historyLineFade = 0.3
     internal static let historyLineDelay = 0.08
     internal static let historyLineStagger = 0.1
+    /// Lines beyond this many open together, so a long entry does not keep a reader waiting.
+    internal static let historyStaggeredLines = 8
     internal static let historyCloseFade = 0.12
     internal static let historyShrinkDuration = 0.2
     internal static let cardRadius: CGFloat = 18

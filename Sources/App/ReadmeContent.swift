@@ -99,16 +99,103 @@ private struct ReadmeTableView: View {
     }
 }
 
-/// Readable, expandable summaries rather than raw Markdown or source files.
+/// Readable, expandable summaries rather than raw Markdown or source files, under the history strip when the
+/// changelog supplies one.
 internal struct HistoryList: View {
     internal let entries: [HistoryEntry]
+    internal var strip: HistoryStrip? = nil
     internal var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if let strip { HistoryStripView(strip: strip) }
             if entries.isEmpty {
                 ContentSurface { Text(ControlConstants.noHistory).foregroundStyle(ControlTheme.muted) }
             }
             ForEach(entries) { entry in HistoryCard(entry: entry) }
         }.padding(.vertical, 10)
+    }
+}
+
+/// The history at a glance: a summary column, then one shaded cell per period — years before the last twelve
+/// months, then each month — with a release month's count in an amber pill and its latest version beneath.
+private struct HistoryStripView: View {
+    internal let strip: HistoryStrip
+
+    internal var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 18) {
+                summary.frame(width: 132, alignment: .leading)
+                cells
+            }
+            Text(ControlConstants.stripLegend).font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+        }
+        .padding(14).glassPlane(radius: 14)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(format: ControlConstants.stripAccessibilityFormat, strip.span, strip.entries,
+            strip.versionRange ?? ControlConstants.stripNoReleases))
+    }
+
+    /// The span, the entry total, the version range and the release count.
+    private var summary: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(strip.span).font(.system(size: 12)).foregroundStyle(ControlTheme.muted)
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(String(strip.entries)).font(.system(size: 26, weight: .semibold))
+                Text(strip.entries == 1 ? ControlConstants.stripEntry : ControlConstants.stripEntries)
+                    .font(.system(size: 13)).foregroundStyle(ControlTheme.muted)
+            }
+            if let range = strip.versionRange {
+                Text(range).font(.system(size: 12, design: .monospaced))
+                Text(String(strip.releases) + ControlConstants.space
+                    + (strip.releases == 1 ? ControlConstants.stripRelease : ControlConstants.stripReleases))
+                    .font(.system(size: 12)).foregroundStyle(ControlTheme.muted)
+            } else {
+                Text(ControlConstants.stripNoReleases).font(.system(size: 12)).foregroundStyle(ControlTheme.muted)
+            }
+        }
+    }
+
+    /// The period cells, a hairline between the years and the months.
+    private var cells: some View {
+        HStack(alignment: .top, spacing: 3) {
+            ForEach(Array(strip.periods.enumerated()), id: \.element.id) { index, period in
+                if index > 0 && period.isMonth && !strip.periods[index - 1].isMonth {
+                    Rectangle().fill(ControlTheme.line).frame(width: 1, height: 32).padding(.top, 30).padding(.horizontal, 4)
+                }
+                cell(period, first: index == 0)
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// One period: its context year, its label, the shaded cell with its count, and its release pill and version.
+    /// - Parameters:
+    ///   - period: The period drawn.
+    ///   - first: Whether it is the first cell, which carries the "by year" or "by month" context.
+    /// - Returns: The cell column.
+    private func cell(_ period: HistoryPeriod, first: Bool) -> some View {
+        let context = first ? (period.isMonth ? ControlConstants.stripByMonth : ControlConstants.stripByYear)
+            + (period.yearLabel.map { ControlConstants.joined + $0 } ?? ControlConstants.empty) : period.yearLabel
+        let level = ControlConstants.stripBins.lastIndex { period.entries >= $0 }
+        return VStack(spacing: 3) {
+            Text(context ?? ControlConstants.space).font(.system(size: 10)).foregroundStyle(ControlTheme.muted)
+                .lineLimit(1).fixedSize()
+            Text(period.label).font(.system(size: 11)).foregroundStyle(ControlTheme.muted)
+            ZStack {
+                if let level {
+                    RoundedRectangle(cornerRadius: 5, style: .continuous).fill(ControlTheme.historyLevels[level])
+                    Text(String(period.entries)).font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(level >= 3 ? ControlTheme.ink : ControlTheme.sceneInk)
+                } else {
+                    RoundedRectangle(cornerRadius: 5, style: .continuous).stroke(ControlTheme.line, lineWidth: 1)
+                }
+            }.frame(minWidth: 26, maxWidth: 60).frame(height: 32)
+            if period.releases > 0 {
+                Text(String(period.releases)).font(.system(size: 9, weight: .bold)).foregroundStyle(ControlTheme.sceneInk)
+                    .frame(maxWidth: .infinity).frame(height: 12)
+                    .background(ControlTheme.amber, in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                Text(period.latestVersion ?? ControlConstants.empty).font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(ControlTheme.muted).lineLimit(1).fixedSize()
+            }
+        }.frame(minWidth: 26, maxWidth: 60)
     }
 }
 
@@ -143,13 +230,16 @@ private struct HistoryCard: View {
                 .accessibilityValue(open ? ControlConstants.expanded : ControlConstants.collapsed)
             if expanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(entry.lines.enumerated()), id: \.offset) { index, line in
-                        Text(line).font(.callout).lineSpacing(4).foregroundStyle(ControlTheme.muted)
+                    ForEach(Array(panelLines.enumerated()), id: \.offset) { index, line in
+                        Text(line.text).font(line.isName ? .callout.weight(.semibold) : .callout).lineSpacing(4)
+                            .foregroundStyle(line.isName ? ControlTheme.ink : ControlTheme.muted)
+                            .padding(.top, line.isName ? 6 : 0)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .opacity(revealed ? 1 : 0).offset(y: revealed ? 0 : 4)
                             .animation(reduceMotion ? nil : revealed
                                 ? .easeOut(duration: ControlTheme.historyLineFade)
-                                    .delay(ControlTheme.historyLineDelay + Double(index) * ControlTheme.historyLineStagger)
+                                    .delay(ControlTheme.historyLineDelay + Double(min(index, ControlTheme.historyStaggeredLines))
+                                        * ControlTheme.historyLineStagger)
                                 : .easeIn(duration: ControlTheme.historyCloseFade),
                                 value: revealed)
                     }
@@ -164,6 +254,13 @@ private struct HistoryCard: View {
         }
         .padding(14).glassPlane(radius: 14)
         .task(id: open) { await followOpenRequest() }
+    }
+
+    /// The panel's lines: the summary, then each subsection's name followed by its lines.
+    private var panelLines: [(text: String, isName: Bool)] {
+        entry.lines.map { ($0, false) } + entry.sections.flatMap { section in
+            [(section.name, true)] + section.lines.map { ($0, false) }
+        }
     }
 
     /// Moves the card to the state last asked for in two steps: opening grows the card before the panel and

@@ -2,6 +2,37 @@
 
 Every change to Project Control, newest first, in one shape: the summary from the history table, then what changed, what was checked and how it was delivered. The README's Change history table lists the newest 10 and links here.
 
+<a id="v5-0-build-50"></a>
+
+## v5.0 / build 50 — 2026-10-07
+
+- **History:** The History tab reads the changelog beside each README: every entry is a card with its summary and its subsections, under a history strip drawn natively; the README table stands in for a project without a changelog.
+- **Evidence:** Passed the core, store, notes and version suites and the signing checks; installed in place of v4.9.
+
+### Added
+
+- **Changelog entries:** `ChangelogParser` splits `CHANGELOG.md` at its second-level headings outside fenced samples, reading each entry's title, date, summary bullets and the lines of its Added, Changed, Fixed, Removed, Checked and Delivered subsections.
+- **History strip:** the tab opens with the strip drawn natively from the entries.
+  - A summary of the span, the total, the version range and the release count, then one shaded cell per period, years before the last twelve months and then each month.
+  - A release month carries its release count in an amber pill and its latest version beneath.
+  - The window counts back from the newest entry, as the repository's generated strip does, so the view and the image agree.
+- **Cards:** each entry's card opens to its summary lines and then each subsection's name and lines; a README row's card reads as before.
+
+### Changed
+
+- **Reader:** `RepositoryReader` reads the changelog beside each README and the root one, bounded like a README, and fingerprints them, so an edited changelog refreshes the screens.
+- **Screens:** the project and repository History tabs show the changelog's entries when there is one and the README table otherwise.
+- **Routes:** the README documents the project-history route, so the live check expects five routes.
+
+### Checked
+
+- `make test`, built into a temporary folder outside the project, passed 459 core, 41 store, 50 notes and presentation, and 12 version checks; the core suite gained the changelog fixture, strip, record and live checks.
+- `make test-ui` was run three times and could not capture the test window ("could not create image from window"), so its history checks, now finding the first card below the strip, are to be rerun with the screen available.
+
+### Delivered
+
+- `make app` built and signed v5.0 build 50, which passed strict signature verification and reports version 5.0 and build 50; it replaced v4.9 at the project root of the main checkout.
+
 <a id="history-strip"></a>
 
 ## History strip — 2026-10-06

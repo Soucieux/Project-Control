@@ -29,7 +29,8 @@ internal struct ProjectScreen: View {
                     case .models: ReadmeContent(blocks: project.models, empty: ControlConstants.noModels)
                     case .workflows: workflows
                     case .notes: workNotes
-                    case .history: HistoryList(entries: project.history)
+                    case .history: HistoryList(entries: project.changelog.isEmpty ? project.history : project.changelog,
+                        strip: project.strip)
                     }
                 }.transition(.opacity).animation(reduceMotion ? nil : ControlTheme.motion, value: tab)
             }.frame(maxWidth: .infinity, alignment: .leading)

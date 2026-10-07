@@ -99,10 +99,43 @@ internal struct WorkflowRoute: Identifiable {
 internal struct HistoryEntry: Identifiable {
     internal let id = UUID()
     internal let title: String
-    /// The description in reading order, one line per source table cell.
+    /// The description in reading order: one line per source table cell, or a changelog entry's summary bullets.
     internal let lines: [String]
     internal var date: String? = nil
+    /// A changelog entry's subsections, in source order; empty for a README table row.
+    internal var sections: [HistorySection] = []
     internal var heading: String { title + (date.map { ControlConstants.joined + $0 } ?? ControlConstants.empty) }
+}
+
+/// One subsection of a changelog entry, such as Added or Checked, with its lines.
+internal struct HistorySection: Identifiable {
+    internal let id = UUID()
+    internal let name: String
+    internal let lines: [String]
+}
+
+/// One cell of the history strip: a month or a year, the entries it holds and its releases.
+internal struct HistoryPeriod: Identifiable {
+    internal let id: String
+    /// The text above the cell: a month's abbreviation or a year.
+    internal let label: String
+    /// The calendar year shown over the first month cell and every January, else nil.
+    internal let yearLabel: String?
+    internal let isMonth: Bool
+    internal let entries: Int
+    internal let releases: Int
+    internal let latestVersion: String?
+}
+
+/// The history strip drawn from a changelog: its cells and the summary beside them.
+internal struct HistoryStrip {
+    internal let periods: [HistoryPeriod]
+    /// The dates the entries span, such as `2021 – 2026` or `Aug – Oct 2026`.
+    internal let span: String
+    internal let entries: Int
+    internal let releases: Int
+    /// The lowest and highest release versions, `v0.1 → v6.4`, or nil without a release.
+    internal let versionRange: String?
 }
 
 /// Explicit register metadata, independent of a project's purpose, code, or runtime health.
@@ -156,6 +189,9 @@ internal struct ProjectRecord: Identifiable {
     internal let history: [HistoryEntry]
     internal var folderAvailable: Bool
     internal var readmeAvailable: Bool
+    /// Every entry of the `CHANGELOG.md` beside the README, newest first; empty without one.
+    internal var changelog: [HistoryEntry] = []
+    internal var strip: HistoryStrip? = nil
     internal var overview: [ReadmeBlock] = []
     internal var models: [ReadmeBlock] = []
     internal var applications: [URL] = []
@@ -183,6 +219,9 @@ internal struct RepositorySnapshot {
     internal let fingerprint: [String]
     internal var overview: [ReadmeBlock] = []
     internal var commitActivity: CommitActivity = .unavailable
+    /// Every entry of the root `CHANGELOG.md`, newest first; empty without one.
+    internal var changelog: [HistoryEntry] = []
+    internal var strip: HistoryStrip? = nil
 
     internal var categories: [ProjectCategory] {
         var groups: [ProjectCategory] = []

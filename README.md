@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v4.9%20build%2049-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v5.0%20build%2050-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 [Quick start](#quick-start) · [Architecture](#architecture) · [Change history](#change-history)
 
@@ -14,7 +14,7 @@ Project Control is a native macOS management center for this repository.
 <!-- project-control:section=overview -->
 ## Capabilities
 
-- **Browse:** Read project introductions, architecture, models, workflows, and documented history in native views.
+- **Browse:** Read project introductions, architecture, models, workflows, and the complete change history in native views, with a history strip at a glance.
 - **Track work:** Create, edit, and delete private plain-text project notes.
 - **See activity:** Explore local Git commit totals by year and month, with project participation on hover.
 - **Open:** Reveal folders, read a README, or launch a detected or selected Mac application.
@@ -46,7 +46,7 @@ open "Project Control.app"
 
 ### Navigation and work notes
 
-- **Project views:** Overview, Architecture, Models, Workflows, and Project history reflect the selected README.
+- **Project views:** Overview, Architecture, Models, Workflows, and Project history reflect the selected README and, for history, the changelog beside it.
 - **Rail:**
   - Click the repository's name or its icon at the top of the rail to collapse the rail to icons, and the icon again to expand it.
   - The grey line under the name opens the repository's overview, history and commit activity, and the number after the name is how many projects the repository holds.
@@ -103,6 +103,13 @@ Work notes
 Local work notes
   ↓
 notes available / no notes summary
+
+Project history
+CHANGELOG.md beside the README
+  ↓
+entries with their subsections
+  ↓
+history strip and expandable cards
 ```
 
 <!-- project-control:section=architecture -->
@@ -112,14 +119,14 @@ notes available / no notes summary
 
 | Technology or concept | Use in this project |
 |---|---|
-| SwiftUI | Builds the black chassis, the sky-and-cloud detail layer, smoked-glass content, animated hierarchy rail, artwork lock, project screens, work-note editor, expandable History cards, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
+| SwiftUI | Builds the black chassis, the sky-and-cloud detail layer, smoked-glass content, animated hierarchy rail, artwork lock, project screens, work-note editor, the history strip, expandable History cards with their subsections, responsive commit-activity grid, native tables, and restrained motion. ReadmeContent and RepositoryScreen render the selected source content. |
 | AppKit | Provides macOS icons, application/window integration, file pickers, and explicit open actions. ProjectIcon shows each project folder's own Finder icon, with a neutral fallback, and keeps each icon until its folder or custom icon changes. |
 
 ### Backend & Application Logic
 
 | Technology or concept | Use in this project |
 |---|---|
-| Swift | Native application language. ControlStore owns selection and background reloads. RepositoryReader reads bounded source documents and activity snapshots. ReadmeParser handles sections, tables, and history. |
+| Swift | Native application language. ControlStore owns selection and background reloads. RepositoryReader reads bounded source documents and activity snapshots. ReadmeParser handles sections, tables, and history tables; ChangelogParser reads changelog entries and lays out the history strip. |
 | Swift concurrency | Runs README reads and change detection off the interface thread; updates the observable store on the main actor. |
 | Foundation | Provides bounded file reads, canonical paths, Git process execution, calendar grouping, dates, regular expressions, and structured-data encoding. |
 | Directed graphs | WorkflowParser and WorkflowDiagram render documented nodes, arrows, branches, and merges without inventing relationships. |
@@ -128,7 +135,7 @@ notes available / no notes summary
 
 | Technology or concept | Use in this project |
 |---|---|
-| Markdown | Repository/project README files are the content baseline. Stable section markers select the app-visible subset. |
+| Markdown | Repository/project README files are the content baseline. Stable section markers select the app-visible subset. `CHANGELOG.md` beside a README supplies its complete history and the strip; the README table stands in without one. |
 | Git metadata | Complete local reachable-commit timestamps supply monthly activity; changed paths map commits to listed projects for hover details; ref object identities trigger refresh without reading messages, authors, or file contents. |
 | JSON | WorkspaceStorage atomically saves local work notes and app choices outside the repository; malformed data is never reset automatically. |
 | UserDefaults | Remembers the last successfully selected repository separately from work-note storage. |
@@ -163,7 +170,7 @@ Project Control/
 <!-- project-control:section=release -->
 ## Current release
 
-**v4.9 (build 49)** in source and in the signed local app. [Change and delivery evidence](CHANGELOG.md#v4-9-build-49).
+**v5.0 (build 50)** in source and in the signed local app. [Change and delivery evidence](CHANGELOG.md#v5-0-build-50).
 
 ## References
 
@@ -284,7 +291,7 @@ Place a standalone marker immediately before the heading that owns the content; 
 | `architecture` | Not displayed | Architecture tables and prose |
 | `models` | Not displayed | Models; model-related architecture rows remain visible in Architecture |
 | `workflows` | Not displayed | Source-defined workflow diagrams |
-| `history` | Repository history | Project history |
+| `history` | Repository history: the changelog's entries and strip, or this table without a changelog | Project history, the same way from the project's changelog |
 | `release` | Not displayed | Current release/build label |
 | `ignore` | Excluded section and descendants | Excluded section and descendants |
 
@@ -427,7 +434,7 @@ For source changes, follow the [contribution guide](CONTRIBUTING.md).
 <!-- project-control:section=history -->
 ## Change history
 
-![Changelog history, Aug – Oct 2026: 58 entries; busiest September 2026 (35); v0.1 → v4.9 over 40 releases.](CHANGELOG.svg)
+![Changelog history, Aug – Oct 2026: 59 entries; busiest September 2026 (35); v0.1 → v5.0 over 41 releases.](CHANGELOG.svg)
 
 **Change-history numbering:** This project uses marketing versions and integer build numbers.
 Follow the [version and build policy](CONTRIBUTING.md#version-and-build-policy).
@@ -438,6 +445,7 @@ One record per change; complete details and evidence are in [CHANGELOG.md](CHANG
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v5.0 / build 50 | 2026-10-07 | <ul><li><strong>History:</strong> The History tab reads the changelog beside each README: every entry is a card with its summary and its subsections, under a history strip drawn natively; the README table stands in for a project without a changelog.</li><li><strong>Evidence:</strong> Passed the core, store, notes and version suites and the signing checks; installed in place of v4.9.</li></ul> | [Full record](CHANGELOG.md#v5-0-build-50) |
 | Documentation | 2026-10-06 | <ul><li><strong>Changelog:</strong> The README's Change history opens with a history strip, <code>CHANGELOG.svg</code>, drawn from the changelog: the entries of every period as shaded cells, release months marked, and the span, total and version range beside them.</li></ul> | [Full record](CHANGELOG.md#history-strip) |
 | Documentation | 2026-10-06 | <ul><li><strong>Layout:</strong> The line of section links under the title now holds three quick links, Quick start, Architecture and Change history, in place of one for every section; the outline of the whole README is the one GitHub, Obsidian and Project Control provide.</li></ul> | [Full record](CHANGELOG.md#three-quick-links) |
 | v4.9 / build 49 | 2026-10-06 | <ul><li><strong>Checks:</strong> The live architecture checks expect the Build & Delivery category that Local Assistant and Prospect Copilot now carry, so <code>make test</code> passes again.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.8.</li></ul> | [Full record](CHANGELOG.md#v4-9-build-49) |
@@ -447,7 +455,6 @@ One record per change; complete details and evidence are in [CHANGELOG.md](CHANG
 | v4.7 / build 47 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Meta Search Engine's four category headings, so <code>make test</code> passes again.</li><li><strong>Coverage:</strong> They also name every architecture row and the main technologies of Career Ledger, DayWright and Meta Search Engine.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.6 and launched.</li></ul> | [Full record](CHANGELOG.md#v4-7-build-47) |
 | Documentation | 2026-10-05 | <ul><li><strong>Readability:</strong> Long paragraphs, bullets and table cells are now short leads with sub-points, one fact each; no detail was removed.</li></ul> | [Full record](CHANGELOG.md#readme-structure) |
 | v4.6 / build 46 | 2026-10-01 | <ul><li><strong>Register:</strong> The root register names a project's technical scope Platform, and the app reads it for the sidebar and title; a register still labelled Technical scope shows the same.</li><li><strong>Contract:</strong> The README content contract uses the register's one-word labels and places an AI item after Category.</li></ul> | [Full record](CHANGELOG.md#v4-6-build-46) |
-| v4.5 / build 45 | 2026-10-01 | <ul><li><strong>Tabs:</strong> On every screen the content sits 12 points below the tabs, so the two read as one group: half the repository screen's former 24 points, and a project's 8 widened to match.</li><li><strong>Evidence:</strong> Passed the interface, version and signing checks; installed in place of v4.4 and launched.</li></ul> | [Full record](CHANGELOG.md#v4-5-build-45) |
 ---
 
 <!-- project-control:section=ignore -->

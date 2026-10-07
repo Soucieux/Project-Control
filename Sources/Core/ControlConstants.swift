@@ -11,6 +11,7 @@ internal enum ControlConstants {
     internal static let slash = "/"
     internal static let backslash = "\\"
     internal static let readme = "README.md"
+    internal static let changelog = "CHANGELOG.md"
     internal static let stateFile = "workspace.json"
     /// The hidden file whose resource fork holds a folder's custom Finder icon.
     internal static let customIconFile = "Icon\r"
@@ -81,6 +82,16 @@ internal enum ControlConstants {
     internal static let flowWords = ["flow", "how it works", "request", "how local", "how information"]
     internal static let historyWords = ["change log", "changelog", "version history", "version index", "release history"]
     internal static let historyDatePattern = #"^\d{4}-\d{2}-\d{2}$"#
+    internal static let entryHeadingPattern = #"^##\s+(.+?)\s*$"#
+    internal static let sectionHeadingPattern = #"^###\s+(.+?)\s*$"#
+    internal static let entryDatePattern = #"\s+—\s+(\d{4}-\d{2}-\d{2})\b.*$"#
+    /// A release title is an optional component word, the version and an optional build, nothing else.
+    internal static let releaseTitlePattern = #"^(?:[A-Z][\w-]* )?v(\d+)\.(\d+)(?: / build \d+)?$"#
+    internal static let stripMonthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    internal static let versionPrefix = "v"
+    internal static let versionSeparator = "."
+    internal static let versionArrow = " → "
+    internal static let spanDash = " – "
     internal static let modelWords = ["qwen", "whisper", "deepseek", "claude", "llama", "gpt-", "gemini", "embedding model", "language model"]
     internal static let fencePattern = #"^\s*(`{3,}|~{3,})"#
     internal static let closingFencePattern = #"^\s*(`{3,}|~{3,})\s*$"#
@@ -172,6 +183,15 @@ internal enum ControlConstants {
     internal static let noModels = "No model information documented in this README."
     internal static let noWorkflow = "No supported arrow-based workflow found. Open the README for other descriptions; connections are never inferred."
     internal static let noHistory = "No structured change history found in this README."
+    internal static let stripByYear = "by year"
+    internal static let stripByMonth = "by month"
+    internal static let stripEntries = "entries"
+    internal static let stripEntry = "entry"
+    internal static let stripReleases = "releases"
+    internal static let stripRelease = "release"
+    internal static let stripNoReleases = "no releases yet"
+    internal static let stripLegend = "entries per period; a release month carries its release count and latest version"
+    internal static let stripAccessibilityFormat = "History strip, %@: %d entries, %@"
     internal static let folder = "Open folder"
     internal static let read = "Read README"
     internal static let launch = "Open App"
@@ -244,6 +264,9 @@ internal enum ControlConstants {
     internal static let maxDiagramNodes = 32
     internal static let maxWorkflowRoutes = 16
     internal static let maxHistoryEntries = 30
+    internal static let maxChangelogEntries = 500
+    /// Entries at which a strip cell takes the next shade.
+    internal static let stripBins = [1, 3, 6, 12, 24]
     internal static let monthCount = 12
     internal static let maxReadmeBytes = 2_000_000
     internal static let maxBundleMetadataBytes = 2_000_000

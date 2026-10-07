@@ -45,6 +45,7 @@ internal enum CoreTests {
         TestSupport.check(RepositoryReader.fingerprint(snapshot) != fingerprint, TestConstants.checkChange)
         TestSupport.check(RepositoryReader.fingerprint(snapshot) != snapshot.fingerprint, TestConstants.checkCaptured)
         TestSupport.check(try RepositoryReader.load(repository).projects[0].introduction == TestConstants.updatedIntroduction, TestConstants.checkReload)
+        try changelogChecks(repository, project: project)
         try storageChecks(root)
         try applicationChecks(repository, project: project, root: root)
         let beforeRootEdit = RepositoryReader.fingerprint(snapshot)
@@ -79,8 +80,8 @@ internal enum CoreTests {
         }.map { $0.resolvingSymlinksInPath().standardizedFileURL.path }
         TestSupport.check(Set(liveFolders).isSubset(of: Set(live.projects.map(\.id))), TestConstants.checkLiveDiscovery)
         liveTechnologyChecks(live, register: register)
-        TestSupport.check(live.projects.first { $0.name == ControlConstants.appName }?.workflows.count == 4,
-            "Project Control shows four documented routes without turning parser guidance into a workflow")
+        TestSupport.check(live.projects.first { $0.name == ControlConstants.appName }?.workflows.count == 5,
+            "Project Control shows five documented routes without turning parser guidance into a workflow")
         let categories = registerCategories(register)
         let registeredGroups = live.categories.filter { $0.projects.contains(where: \.isRegistered) }
         TestSupport.check(registeredGroups.map(\.name) == categories
@@ -91,8 +92,13 @@ internal enum CoreTests {
         let liveModels = live.projects.first { $0.name == TestConstants.liveProject }?.models ?? []
         TestSupport.check(liveModels.contains { $0.table != nil }
             && !liveModels.contains { $0.text.contains(TestConstants.rawTableSeparator) || $0.text.hasPrefix(ControlConstants.pipe) }, TestConstants.checkLiveTables)
+        TestSupport.check(!live.changelog.isEmpty && live.strip != nil, TestConstants.checkLiveRootChangelog)
         for project in live.projects {
             TestSupport.check(project.sourceWarning == nil, TestConstants.checkSourceMapping + project.name)
+            if FileManager.default.fileExists(atPath: project.folder.appendingPathComponent(ControlConstants.changelog).path) {
+                TestSupport.check(!project.changelog.isEmpty && project.strip?.periods.isEmpty == false,
+                    TestConstants.checkLiveChangelogs + project.name)
+            }
             TestSupport.check(!project.workflows.isEmpty && !project.history.isEmpty, TestConstants.checkLiveCompleteness + project.name)
             let categories = project.architecture.enumerated().filter {
                 $0.element.kind == .heading && TestConstants.architectureGroupTitles.contains($0.element.text)
@@ -446,6 +452,40 @@ internal enum CoreTests {
 
     /// Covers valid Markdown edge cases that previously exposed or truncated content.
     /// - Returns: Nothing; terminates if a parser regression is detected.
+    /// Reads the changelog fixture into entries and a strip, then through a project folder.
+    /// - Parameters:
+    ///   - repository: The disposable repository.
+    ///   - project: Its project folder, whose README is already in place.
+    /// - Returns: Nothing; terminates when an entry, a subsection, a strip cell or the fingerprint differs from the
+    ///   fixture. Throws when the changelog cannot be written or the repository cannot be read.
+    private static func changelogChecks(_ repository: URL, project: URL) throws {
+        let entries = ChangelogParser.entries(TestConstants.changelog)
+        TestSupport.check(entries.count == 3 && entries[0].title == TestConstants.changelogEntryTitle
+            && entries[0].date == TestConstants.changelogEntryDate
+            && entries[0].lines.count == 1 && entries[0].lines[0].hasSuffix(TestConstants.changelogSummarySuffix)
+            && entries[0].sections.map(\.name) == TestConstants.changelogSectionNames
+            && entries[0].sections[0].lines.last == TestConstants.changelogSubPoint
+            && entries[1].sections.count == 1 && entries[2].title == TestConstants.changelogOldestTitle,
+            TestConstants.checkChangelogEntries)
+        let strip = ChangelogParser.strip(entries)
+        let months = strip?.periods.filter(\.isMonth) ?? []
+        let newest = months.last
+        TestSupport.check(strip?.periods.count == ControlConstants.monthCount + 1 && strip?.periods.first?.isMonth == false
+            && strip?.periods.first?.entries == 1 && months.count == ControlConstants.monthCount
+            && newest?.entries == 2 && newest?.releases == 1 && newest?.latestVersion == TestConstants.changelogVersion
+            && months.filter { $0.entries == 0 }.count == ControlConstants.monthCount - 1
+            && strip?.span == TestConstants.changelogSpan && strip?.entries == 3 && strip?.releases == 1
+            && strip?.versionRange == TestConstants.changelogVersion, TestConstants.checkChangelogStrip)
+        let changelog = project.appendingPathComponent(ControlConstants.changelog)
+        try TestConstants.changelog.write(to: changelog, atomically: true, encoding: .utf8)
+        let snapshot = try RepositoryReader.load(repository)
+        let before = RepositoryReader.fingerprint(snapshot)
+        try (TestConstants.changelog + TestConstants.changelog).write(to: changelog, atomically: true, encoding: .utf8)
+        TestSupport.check(snapshot.projects[0].changelog.count == 3 && snapshot.projects[0].strip != nil
+            && RepositoryReader.fingerprint(snapshot) != before, TestConstants.checkChangelogRecord)
+        try FileManager.default.removeItem(at: changelog)
+    }
+
     private static func parserChecks() {
         TestSupport.check(!ReadmeParser.sections(TestConstants.misleadingFence).flatMap(\.lines).joined().contains(TestConstants.forbidden), TestConstants.checkFenceSuffix)
         TestSupport.check(ReadmeParser.table(TestConstants.pipeRows).first?.last == TestConstants.pipeValue, TestConstants.checkPipes)

@@ -44,8 +44,9 @@ internal enum RepositoryReader {
         let canonical = root.resolvingSymlinksInPath().standardizedFileURL
         let rootReadme = canonical.appendingPathComponent(ControlConstants.readme)
         let folders = discoveredFolders(canonical)
-        var identities = [documentIdentity(rootReadme, within: canonical), GitActivityReader.fingerprint(canonical),
-            folderListIdentity(folders)]
+        let rootChangelog = canonical.appendingPathComponent(ControlConstants.changelog)
+        var identities = [documentIdentity(rootReadme, within: canonical), documentIdentity(rootChangelog, within: canonical),
+            GitActivityReader.fingerprint(canonical), folderListIdentity(folders)]
         let document = try read(rootReadme, within: canonical)
         let sections = try ReadmeParser.validatedSections(document)
         let explicitlyMapped = sections.contains { $0.mapping != nil }
@@ -98,10 +99,11 @@ internal enum RepositoryReader {
         }
         let projects = registered + unregistered
         let commitActivity = GitActivityReader.load(canonical, projects: projects)
+        let changelog = ChangelogParser.entries((try? read(rootChangelog, within: canonical)) ?? ControlConstants.empty)
         return RepositorySnapshot(root: canonical, projects: projects, history: ReadmeParser.history(sections),
             readAt: Date(), fingerprint: identities,
             overview: ReadmeParser.overview(sections, fallback: ControlConstants.noRepositoryOverview),
-            commitActivity: commitActivity)
+            commitActivity: commitActivity, changelog: changelog, strip: ChangelogParser.strip(changelog))
     }
 
     /// Reads legacy column metadata first, then falls back to a labelled scope value when the column is absent.
@@ -156,11 +158,13 @@ internal enum RepositoryReader {
         var isDirectory: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath: folder.path, isDirectory: &isDirectory)
         let (architecture, models) = ReadmeParser.architectureAndModels(sections)
+        let changelog = ChangelogParser.entries(
+            (try? read(folder.appendingPathComponent(ControlConstants.changelog), within: root)) ?? ControlConstants.empty)
         return ProjectRecord(id: folder.resolvingSymlinksInPath().standardizedFileURL.path, name: name, folder: folder, readme: readme,
             introduction: introduction,
             version: ReadmeParser.release(sections, fallback: scope), architecture: architecture, workflows: ReadmeParser.workflows(sections),
             history: ReadmeParser.history(sections), folderAvailable: exists && isDirectory.boolValue,
-            readmeAvailable: document != nil,
+            readmeAvailable: document != nil, changelog: changelog, strip: ChangelogParser.strip(changelog),
             overview: ReadmeParser.overview(sections, fallback: introduction),
             models: models,
             applications: ApplicationLocator.candidates(in: folder, within: root).filter(ApplicationLocator.isApplication), sourceWarning: warning,
@@ -196,6 +200,7 @@ internal enum RepositoryReader {
     /// - Returns: Ordered content/metadata identities, including missing or unreadable files.
     internal static func fingerprint(_ snapshot: RepositorySnapshot) -> [String] {
         [documentIdentity(snapshot.root.appendingPathComponent(ControlConstants.readme), within: snapshot.root),
+            documentIdentity(snapshot.root.appendingPathComponent(ControlConstants.changelog), within: snapshot.root),
             GitActivityReader.fingerprint(snapshot.root), folderListIdentity(discoveredFolders(snapshot.root))]
             + snapshot.projects.flatMap { projectFingerprint($0.folder, within: snapshot.root) }
     }
@@ -206,7 +211,8 @@ internal enum RepositoryReader {
     ///   - root: Allowed repository boundary.
     /// - Returns: Pre-read identities, including incomplete bundles so repairs can be detected.
     private static func projectFingerprint(_ folder: URL, within root: URL) -> [String] {
-        [identity(folder), documentIdentity(folder.appendingPathComponent(ControlConstants.readme), within: root)]
+        [identity(folder), documentIdentity(folder.appendingPathComponent(ControlConstants.readme), within: root),
+            documentIdentity(folder.appendingPathComponent(ControlConstants.changelog), within: root)]
             + ApplicationLocator.candidates(in: folder, within: root).flatMap { application in
                 [identity(application), String(ApplicationLocator.isApplication(application)),
                     identity(application.appendingPathComponent(ControlConstants.appContents)
