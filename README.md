@@ -1,6 +1,6 @@
 # Project Control
 
-![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v5.0%20build%2050-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
+![Platform](https://img.shields.io/badge/Platform-macOS%2014%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5-orange) ![Release](https://img.shields.io/badge/Release-v5.1%20build%2051-brightgreen) ![Reads](https://img.shields.io/badge/Reads-Repository%20READMEs-9f9f9f)
 
 [Quick start](#quick-start) · [Architecture](#architecture) · [Change history](#change-history)
 
@@ -170,7 +170,7 @@ Project Control/
 <!-- project-control:section=release -->
 ## Current release
 
-**v5.0 (build 50)** in source and in the signed local app. [Change and delivery evidence](CHANGELOG.md#v5-0-build-50).
+**v5.1 (build 51)** in source and in the signed local app. [Change and delivery evidence](CHANGELOG.md#v5-1-build-51).
 
 ## References
 
@@ -434,7 +434,7 @@ For source changes, follow the [contribution guide](CONTRIBUTING.md).
 <!-- project-control:section=history -->
 ## Change history
 
-![Changelog history, Aug – Oct 2026: 59 entries; busiest September 2026 (35); v0.1 → v5.0 over 41 releases.](CHANGELOG.svg)
+![Changelog history, Aug – Oct 2026: 60 entries; busiest September 2026 (35); v0.1 → v5.1 over 42 releases.](CHANGELOG.svg)
 
 **Change-history numbering:** This project uses marketing versions and integer build numbers.
 Follow the [version and build policy](CONTRIBUTING.md#version-and-build-policy).
@@ -445,6 +445,7 @@ One record per change; complete details and evidence are in [CHANGELOG.md](CHANG
 
 | Record | Date | Highlights | Details |
 |---|---|---|---|
+| v5.1 / build 51 | 2026-10-07 | <ul><li><strong>Checks:</strong> The live checks expect DayWright's six architecture categories and its new rows, so <code>make test</code> passes against the README DayWright now has.</li><li><strong>Evidence:</strong> Passed the core, store, notes and version suites and the signing checks; installed in place of v5.0.</li></ul> | [Full record](CHANGELOG.md#v5-1-build-51) |
 | v5.0 / build 50 | 2026-10-07 | <ul><li><strong>History:</strong> The History tab reads the changelog beside each README: every entry is a card with its summary and its subsections, under a history strip drawn natively; the README table stands in for a project without a changelog.</li><li><strong>Evidence:</strong> Passed the core, store, notes and version suites and the signing checks; installed in place of v4.9.</li></ul> | [Full record](CHANGELOG.md#v5-0-build-50) |
 | Documentation | 2026-10-06 | <ul><li><strong>Changelog:</strong> The README's Change history opens with a history strip, <code>CHANGELOG.svg</code>, drawn from the changelog: the entries of every period as shaded cells, release months marked, and the span, total and version range beside them.</li></ul> | [Full record](CHANGELOG.md#history-strip) |
 | Documentation | 2026-10-06 | <ul><li><strong>Layout:</strong> The line of section links under the title now holds three quick links, Quick start, Architecture and Change history, in place of one for every section; the outline of the whole README is the one GitHub, Obsidian and Project Control provide.</li></ul> | [Full record](CHANGELOG.md#three-quick-links) |
@@ -454,7 +455,6 @@ One record per change; complete details and evidence are in [CHANGELOG.md](CHANG
 | Documentation | 2026-10-05 | <ul><li><strong>Structure:</strong> Sections follow the order and names every project README now shares, under a contents line; sections were renamed and moved, and no wording was removed.</li></ul> | [Full record](CHANGELOG.md#readme-skeleton) |
 | v4.7 / build 47 | 2026-10-05 | <ul><li><strong>Checks:</strong> The live architecture checks expect Meta Search Engine's four category headings, so <code>make test</code> passes again.</li><li><strong>Coverage:</strong> They also name every architecture row and the main technologies of Career Ledger, DayWright and Meta Search Engine.</li><li><strong>Evidence:</strong> Passed all four check suites and the signing checks; installed in place of v4.6 and launched.</li></ul> | [Full record](CHANGELOG.md#v4-7-build-47) |
 | Documentation | 2026-10-05 | <ul><li><strong>Readability:</strong> Long paragraphs, bullets and table cells are now short leads with sub-points, one fact each; no detail was removed.</li></ul> | [Full record](CHANGELOG.md#readme-structure) |
-| v4.6 / build 46 | 2026-10-01 | <ul><li><strong>Register:</strong> The root register names a project's technical scope Platform, and the app reads it for the sidebar and title; a register still labelled Technical scope shows the same.</li><li><strong>Contract:</strong> The README content contract uses the register's one-word labels and places an AI item after Category.</li></ul> | [Full record](CHANGELOG.md#v4-6-build-46) |
 ---
 
 <!-- project-control:section=ignore -->

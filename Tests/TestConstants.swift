@@ -89,7 +89,7 @@ internal enum TestConstants {
         "Knowledge Transfer": ["React", "React DOM", "TypeScript", "react-markdown", "remark-gfm", "rehype-raw", "rehype-sanitize", "prism-react-renderer", "Three.js", "React Router", "mdast-util-from-markdown", "mdast-util-to-string", "Text search", "Source-derived graph", "Markdown", "Obsidian Canvas", "JSON", "Vite", "JavaScript", "Node.js", "HTML", "Vitest"],
         "Project Control": ["SwiftUI", "AppKit", "Swift", "Swift concurrency", "Foundation", "Directed graphs", "Markdown", "JSON", "UserDefaults", "CryptoKit", "Uniform Type Identifiers", "Canonical path validation"],
         "Career Ledger": ["SwiftUI", "Asset catalog", "AppKit text view", "SQLite", "Job ordering", "Round naming", "Calendar projection", "llama.cpp", "Structured output", "macOS Dictation", "English interface copy"],
-        "DayWright": ["React interface", "Desktop shell (Tauri)", "FastAPI service", "Desktop service entry", "Multi-agent core", "KnowledgeState graph", "Deterministic planner", "SQLite repository", "sqlite-vec index", "Shared LlamaRuntime supervisor", "ModelGateway", "EmbeddingGateway", "SpeechGateway"],
+        "DayWright": ["Multi-agent core", "Deterministic planner", "LangGraph", "Retrieval-Augmented Generation (RAG)", "Shared LlamaRuntime supervisor", "ModelGateway", "EmbeddingGateway", "SpeechGateway", "Qwen3-4B Q4_K_M", "Qwen3-Embedding-0.6B Q8_0", "faster-whisper", "React interface", "Desktop shell (Tauri)", "Vite", "FastAPI service", "Desktop service entry", "httpx", "SQLite repository", "sqlite-vec index", "pypdf and python-docx", "Loopback-only service", "Website lookup", "Tauri CLI and Rust", "PyInstaller"],
         "Meta Search Engine": ["React 19", "React Router 8", "Bootstrap 5", "Bootstrap Icons", "CSS", "IBM Plex Sans and Mono", "Browser local storage", ".env.local", "ValueSERP API", "Tavily Search API", "Vite", "Vite React plugin", "Vitest", "Scripts"]
     ]
     internal static let mappedReadme = """
@@ -745,7 +745,8 @@ internal enum TestConstants {
         "Knowledge Transfer": [1, 2, 3, 5],
         "Project Control": [1, 2, 3, 4],
         "Meta Search Engine": [1, 3, 4, 5],
-        "Career Ledger": [0, 1, 2, 3]
+        "Career Ledger": [0, 1, 2, 3],
+        "DayWright": [0, 1, 2, 3, 4, 5]
     ]
     internal static let architectureCoverage = [
         "Local Assistant": ["Native Swift", "Qwen3-4B", "Qwen3-Embedding", "llama.cpp", "RAG", "IndexingService", "SQLite", "FTS5", "sqlite-vec", "WhisperKit", "Connector"],

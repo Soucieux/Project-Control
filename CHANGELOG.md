@@ -2,6 +2,26 @@
 
 Every change to Project Control, newest first, in one shape: the summary from the history table, then what changed, what was checked and how it was delivered. The README's Change history table lists the newest 10 and links here.
 
+<a id="v5-1-build-51"></a>
+
+## v5.1 / build 51 — 2026-10-07
+
+- **Checks:** The live checks expect DayWright's six architecture categories and its new rows, so `make test` passes against the README DayWright now has.
+- **Evidence:** Passed the core, store, notes and version suites and the signing checks; installed in place of v5.0.
+
+### Changed
+
+- **Category check:** DayWright's README joined the shared form with every architecture category, so its expected order is all six, and its expected rows are the regrouped table's.
+- **App:** No source or interface change; the version advances because the checks changed.
+
+### Checked
+
+- `make test`, built into a temporary folder outside the project, passed the core, store, notes and presentation, and version checks against the nine READMEs.
+
+### Delivered
+
+- `make app` built and signed v5.1 build 51, which passed strict signature verification and reports version 5.1 and build 51; it replaced v5.0 at the project root of the main checkout.
+
 <a id="v5-0-build-50"></a>
 
 ## v5.0 / build 50 — 2026-10-07
